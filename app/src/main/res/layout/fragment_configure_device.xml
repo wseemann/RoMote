@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".activity.ConfigureDeviceActivity"
+    android:background="@color/purple">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingTop="10dip"
+        android:paddingBottom="12dip"
+        android:textColor="@android:color/white"
+        android:textAppearance="@android:style/TextAppearance.Medium"
+        android:text="@string/roku_devices"/>
+
+    <TextView
+        android:id="@+id/wireless_nextwork_textview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingBottom="2dip"
+        android:textColor="@android:color/white"
+        android:textAppearance="@android:style/TextAppearance.Medium"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dip"
+        android:background="#827892"
+        android:layout_marginLeft="16dip"
+        android:layout_marginRight="16dip"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/select_device_text"
+            android:layout_width="match_parent"
+            android:layout_height="50dip"
+            android:paddingTop="8dip"
+            android:paddingBottom="8dip"
+            android:gravity="center"
+            android:textColor="@android:color/white"
+            android:textAppearance="@android:style/TextAppearance.Medium"
+            android:text="@string/select_a_device"
+            android:visibility="gone"/>
+
+        <RelativeLayout
+            android:id="@+id/progress_layout"
+            android:layout_width="match_parent"
+            android:layout_height="50dip"
+            android:paddingTop="8dip"
+            android:paddingBottom="8dip"
+            android:visibility="visible">
+
+            <TextView
+                android:id="@+id/discovering_devices_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:textAlignment="center"
+                android:textColor="@android:color/white"
+                android:textAppearance="@android:style/TextAppearance.Medium"
+                android:text="@string/discovering_devices"/>
+
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_toRightOf="@id/discovering_devices_text"/>
+
+        </RelativeLayout>
+
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dip"
+        android:background="#827892"
+        android:layout_marginLeft="16dip"
+        android:layout_marginRight="16dip"/>
+
+    <LinearLayout
+        android:id="@+id/list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+    </LinearLayout>
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:maxLines="3"
+        android:textColor="@android:color/white"
+        android:textAppearance="@android:style/TextAppearance.Medium"
+        android:paddingLeft="20dip"
+        android:paddingRight="20dip"
+        android:paddingBottom="20dip"
+        android:paddingTop="20dip"
+        android:text="@string/select_help"/>
+
+    <Button
+        android:id="@+id/connect_manually_button"
+        android:layout_width="280dp"
+        android:layout_height="64dp"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center"
+        android:text="@string/connect_manually"
+        android:textColor="@android:color/white"
+        android:textAppearance="@android:style/TextAppearance.Medium"
+        android:background="@drawable/buttonshape"/>
+
+</LinearLayout>
