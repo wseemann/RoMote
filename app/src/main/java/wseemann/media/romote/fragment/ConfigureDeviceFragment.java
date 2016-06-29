@@ -77,10 +77,6 @@ public class ConfigureDeviceFragment extends Fragment implements LoaderManager.L
         });
 
         mHandler = new Handler();
-
-        setListShown(false);
-
-        getLoaderManager().initLoader(0, new Bundle(), this);
     }
 
     @Override
@@ -88,6 +84,14 @@ public class ConfigureDeviceFragment extends Fragment implements LoaderManager.L
         super.onResume();
 
         mWirelessNextworkTextview.setText(getWirelessNetworkName(getActivity()));
+
+        mHandler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                setListShown(false);
+                getLoaderManager().restartLoader(0, new Bundle(), ConfigureDeviceFragment.this);
+            }
+        }, 1000);
     }
 
     @Override

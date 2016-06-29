@@ -22,6 +22,8 @@
     <string name="connect">Connect</string>
     <string name="checking_ip_address">Checking IP Address ...</string>
     <string name="no_roku_device">No Roku device could be found at this IP Address. Please check the IP address and try again.</string>
+    <string name="connected">Connected</string>
+    <string name="not_connected">Not connected</string>
 
     <string name="title_devices">Devices</string>
     <string name="title_remote">Remote</string>

@@ -42,10 +42,8 @@ public class CommandService extends IntentService {
         // Instantiate the RequestQueue.
         RequestQueue queue = Volley.newRequestQueue(this);
 
-        String url = CommandHelper.getKeypressURL(this, command);;
-
         // Request a string response from the provided URL.
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, command,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {

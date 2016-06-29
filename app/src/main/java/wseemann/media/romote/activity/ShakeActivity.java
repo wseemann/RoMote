@@ -8,6 +8,7 @@ import android.support.v7.app.AppCompatActivity;
 
 import wseemann.media.romote.service.CommandService;
 import wseemann.media.romote.utils.CommandConstants;
+import wseemann.media.romote.utils.CommandHelper;
 import wseemann.media.romote.utils.ShakeMonitor;
 
 /**
@@ -47,7 +48,7 @@ public class ShakeActivity extends AppCompatActivity {
         @Override
         public void onShake() {
             Intent intent = new Intent(ShakeActivity.this, CommandService.class);
-            intent.setAction(CommandConstants.PLAY_COMMAND);
+            intent.setAction(CommandHelper.getKeypressURL(ShakeActivity.this, CommandConstants.PLAY_COMMAND));
             ShakeActivity.this.startService(intent);
         }
     };

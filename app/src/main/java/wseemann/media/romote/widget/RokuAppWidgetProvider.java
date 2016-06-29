@@ -14,6 +14,7 @@ import wseemann.media.romote.activity.MainActivity;
 import wseemann.media.romote.model.Device;
 import wseemann.media.romote.service.CommandService;
 import wseemann.media.romote.utils.CommandConstants;
+import wseemann.media.romote.utils.CommandHelper;
 import wseemann.media.romote.utils.PreferenceUtils;
 
 public class RokuAppWidgetProvider extends AppWidgetProvider {
@@ -136,7 +137,7 @@ public class RokuAppWidgetProvider extends AppWidgetProvider {
         // Connect up various buttons and touch events
         final ComponentName serviceName = new ComponentName(context, CommandService.class);
 
-        Intent intent = new Intent(command);
+        Intent intent = new Intent(CommandHelper.getKeypressURL(context, command));
         intent.setComponent(serviceName);
         PendingIntent pendingIntent = PendingIntent.getService(context,
                 requestCode /* no requestCode */, intent, 0 /* no flags */);

@@ -66,7 +66,7 @@ public class NotificationUtils {
 
     private static NotificationCompat.Action GenerateActionCompat(Context context, int icon, String title, int requestCode, String command) {
         Intent intent = new Intent(context, CommandService.class);
-        intent.setAction(command);
+        intent.setAction(CommandHelper.getKeypressURL(context, command));
         PendingIntent pendingIntent = PendingIntent.getService(context, requestCode, intent, 0);
 
         return new NotificationCompat.Action.Builder(icon, title, pendingIntent).build();

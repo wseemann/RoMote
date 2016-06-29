@@ -1,5 +1,6 @@
 package wseemann.media.romote.fragment;
 
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -16,10 +17,12 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.ImageButton;
+import android.widget.SearchView;
 
 import wseemann.media.romote.R;
 import wseemann.media.romote.service.CommandService;
 import wseemann.media.romote.utils.CommandConstants;
+import wseemann.media.romote.utils.CommandHelper;
 import wseemann.media.romote.view.KeyboardEditText;
 import wseemann.media.romote.view.RepeatingImageButton;
 
@@ -29,6 +32,7 @@ import wseemann.media.romote.view.RepeatingImageButton;
 public class RemoteFragment extends Fragment {
 
     private String mOldText = "";
+    private SearchView mSearchView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -41,12 +45,21 @@ public class RemoteFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_remote, container, false);
 
+        mSearchView = (SearchView) view.findViewById(R.id.search_view);
+
         return view;
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+
+        // Get the SearchView and set the searchable configuration
+        SearchManager searchManager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
+        //SearchView searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
+        // Assumes current activity is the searchable activity
+        mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
+        mSearchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
 
         linkButton(CommandConstants.BACK_COMMAND, R.id.back_button);
         linkRepeatingButton(CommandConstants.UP_COMMAND, R.id.up_button);
@@ -72,7 +85,7 @@ public class RemoteFragment extends Fragment {
                         event.getAction() == KeyEvent.ACTION_DOWN &&
                         textbox.length() == 0) {
                     Intent intent = new Intent(RemoteFragment.this.getContext(), CommandService.class);
-                    intent.setAction(CommandConstants.BACKSPACE_COMMAND);
+                    intent.setAction(CommandHelper.getKeypressURL(RemoteFragment.this.getActivity(), CommandConstants.BACKSPACE_COMMAND));
                     RemoteFragment.this.getActivity().startService(intent);
                     return true;
                 }
@@ -106,9 +119,9 @@ public class RemoteFragment extends Fragment {
                     Intent intent = new Intent(RemoteFragment.this.getContext(), CommandService.class);
 
                     if (key.equals(CommandConstants.BACKSPACE_COMMAND)) {
-                        intent.setAction(key);
+                        intent.setAction(CommandHelper.getKeypressURL(RemoteFragment.this.getActivity(), key));
                     } else {
-                        intent.setAction(CommandConstants.INPUT_COMMAND + key);
+                        intent.setAction(CommandHelper.getKeypressURL(RemoteFragment.this.getActivity(), CommandConstants.INPUT_COMMAND + key));
                     }
 
                     RemoteFragment.this.getActivity().startService(intent);
@@ -155,7 +168,7 @@ public class RemoteFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(RemoteFragment.this.getContext(), CommandService.class);
-                intent.setAction(command);
+                intent.setAction(CommandHelper.getKeypressURL(RemoteFragment.this.getActivity(), command));
                 RemoteFragment.this.getActivity().startService(intent);
             }
         });
@@ -164,7 +177,7 @@ public class RemoteFragment extends Fragment {
             @Override
             public void onRepeat(View v, long duration, int repeatcount) {
                 Intent intent = new Intent(RemoteFragment.this.getContext(), CommandService.class);
-                intent.setAction(command);
+                intent.setAction(CommandHelper.getKeypressURL(RemoteFragment.this.getActivity(), command));
                 RemoteFragment.this.getActivity().startService(intent);
             }
         }, 400);
@@ -177,7 +190,7 @@ public class RemoteFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(RemoteFragment.this.getContext(), CommandService.class);
-                intent.setAction(command);
+                intent.setAction(CommandHelper.getKeypressURL(RemoteFragment.this.getActivity(), command));
                 RemoteFragment.this.getActivity().startService(intent);
             }
         });
@@ -190,7 +203,7 @@ public class RemoteFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(RemoteFragment.this.getContext(), CommandService.class);
-                intent.setAction(command);
+                intent.setAction(CommandHelper.getKeypressURL(RemoteFragment.this.getActivity(), command));
                 RemoteFragment.this.getActivity().startService(intent);
             }
         });

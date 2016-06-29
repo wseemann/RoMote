@@ -1,6 +1,8 @@
 package wseemann.media.romote.fragment;
 
 import android.annotation.SuppressLint;
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -34,8 +36,10 @@ import wseemann.media.romote.loader.DeviceDiscoveryLoader;
 import wseemann.media.romote.model.Device;
 
 import wseemann.media.romote.R;
+import wseemann.media.romote.utils.Constants;
 import wseemann.media.romote.utils.DBUtils;
 import wseemann.media.romote.utils.PreferenceUtils;
+import wseemann.media.romote.widget.RokuAppWidgetProvider;
 
 /**
  * Created by wseemann on 6/19/16.
@@ -112,16 +116,28 @@ public class MainFragment extends ListFragment implements LoaderManager.LoaderCa
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Device device = (Device) parent.getItemAtPosition(position);
 
-                DBUtils.insertDevice(MainFragment.this.getActivity(), device);
-                PreferenceUtils.setConnectedDevice(MainFragment.this.getActivity(), device.getSerialNumber());
+                DBUtils.insertDevice(getActivity(), device);
+                PreferenceUtils.setConnectedDevice(getActivity(), device.getSerialNumber());
 
-                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(MainFragment.this.getActivity());
+                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
 
                 SharedPreferences.Editor editor = prefs.edit();
                 editor.putBoolean("first_use", false);
                 editor.commit();
 
-                Toast.makeText(MainFragment.this.getActivity(), "Device " + device.getSerialNumber() + " selected", Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), "Device " + device.getSerialNumber() + " " + getString(R.string.connected), Toast.LENGTH_LONG).show();
+
+                mAdapter.notifyDataSetChanged();
+
+                MainFragment.this.getActivity().sendBroadcast(new Intent(Constants.UPDATE_DEVICE_BROADCAST));
+
+                AppWidgetManager widgetManager = AppWidgetManager.getInstance(getActivity());
+                ComponentName widgetComponent = new ComponentName(getActivity(), RokuAppWidgetProvider.class);
+                int[] widgetIds = widgetManager.getAppWidgetIds(widgetComponent);
+                Intent update = new Intent();
+                update.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, widgetIds);
+                update.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+                getActivity().sendBroadcast(update);
 
                 if (mListener != null) {
                     mListener.onDeviceSelected();

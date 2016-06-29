@@ -3,7 +3,10 @@ package wseemann.media.romote.service;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.Service;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
@@ -26,6 +29,7 @@ import wseemann.media.romote.model.Channel;
 import wseemann.media.romote.model.Device;
 import wseemann.media.romote.parser.ActiveAppParser;
 import wseemann.media.romote.utils.CommandHelper;
+import wseemann.media.romote.utils.Constants;
 import wseemann.media.romote.utils.NotificationUtils;
 import wseemann.media.romote.utils.PreferenceUtils;
 
@@ -71,9 +75,11 @@ public class NotificationService extends Service {
     public void onCreate() {
         super.onCreate();
 
-        mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(Constants.UPDATE_DEVICE_BROADCAST);
+        registerReceiver(mUpdateReceiver, intentFilter);
 
-        notification = NotificationUtils.buildNotification(NotificationService.this, null, null, null);
+        mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
         //startForeground(NotificationService.NOTIFICATION, notification);
 
@@ -85,6 +91,8 @@ public class NotificationService extends Service {
         mDevice = PreferenceUtils.getConnectedDevice(this);
 
         if (enableNotification && mDevice != null) {
+            notification = NotificationUtils.buildNotification(NotificationService.this, null, null, null);
+
             mNM.notify(NOTIFICATION, notification);
             sendStatusCommand("");
         }
@@ -102,6 +110,8 @@ public class NotificationService extends Service {
     @Override
     public void onDestroy() {
         super.onDestroy();
+
+        unregisterReceiver(mUpdateReceiver);
 
         // Cancel the persistent notification.
         mNM.cancel(NOTIFICATION);
@@ -171,6 +181,25 @@ public class NotificationService extends Service {
         }
     };
 
+    private BroadcastReceiver mUpdateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            mPreferences = PreferenceManager.getDefaultSharedPreferences(NotificationService.this);
+            boolean enableNotification = mPreferences.getBoolean("notification_checkbox_preference", false);
+
+            if (enableNotification) {
+                notification = NotificationUtils.buildNotification(NotificationService.this, null, null, null);
+
+                if (enableNotification && mDevice != null) {
+                    mNM.notify(NOTIFICATION, notification);
+                    sendStatusCommand("");
+                } else {
+                    mNM.cancel(NOTIFICATION);
+                }
+            }
+        }
+    };
+
     private SharedPreferences.OnSharedPreferenceChangeListener mPreferencesChangedListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
         public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
             if (key.equals("notification_checkbox_preference")) {
@@ -178,6 +207,10 @@ public class NotificationService extends Service {
                 boolean enableNotification = mPreferences.getBoolean("notification_checkbox_preference", false);
 
                 mPreferences.registerOnSharedPreferenceChangeListener(mPreferencesChangedListener);
+
+                if (notification == null) {
+                    notification = NotificationUtils.buildNotification(NotificationService.this, null, null, null);
+                }
 
                 if (enableNotification && mDevice != null) {
                     mNM.notify(NOTIFICATION, notification);

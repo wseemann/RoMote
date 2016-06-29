@@ -15,6 +15,7 @@ import java.util.List;
 
 import wseemann.media.romote.R;
 import wseemann.media.romote.model.Device;
+import wseemann.media.romote.utils.PreferenceUtils;
 
 /**
  * Created by wseemann on 6/19/16.
@@ -33,6 +34,7 @@ public class DeviceAdapter extends ArrayAdapter<Device> {
     private class ViewHolder {
         TextView mText1;
         TextView mText2;
+        TextView mText3;
         ImageView mImageButton;
     }
 
@@ -46,6 +48,7 @@ public class DeviceAdapter extends ArrayAdapter<Device> {
             holder = new ViewHolder();
             holder.mText1 = (TextView) convertView.findViewById(android.R.id.text1);
             holder.mText2 = (TextView) convertView.findViewById(android.R.id.text2);
+            holder.mText3 = (TextView) convertView.findViewById(R.id.text3);
             holder.mImageButton = (ImageView) convertView.findViewById(R.id.overflow_button);
             convertView.setTag(holder);
         } else {
@@ -54,8 +57,17 @@ public class DeviceAdapter extends ArrayAdapter<Device> {
 
         final Device device = (Device) getItem(position);
 
+        Device connectedDevice = PreferenceUtils.getConnectedDevice(mContext);
+
         holder.mText1.setText(device.getModelName()); //device.getUserDeviceName());
         holder.mText2.setText("SN: " + device.getSerialNumber());
+
+        if (device.getSerialNumber().equals(connectedDevice.getSerialNumber())) {
+            holder.mText3.setText(R.string.connected);
+        } else {
+            holder.mText3.setText(R.string.not_connected);
+        }
+
         holder.mImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
