@@ -48,8 +48,6 @@ public class ActiveAppParser {
                 channel.setVersion(element.getAttribute("version").getValue());
 
                 channels.add(channel);
-
-                System.out.println(channel);
             }
         } catch (JDOMException ex) {
             ex.printStackTrace();

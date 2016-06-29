@@ -45,8 +45,6 @@ public class ChannelParser {
 				channel.setImageUrl("");
 
 				channels.add(channel);
-
-				System.out.println(channel);
 			}
 		} catch (JDOMException ex) {
 			ex.printStackTrace();
