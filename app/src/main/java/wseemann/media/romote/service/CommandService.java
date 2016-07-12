@@ -62,7 +62,6 @@ public class CommandService extends IntentService {
 
                     for (int i = 0; i < commands.length; i++) {
                         mCommanQueue.add(commands[i]);
-                        //Log.d("----> queue", commands[i]);
                     }
 
                     processNextCommand();
@@ -101,7 +100,6 @@ public class CommandService extends IntentService {
 
         mCommanQueue.remove(0);
 
-        Log.d("----> sending: ", command);
         sendCommand(command);
     }
 }
