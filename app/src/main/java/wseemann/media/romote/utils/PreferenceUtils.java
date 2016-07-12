@@ -23,13 +23,17 @@ public class PreferenceUtils {
         editor.commit();
     }
 
-    public static Device getConnectedDevice(Context context) {
+    public static Device getConnectedDevice(Context context) throws Exception {
         Device device = null;
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         String serialNumber = prefs.getString("serial_number", null);
 
         device = DBUtils.getDevice(context, serialNumber);
+
+        if (device == null) {
+            throw new Exception("Device not connected");
+        }
 
         return device;
     }

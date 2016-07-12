@@ -18,11 +18,12 @@ public class DeviceInfoActivity extends ConnectivityActivity {
         setContentView(R.layout.activity_deviceinfo);
 
         String serialNumber = getIntent().getStringExtra("serial_number");
+        String host = getIntent().getStringExtra("host");
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.add(android.R.id.content, DeviceInfoFragment.getInstance(serialNumber)).commit();
+        transaction.add(android.R.id.content, DeviceInfoFragment.getInstance(serialNumber, host)).commit();
     }
 
     @Override

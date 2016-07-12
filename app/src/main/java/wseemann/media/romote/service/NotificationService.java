@@ -88,13 +88,16 @@ public class NotificationService extends Service {
 
         mPreferences.registerOnSharedPreferenceChangeListener(mPreferencesChangedListener);
 
-        mDevice = PreferenceUtils.getConnectedDevice(this);
+        try {
+            mDevice = PreferenceUtils.getConnectedDevice(this);
 
-        if (enableNotification && mDevice != null) {
-            notification = NotificationUtils.buildNotification(NotificationService.this, null, null, null);
+            if (enableNotification && mDevice != null) {
+                notification = NotificationUtils.buildNotification(NotificationService.this, null, null, null);
 
-            mNM.notify(NOTIFICATION, notification);
-            sendStatusCommand("");
+                mNM.notify(NOTIFICATION, notification);
+                sendStatusCommand("");
+            }
+        } catch (Exception ex) {
         }
     }
 

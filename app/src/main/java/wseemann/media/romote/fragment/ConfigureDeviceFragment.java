@@ -14,7 +14,6 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,7 +27,7 @@ import java.util.List;
 import wseemann.media.romote.R;
 import wseemann.media.romote.activity.MainActivity;
 import wseemann.media.romote.activity.ManualConnectionActivity;
-import wseemann.media.romote.loader.DeviceDiscoveryLoader;
+import wseemann.media.romote.loader.AvailableDevicesLoader;
 import wseemann.media.romote.model.Device;
 import wseemann.media.romote.utils.DBUtils;
 import wseemann.media.romote.utils.PreferenceUtils;
@@ -139,7 +138,7 @@ public class ConfigureDeviceFragment extends Fragment implements LoaderManager.L
 
     @Override
     public Loader<List<Device>> onCreateLoader(int arg0, Bundle args) {
-        return new DeviceDiscoveryLoader(getActivity(), args);
+        return new AvailableDevicesLoader(getActivity(), args);
     }
 
     @Override

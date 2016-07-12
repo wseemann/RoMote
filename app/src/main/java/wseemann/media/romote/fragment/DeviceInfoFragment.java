@@ -30,11 +30,12 @@ public class DeviceInfoFragment extends ListFragment {
 
     private DeviceInfoAdapter mAdapter;
 
-    public static DeviceInfoFragment getInstance(String serialNumber) {
+    public static DeviceInfoFragment getInstance(String serialNumber, String host) {
         DeviceInfoFragment fragment = new DeviceInfoFragment();
 
         Bundle bundle = new Bundle();
         bundle.putString("serial_number", serialNumber);
+        bundle.putString("host", host);
 
         fragment.setArguments(bundle);
 
@@ -54,17 +55,26 @@ public class DeviceInfoFragment extends ListFragment {
 
         Bundle bundle = getArguments();
         String serialNumber = bundle.getString("serial_number");
+        String host = bundle.getString("host");
 
         Device device = DBUtils.getDevice(getActivity(), serialNumber);
 
-        List<Entry> entries = parseDevice(device);
+        List<Entry> entries = new ArrayList<Entry>();
+
+        if (device != null) {
+            entries = parseDevice(device);
+        }
 
         mAdapter = new DeviceInfoAdapter(DeviceInfoFragment.this.getActivity(), entries);
         setListAdapter(mAdapter);
 
         setListShown(false);
 
-        sendCommand(CommandHelper.getConnectedDeviceInfoURL(getActivity(), device.getHost()));
+        if (host == null) {
+            sendCommand(CommandHelper.getConnectedDeviceInfoURL(getActivity(), device.getHost()));
+        } else {
+            sendCommand(CommandHelper.getDeviceInfoURL(getActivity(), host));
+        }
     }
 
     private void sendCommand(String command) {

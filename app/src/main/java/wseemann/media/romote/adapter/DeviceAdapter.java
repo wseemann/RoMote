@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Message;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,12 +58,17 @@ public class DeviceAdapter extends ArrayAdapter<Device> {
 
         final Device device = (Device) getItem(position);
 
-        Device connectedDevice = PreferenceUtils.getConnectedDevice(mContext);
+        Device connectedDevice = null;
+
+        try {
+            connectedDevice = PreferenceUtils.getConnectedDevice(mContext);
+        } catch (Exception ex) {
+        }
 
         holder.mText1.setText(device.getModelName()); //device.getUserDeviceName());
         holder.mText2.setText("SN: " + device.getSerialNumber());
 
-        if (device.getSerialNumber().equals(connectedDevice.getSerialNumber())) {
+        if (connectedDevice != null && device.getSerialNumber().equals(connectedDevice.getSerialNumber())) {
             holder.mText3.setText(R.string.connected);
         } else {
             holder.mText3.setText(R.string.not_connected);
@@ -79,5 +85,10 @@ public class DeviceAdapter extends ArrayAdapter<Device> {
         });
 
         return convertView;
+    }
+
+    @Override
+    public int getCount() {
+        return super.getCount();
     }
 }

@@ -20,6 +20,20 @@ public class DBUtils {
 
     }
 
+    public static int removeDevice(Context context, String serialNumber) {
+        int rowsAffected = 0;
+
+        DeviceDatabase deviceDatabase = new DeviceDatabase(context);
+        SQLiteDatabase db = deviceDatabase.getWritableDatabase();
+
+        rowsAffected = db.delete(DeviceDatabase.DEVICES_TABLE_NAME, DeviceDatabase.SERIAL_NUMBER + " = ?", new String [] {serialNumber});
+
+        db.close();
+        deviceDatabase.close();
+
+        return rowsAffected;
+    }
+
     private static boolean deviceExists(Context context, String serialNumber) {
         boolean exists = false;
 

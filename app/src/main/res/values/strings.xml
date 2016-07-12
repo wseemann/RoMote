@@ -8,6 +8,7 @@
     <string name="empty_channel_list">No channels detected</string>
     <string name="action_refresh">Refresh</string>
     <string name="action_info">Info</string>
+    <string name="action_unpair">Unpair</string>
     <string name="action_settings">Settings</string>
     <string name="action_share">Share</string>
     <string name="keyboard">Keyboard</string>

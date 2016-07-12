@@ -1,6 +1,7 @@
 package wseemann.media.romote.fragment;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -10,11 +11,13 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.PopupMenu;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -31,8 +34,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 import wseemann.media.romote.activity.DeviceInfoActivity;
+import wseemann.media.romote.activity.ManualConnectionActivity;
 import wseemann.media.romote.adapter.DeviceAdapter;
-import wseemann.media.romote.loader.DeviceDiscoveryLoader;
+import wseemann.media.romote.adapter.SeparatedListAdapter;
+import wseemann.media.romote.loader.AvailableDevicesLoader;
+import wseemann.media.romote.loader.PairedDevicesLoader;
 import wseemann.media.romote.model.Device;
 
 import wseemann.media.romote.R;
@@ -44,14 +50,17 @@ import wseemann.media.romote.widget.RokuAppWidgetProvider;
 /**
  * Created by wseemann on 6/19/16.
  */
-public class MainFragment extends ListFragment implements LoaderManager.LoaderCallbacks<List<Device>> {
+public class MainFragment extends ListFragment {
 
     private TextView mSelectDeviceText;
     private RelativeLayout mProgressLayout;
     private ListView mList;
-    private DeviceAdapter mAdapter;
+    private SeparatedListAdapter mAdapter;
+    private DeviceAdapter mPairedDeviceAdapter;
+    private DeviceAdapter mAvailableDeviceAdapter;
 
     private SwipeRefreshLayout mSwiperefresh;
+    private FloatingActionButton mFab;
 
     private OnDeviceSelectedListener mListener;
 
@@ -99,10 +108,12 @@ public class MainFragment extends ListFragment implements LoaderManager.LoaderCa
                         // This method performs the actual data-refresh operation.
                         // The method calls setRefreshing(false) when it's finished.
                         setLoadingText(true);
-                        getLoaderManager().restartLoader(0, new Bundle(), MainFragment.this);
+                        getLoaderManager().restartLoader(0, new Bundle(), mAvailableDevicesLoader);
                     }
                 }
         );
+
+        mFab = (FloatingActionButton) view.findViewById(R.id.fab);
 
         return view;
     }
@@ -127,8 +138,6 @@ public class MainFragment extends ListFragment implements LoaderManager.LoaderCa
 
                 Toast.makeText(getActivity(), "Device " + device.getSerialNumber() + " " + getString(R.string.connected), Toast.LENGTH_LONG).show();
 
-                mAdapter.notifyDataSetChanged();
-
                 MainFragment.this.getActivity().sendBroadcast(new Intent(Constants.UPDATE_DEVICE_BROADCAST));
 
                 AppWidgetManager widgetManager = AppWidgetManager.getInstance(getActivity());
@@ -142,15 +151,33 @@ public class MainFragment extends ListFragment implements LoaderManager.LoaderCa
                 if (mListener != null) {
                     mListener.onDeviceSelected();
                 }
+
+                mAvailableDeviceAdapter.clear();
+                mAdapter.notifyDataSetChanged();
+
+                getLoaderManager().restartLoader(1, new Bundle(), mPairedDevicesLoader);
             }
         });
 
-        mAdapter = new DeviceAdapter(getActivity(), new ArrayList<Device>(), mHandler);
+        mFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(MainFragment.this.getActivity(), ManualConnectionActivity.class);
+                startActivityForResult(intent, 0);
+            }
+        });
+
+        mAdapter = new SeparatedListAdapter(getActivity());
+        mPairedDeviceAdapter = new DeviceAdapter(getActivity(), new ArrayList<Device>(), mHandler);
+        mAvailableDeviceAdapter = new DeviceAdapter(getActivity(), new ArrayList<Device>(), mHandler);
+
+        mAdapter.addSection("Paired devices", mPairedDeviceAdapter);
+        mAdapter.addSection("Available devices", mAvailableDeviceAdapter);
+
         setListAdapter(mAdapter);
 
-        setLoadingText(true);
         mSwiperefresh.setRefreshing(true);
-        getLoaderManager().restartLoader(0, new Bundle(), this);
+        refreshList(true);
     }
 
     @Override
@@ -172,7 +199,7 @@ public class MainFragment extends ListFragment implements LoaderManager.LoaderCa
         if (id == R.id.action_refresh) {
             setLoadingText(true);
             mSwiperefresh.setRefreshing(true);
-            getLoaderManager().restartLoader(0, new Bundle(), this);
+            getLoaderManager().restartLoader(0, new Bundle(), mAvailableDevicesLoader);
             return true;
         }
 
@@ -180,35 +207,83 @@ public class MainFragment extends ListFragment implements LoaderManager.LoaderCa
     }
 
     @Override
-    public Loader<List<Device>> onCreateLoader(int arg0, Bundle args) {
-        return new DeviceDiscoveryLoader(getActivity(), args);
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+
+        if (requestCode == 0 && resultCode == Activity.RESULT_OK) {
+            mAvailableDeviceAdapter.clear();
+            mAdapter.notifyDataSetChanged();
+
+            refreshList(false);
+        }
     }
 
-    @Override
-    public void onLoadFinished(Loader<List<Device>> loader, List<Device> devices) {
-        setLoadingText(false);
-        mSwiperefresh.setRefreshing(false);
+    private LoaderManager.LoaderCallbacks<List<Device>> mPairedDevicesLoader
+            = new LoaderManager.LoaderCallbacks<List<Device>>() {
 
-        mAdapter.clear();
-        mAdapter.notifyDataSetChanged();
-
-        if (devices.size() == 0) {
-            return;
+        @Override
+        public Loader<List<Device>> onCreateLoader(int arg0, Bundle args) {
+            return new PairedDevicesLoader(getActivity(), args);
         }
 
-        // Set the new devices in the adapter.
-        for (int i = 0; i < devices.size(); i++) {
-            mAdapter.add(devices.get(i));
+        @Override
+        public void onLoadFinished(Loader<List<Device>> loader, List<Device> devices) {
+            mPairedDeviceAdapter.clear();
+            mAdapter.notifyDataSetChanged();
+
+            if (devices.size() == 0) {
+                return;
+            }
+
+            // Set the new devices in the adapter.
+            for (int i = 0; i < devices.size(); i++) {
+                mPairedDeviceAdapter.add(devices.get(i));
+            }
+
+            mAdapter.notifyDataSetChanged();
         }
 
-        mAdapter.notifyDataSetChanged();
-    }
+        @Override
+        public void onLoaderReset(Loader<List<Device>> devices) {
+            // Clear the devices in the adapter.
+            mPairedDeviceAdapter.clear();
+        }
+    };
 
-    @Override
-    public void onLoaderReset(Loader<List<Device>> devices) {
-        // Clear the devices in the adapter.
-        mAdapter.clear();
-    }
+    private LoaderManager.LoaderCallbacks<List<Device>> mAvailableDevicesLoader
+            = new LoaderManager.LoaderCallbacks<List<Device>>() {
+
+        @Override
+        public Loader<List<Device>> onCreateLoader(int arg0, Bundle args) {
+            return new AvailableDevicesLoader(getActivity(), args);
+        }
+
+        @Override
+        public void onLoadFinished(Loader<List<Device>> loader, List<Device> devices) {
+            setLoadingText(false);
+            mSwiperefresh.setRefreshing(false);
+
+            mAvailableDeviceAdapter.clear();
+            mAdapter.notifyDataSetChanged();
+
+            if (devices.size() == 0) {
+                return;
+            }
+
+            // Set the new devices in the adapter.
+            for (int i = 0; i < devices.size(); i++) {
+                mAvailableDeviceAdapter.add(devices.get(i));
+            }
+
+            mAdapter.notifyDataSetChanged();
+        }
+
+        @Override
+        public void onLoaderReset(Loader<List<Device>> devices) {
+            // Clear the devices in the adapter.
+            mAvailableDeviceAdapter.clear();
+        }
+    };
 
     public void setLoadingText(boolean shown) {
         if (shown) {
@@ -227,13 +302,19 @@ public class MainFragment extends ListFragment implements LoaderManager.LoaderCa
         popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
             @Override
             public boolean onMenuItemClick(MenuItem item) {
+                Device device = (Device) v.getTag();
+
                 switch (item.getItemId()) {
                     case R.id.action_info:
-                        Device device = (Device) v.getTag();
-
                         Intent intent = new Intent(getActivity(), DeviceInfoActivity.class);
                         intent.putExtra("serial_number", device.getSerialNumber());
+                        intent.putExtra("host", device.getHost());
                         startActivity(intent);
+                        return true;
+                    case R.id.action_unpair:
+                        PreferenceUtils.setConnectedDevice(getActivity(), "");
+                        DBUtils.removeDevice(getActivity(), device.getSerialNumber());
+                        refreshList(false);
                         return true;
                     default:
                         return false;
@@ -241,7 +322,20 @@ public class MainFragment extends ListFragment implements LoaderManager.LoaderCa
             }
         });
         popup.inflate(R.menu.device_menu);
+
+        Device device = (Device) v.getTag();
+
+        if (DBUtils.getDevice(getActivity(), device.getSerialNumber()) == null) {
+            popup.getMenu().removeItem(R.id.action_unpair);
+        }
+
         popup.show();
+    }
+
+    private void refreshList(boolean showLoadingText) {
+        setLoadingText(showLoadingText);
+        getLoaderManager().restartLoader(1, new Bundle(), mPairedDevicesLoader);
+        getLoaderManager().restartLoader(0, new Bundle(), mAvailableDevicesLoader);
     }
 
     public interface OnDeviceSelectedListener {

@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.SearchView;
 import android.widget.Toast;
@@ -28,7 +29,6 @@ import wseemann.media.romote.R;
 import wseemann.media.romote.service.CommandService;
 import wseemann.media.romote.utils.CommandConstants;
 import wseemann.media.romote.utils.CommandHelper;
-import wseemann.media.romote.view.KeyboardEditText;
 import wseemann.media.romote.view.RepeatingImageButton;
 
 /**
@@ -61,10 +61,95 @@ public class RemoteFragment extends Fragment {
 
         // Get the SearchView and set the searchable configuration
         SearchManager searchManager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
-        //SearchView searchView = (SearchView) menu.findItem(R.id.menu_search).getActionView();
         // Assumes current activity is the searchable activity
         mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
-        mSearchView.setIconifiedByDefault(false); // Do not iconify the widget; expand it by default
+        mSearchView.setIconifiedByDefault(false);
+        mSearchView.setQueryHint("Enter search query");
+        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                return false;
+            }
+
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                int difference = newText.length() - mOldText.length();
+
+                // clear button was pressed
+                if (newText.equals("")) {
+                    int diff = mOldText.length() - newText.length();
+
+                    for (int i = 0; i < diff; i++) {
+                        Intent intent = new Intent(RemoteFragment.this.getContext(), CommandService.class);
+                        intent.setAction(CommandHelper.getKeypressURL(RemoteFragment.this.getActivity(), CommandConstants.BACKSPACE_COMMAND));
+                        RemoteFragment.this.getActivity().startService(intent);
+                    }
+
+                    mOldText = newText;
+
+                    return false;
+                }
+
+                if (difference > 1) {
+                    newText.replace(mOldText, "");
+
+                    char [] chars =  newText.toCharArray();
+
+                    String [] commands = new String[chars.length];
+
+                    for (int i = 0; i < chars.length; i++) {
+                        char key = chars[i];
+
+                        if (key == ' ') {
+                            key = '+';
+                        }
+
+                        commands[i] = CommandHelper.getKeypressURL(RemoteFragment.this.getActivity(), CommandConstants.INPUT_COMMAND + String.valueOf(key));
+                    }
+
+                    mOldText = newText;
+
+                    Intent intent = new Intent(RemoteFragment.this.getContext(), CommandService.class);
+                    intent.setAction("commands");
+                    intent.putExtra("commands", commands);
+                    RemoteFragment.this.getActivity().startService(intent);
+
+                    return false;
+                }
+
+                String key = null;
+
+                if (newText.length() > 0) {
+                    key = newText.substring(newText.length() - 1);
+                }
+
+                if (mOldText.length() > newText.length()) {
+                    key = CommandConstants.BACKSPACE_COMMAND;
+                }
+
+                if (key != null && key.equals(" ")) {
+                    key = "+";
+                }
+
+                mOldText = newText;
+
+                if (key != null) {
+                    Intent intent = new Intent(RemoteFragment.this.getContext(), CommandService.class);
+
+                    if (key.equals(CommandConstants.BACKSPACE_COMMAND)) {
+                        intent.setAction(CommandHelper.getKeypressURL(RemoteFragment.this.getActivity(), key));
+                    } else {
+                        intent.setAction(CommandHelper.getKeypressURL(RemoteFragment.this.getActivity(), CommandConstants.INPUT_COMMAND + key));
+                    }
+
+                    RemoteFragment.this.getActivity().startService(intent);
+                }
+
+                return false;
+            }
+
+        });
 
         linkButton(CommandConstants.BACK_COMMAND, R.id.back_button);
         linkRepeatingButton(CommandConstants.UP_COMMAND, R.id.up_button);
@@ -82,7 +167,7 @@ public class RemoteFragment extends Fragment {
         linkButton(CommandConstants.PLAY_COMMAND, R.id.play_button);
         linkButton(CommandConstants.FWD_COMMAND, R.id.fwd_button);
 
-        final KeyboardEditText textbox = (KeyboardEditText) getView().findViewById(R.id.textbox);
+        final EditText textbox = (EditText) getView().findViewById(R.id.textbox);
         textbox.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -101,8 +186,51 @@ public class RemoteFragment extends Fragment {
         textbox.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {
-
                 String newText = s.toString();
+
+                int difference = newText.length() - mOldText.length();
+
+                // clear button was pressed
+                if (newText.equals("")) {
+                    int diff = mOldText.length() - newText.length();
+
+                    for (int i = 0; i < diff; i++) {
+                        Intent intent = new Intent(RemoteFragment.this.getContext(), CommandService.class);
+                        intent.setAction(CommandHelper.getKeypressURL(RemoteFragment.this.getActivity(), CommandConstants.BACKSPACE_COMMAND));
+                        RemoteFragment.this.getActivity().startService(intent);
+                    }
+
+                    mOldText = newText;
+
+                    return;
+                }
+
+                if (difference > 1) {
+                    newText.replace(mOldText, "");
+
+                    char [] chars =  newText.toCharArray();
+
+                    String [] commands = new String[chars.length];
+
+                    for (int i = 0; i < chars.length; i++) {
+                        char key = chars[i];
+
+                        if (key == ' ') {
+                            key = '+';
+                        }
+
+                        commands[i] = CommandHelper.getKeypressURL(RemoteFragment.this.getActivity(), CommandConstants.INPUT_COMMAND + String.valueOf(key));
+                    }
+
+                    mOldText = newText;
+
+                    Intent intent = new Intent(RemoteFragment.this.getContext(), CommandService.class);
+                    intent.setAction("commands");
+                    intent.putExtra("commands", commands);
+                    RemoteFragment.this.getActivity().startService(intent);
+
+                    return;
+                }
 
                 String key = null;
 
@@ -142,16 +270,6 @@ public class RemoteFragment extends Fragment {
 
             }
         });
-        textbox.setOnKeyboardListener(new KeyboardEditText.KeyboardListener() {
-            @Override
-            public void onStateChanged(KeyboardEditText keyboardEditText, boolean showing) {
-                if (!showing) {
-                    textbox.setVisibility(View.INVISIBLE);
-                    textbox.setBackgroundColor(getResources().getColor(android.R.color.black));
-                }
-            }
-        });
-
 
         ImageButton keyboardButton = (ImageButton) getView().findViewById(R.id.keyboard_button);
         keyboardButton.setOnClickListener(new View.OnClickListener() {

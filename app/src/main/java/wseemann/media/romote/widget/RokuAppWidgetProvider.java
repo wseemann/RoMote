@@ -44,7 +44,13 @@ public class RokuAppWidgetProvider extends AppWidgetProvider {
      * and hide actions if service not running.
      */
     private void defaultAppWidget(Context context, int[] appWidgetIds) {
-        Device device = PreferenceUtils.getConnectedDevice(context);
+        Device device = null;
+
+        try {
+            device = PreferenceUtils.getConnectedDevice(context);
+        } catch (Exception ex) {
+            return;
+        }
 
         final RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.roku_appwidget);
 

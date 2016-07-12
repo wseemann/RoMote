@@ -5,4 +5,7 @@
         android:title="@string/action_info"
         android:icon="@drawable/ic_action_about"
         app:showAsAction="ifRoom|withText"/>
+    <item android:id="@+id/action_unpair"
+        android:title="@string/action_unpair"
+        app:showAsAction="ifRoom|withText"/>
 </menu>

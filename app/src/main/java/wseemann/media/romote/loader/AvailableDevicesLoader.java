@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
 import wseemann.media.romote.model.Device;
@@ -19,13 +20,13 @@ import wseemann.media.romote.utils.RokuScan;
 /**
  * A custom Loader that loads all of the installed applications.
  */
-public class DeviceDiscoveryLoader extends AsyncTaskLoader<List<Device>> {
+public class AvailableDevicesLoader extends AsyncTaskLoader<List<Device>> {
     // TODO fix this
     //final InterestingConfigChanges mLastConfig = new InterestingConfigChanges();
 
     private List<Device> mDevices;
 
-    public DeviceDiscoveryLoader(Context context, Bundle args) {
+    public AvailableDevicesLoader(Context context, Bundle args) {
         super(context);
     }
 
@@ -37,6 +38,7 @@ public class DeviceDiscoveryLoader extends AsyncTaskLoader<List<Device>> {
     @Override public List<Device> loadInBackground() {
         // Retrieve all Device.
         List<Device> devices = DBUtils.getAllDevices(getContext());
+        List<Device> availableDevices = new ArrayList<Device>();
 
         String [] rokuDevices = RokuScan.scanForAllRokus();
 
@@ -60,7 +62,7 @@ public class DeviceDiscoveryLoader extends AsyncTaskLoader<List<Device>> {
             }
 
             if (!exists) {
-                devices.add(device);
+                availableDevices.add(device);
             }
         }
 
@@ -68,7 +70,7 @@ public class DeviceDiscoveryLoader extends AsyncTaskLoader<List<Device>> {
         //Collections.sort(entries, ALPHA_COMPARATOR);
 
         // Done!
-        return devices;
+        return availableDevices;
     }
 
     /**

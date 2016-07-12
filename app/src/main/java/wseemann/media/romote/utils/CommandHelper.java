@@ -15,41 +15,66 @@ public class CommandHelper {
     }
 
     public static String getIconURL(Context context, String channelId) {
-        Device device = PreferenceUtils.getConnectedDevice(context);
+        String url = "";
 
-        String url = device.getHost() + "/query/icon/" + channelId;
+        try {
+            Device device = PreferenceUtils.getConnectedDevice(context);
+
+            url = device.getHost() + "/query/icon/" + channelId;
+        } catch (Exception ex) {
+        }
 
         return url;
     }
 
     public static String getLaunchURL(Context context, String channelId) {
-        Device device = PreferenceUtils.getConnectedDevice(context);
+        String url = "";
 
-        String url = device.getHost() + "/launch/" + channelId;
+        try {
+            Device device = PreferenceUtils.getConnectedDevice(context);
+
+            url = device.getHost() + "/launch/" + channelId;
+        } catch (Exception ex) {
+        }
 
         return url;
     }
 
     public static String getAppQueryURL(Context context) {
-        Device device = PreferenceUtils.getConnectedDevice(context);
+        String url = "";
 
-        String url = device.getHost() + "/query/apps";
+        try {
+            Device device = PreferenceUtils.getConnectedDevice(context);
+
+            url = device.getHost() + "/query/apps";
+        } catch (Exception ex) {
+        }
 
         return url;
     }
 
     public static String getKeypressURL(Context context, String command) {
-        Device device = PreferenceUtils.getConnectedDevice(context);
+        String url = "";
 
-        String url = device.getHost() + "/keypress/" + command;
+        try {
+            Device device = PreferenceUtils.getConnectedDevice(context);
+
+            url = device.getHost() + "/keypress/" + command;
+        } catch (Exception ex) {
+        }
 
         return url;
     }
 
     public static String getActiveAppURL(Context context) {
-        Device device = PreferenceUtils.getConnectedDevice(context);
+        String url = "";
 
-        String url = device.getHost() + "/query/active-app";
+        try {
+            Device device = PreferenceUtils.getConnectedDevice(context);
+
+            url = device.getHost() + "/query/active-app";
+        } catch (Exception ex) {
+        }
 
         return url;
     }
@@ -61,9 +86,14 @@ public class CommandHelper {
     }
 
     public static String getConnectedDeviceInfoURL(Context context, String host) {
-        Device device = PreferenceUtils.getConnectedDevice(context);
+        String url = "";
 
-        String url = device.getHost() + "/query/device-info";
+        try {
+            Device device = PreferenceUtils.getConnectedDevice(context);
+
+            url = device.getHost() + "/query/device-info";
+        } catch (Exception ex) {
+        }
 
         return url;
     }
