@@ -24,11 +24,21 @@
             android:layout_marginLeft="14dip"
             android:src="@drawable/ic_action_search"/>
 
+        <ImageView
+            android:id="@+id/voice_search_btn"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="14dip"
+            android:background="@drawable/ic_voice_search_api_holo_light"/>
+
         <EditText
             android:id="@+id/textbox"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_toRightOf="@id/search_icon"
+            android:layout_toLeftOf="@id/voice_search_btn"
             android:layout_centerVertical="true"
             android:layout_marginLeft="0dip"
             android:layout_marginRight="2dip"

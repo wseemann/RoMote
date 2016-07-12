@@ -1,7 +1,6 @@
 package wseemann.media.romote.fragment;
 
 import android.app.Activity;
-import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -20,8 +19,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.SearchView;
-import android.widget.Toast;
+import android.widget.ImageView;
 
 import java.util.List;
 
@@ -37,7 +35,8 @@ import wseemann.media.romote.view.RepeatingImageButton;
 public class RemoteFragment extends Fragment {
 
     private String mOldText = "";
-    private SearchView mSearchView;
+    private EditText mTextBox;
+    private ImageView mVoiceSearcButton;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -50,7 +49,8 @@ public class RemoteFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_remote, container, false);
 
-        mSearchView = (SearchView) view.findViewById(R.id.search_view);
+        mTextBox = (EditText) view.findViewById(R.id.textbox);
+        mVoiceSearcButton = (ImageView) view.findViewById(R.id.voice_search_btn);
 
         return view;
     }
@@ -59,96 +59,11 @@ public class RemoteFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        // Get the SearchView and set the searchable configuration
-        SearchManager searchManager = (SearchManager) getActivity().getSystemService(Context.SEARCH_SERVICE);
-        // Assumes current activity is the searchable activity
-        mSearchView.setSearchableInfo(searchManager.getSearchableInfo(getActivity().getComponentName()));
-        mSearchView.setIconifiedByDefault(false);
-        mSearchView.setQueryHint("Enter search query");
-        mSearchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
-
+        mVoiceSearcButton.setOnClickListener(new View.OnClickListener() {
             @Override
-            public boolean onQueryTextSubmit(String query) {
-                return false;
+            public void onClick(View v) {
+                displaySpeechRecognizer();
             }
-
-            @Override
-            public boolean onQueryTextChange(String newText) {
-                int difference = newText.length() - mOldText.length();
-
-                // clear button was pressed
-                if (newText.equals("")) {
-                    int diff = mOldText.length() - newText.length();
-
-                    for (int i = 0; i < diff; i++) {
-                        Intent intent = new Intent(RemoteFragment.this.getContext(), CommandService.class);
-                        intent.setAction(CommandHelper.getKeypressURL(RemoteFragment.this.getActivity(), CommandConstants.BACKSPACE_COMMAND));
-                        RemoteFragment.this.getActivity().startService(intent);
-                    }
-
-                    mOldText = newText;
-
-                    return false;
-                }
-
-                if (difference > 1) {
-                    newText.replace(mOldText, "");
-
-                    char [] chars =  newText.toCharArray();
-
-                    String [] commands = new String[chars.length];
-
-                    for (int i = 0; i < chars.length; i++) {
-                        char key = chars[i];
-
-                        if (key == ' ') {
-                            key = '+';
-                        }
-
-                        commands[i] = CommandHelper.getKeypressURL(RemoteFragment.this.getActivity(), CommandConstants.INPUT_COMMAND + String.valueOf(key));
-                    }
-
-                    mOldText = newText;
-
-                    Intent intent = new Intent(RemoteFragment.this.getContext(), CommandService.class);
-                    intent.setAction("commands");
-                    intent.putExtra("commands", commands);
-                    RemoteFragment.this.getActivity().startService(intent);
-
-                    return false;
-                }
-
-                String key = null;
-
-                if (newText.length() > 0) {
-                    key = newText.substring(newText.length() - 1);
-                }
-
-                if (mOldText.length() > newText.length()) {
-                    key = CommandConstants.BACKSPACE_COMMAND;
-                }
-
-                if (key != null && key.equals(" ")) {
-                    key = "+";
-                }
-
-                mOldText = newText;
-
-                if (key != null) {
-                    Intent intent = new Intent(RemoteFragment.this.getContext(), CommandService.class);
-
-                    if (key.equals(CommandConstants.BACKSPACE_COMMAND)) {
-                        intent.setAction(CommandHelper.getKeypressURL(RemoteFragment.this.getActivity(), key));
-                    } else {
-                        intent.setAction(CommandHelper.getKeypressURL(RemoteFragment.this.getActivity(), CommandConstants.INPUT_COMMAND + key));
-                    }
-
-                    RemoteFragment.this.getActivity().startService(intent);
-                }
-
-                return false;
-            }
-
         });
 
         linkButton(CommandConstants.BACK_COMMAND, R.id.back_button);
@@ -370,7 +285,8 @@ public class RemoteFragment extends Fragment {
                     RecognizerIntent.EXTRA_RESULTS);
             String spokenText = results.get(0);
             // Do something with spokenText
-            Toast.makeText(getActivity(), spokenText, Toast.LENGTH_LONG).show();
+            mTextBox.setText(spokenText);
+            //Toast.makeText(getActivity(), spokenText, Toast.LENGTH_LONG).show();
         }
         super.onActivityResult(requestCode, resultCode, data);
     }
