@@ -1,7 +1,13 @@
 package wseemann.media.romote.activity;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.util.Log;
 
 import wseemann.media.romote.fragment.ConnectivityDialog;
 import wseemann.media.romote.utils.NetworkMonitor;
@@ -28,25 +34,23 @@ public class ConnectivityActivity extends ShakeActivity {
     public void onResume() {
         super.onResume();
 
-        if (!mNetworkMonitor.isConnectedToiWiFi()) {
-            if (mDialog != null) {
-                mDialog.dismiss();
-                mDialog = null;
-            }
-
-            mDialog = new ConnectivityDialog();
-            mDialog.show(getFragmentManager(), ConnectivityDialog.class.getName());
+        if (!mNetworkMonitor.isConnectedToiWiFi() && mDialog == null) {
+            showDialog();
         }
+
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("android.net.conn.CONNECTIVITY_CHANGE");
+        intentFilter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
+
+        registerReceiver(mConnectivityReceiver, intentFilter);
     }
 
     @Override
     public void onPause() {
         super.onPause();
 
-        if (mDialog != null) {
-            mDialog.dismiss();
-            mDialog = null;
-        }
+        unregisterReceiver(mConnectivityReceiver);
+        dismissDialog();
     }
 
     @Override
@@ -71,4 +75,33 @@ public class ConnectivityActivity extends ShakeActivity {
             // permissions this app might request
         }
     }
+
+    private synchronized void showDialog() {
+        if (mDialog != null) {
+            mDialog.dismiss();
+            mDialog = null;
+        }
+
+        mDialog = new ConnectivityDialog();
+        mDialog.show(getFragmentManager(), ConnectivityDialog.class.getName());
+    }
+
+    private synchronized void dismissDialog() {
+        if (mDialog != null) {
+            mDialog.dismiss();
+            mDialog = null;
+        }
+    }
+
+
+    private BroadcastReceiver mConnectivityReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (!mNetworkMonitor.isConnectedToiWiFi() && mDialog == null) {
+                showDialog();
+            } else if (mNetworkMonitor.isConnectedToiWiFi() && mDialog != null) {
+                dismissDialog();
+            }
+        }
+    };
 }

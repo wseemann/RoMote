@@ -65,6 +65,7 @@ public class RemoteFragment extends Fragment {
                 displaySpeechRecognizer();
             }
         });
+        mVoiceSearcButton.requestFocus();
 
         linkButton(CommandConstants.BACK_COMMAND, R.id.back_button);
         linkRepeatingButton(CommandConstants.UP_COMMAND, R.id.up_button);

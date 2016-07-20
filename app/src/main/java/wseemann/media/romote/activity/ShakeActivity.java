@@ -24,11 +24,6 @@ public class ShakeActivity extends AppCompatActivity {
 
         mShakeMonitor = new ShakeMonitor(this);
         mShakeMonitor.setOnShakeListener(mShakeListener);
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
 
         if (shakeEnabled()) {
             mShakeMonitor.resume();
@@ -36,8 +31,8 @@ public class ShakeActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onPause() {
-        super.onPause();
+    public void onDestroy() {
+        super.onDestroy();
 
         if (shakeEnabled()) {
             mShakeMonitor.pause();
