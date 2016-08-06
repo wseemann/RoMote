@@ -25,6 +25,7 @@ import wseemann.media.romote.fragment.ChannelFragment;
 import wseemann.media.romote.fragment.InstallChannelDialog;
 import wseemann.media.romote.fragment.MainFragment;
 import wseemann.media.romote.fragment.RemoteFragment;
+import wseemann.media.romote.fragment.StoreFragment;
 import wseemann.media.romote.service.NotificationService;
 
 public class MainActivity extends ConnectivityActivity implements
@@ -142,14 +143,16 @@ public class MainActivity extends ConnectivityActivity implements
                 return new MainFragment();
             } else if (position == 1) {
                 return new RemoteFragment();
-            } else {
+            } else if (position == 2) {
                 return new ChannelFragment();
+            } else {
+                return new StoreFragment();
             }
         }
 
         @Override
         public int getCount() {
-            return 3;
+            return 4;
         }
 
         @Override
@@ -161,6 +164,8 @@ public class MainActivity extends ConnectivityActivity implements
                     return getString(R.string.title_remote);
                 case 2:
                     return getString(R.string.title_channels);
+                case 3:
+                    return getString(R.string.title_store);
             }
             return null;
         }
