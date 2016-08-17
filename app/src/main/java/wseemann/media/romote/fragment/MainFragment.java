@@ -176,8 +176,7 @@ public class MainFragment extends ListFragment {
 
         setListAdapter(mAdapter);
 
-        mSwiperefresh.setRefreshing(true);
-        refreshList(true);
+        refreshList(false);
     }
 
     @Override
