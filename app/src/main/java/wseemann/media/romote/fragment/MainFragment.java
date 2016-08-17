@@ -136,7 +136,7 @@ public class MainFragment extends ListFragment {
                 editor.putBoolean("first_use", false);
                 editor.commit();
 
-                Toast.makeText(getActivity(), "Device " + device.getSerialNumber() + " " + getString(R.string.connected), Toast.LENGTH_LONG).show();
+                Toast.makeText(getActivity(), "Device " + device.getSerialNumber() + " " + getString(R.string.connected), Toast.LENGTH_SHORT).show();
 
                 MainFragment.this.getActivity().sendBroadcast(new Intent(Constants.UPDATE_DEVICE_BROADCAST));
 
