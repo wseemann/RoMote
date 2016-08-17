@@ -9,7 +9,7 @@
 
     <ImageView
         android:id="@+id/overflow_button"
-        android:layout_width="wrap_content"
+        android:layout_width="25dip"
         android:layout_height="100dip"
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"

@@ -2,11 +2,15 @@ package wseemann.media.romote.fragment;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -33,10 +37,13 @@ import wseemann.media.romote.adapter.ChannelAdapter;
 import wseemann.media.romote.loader.ChannelLoader;
 import wseemann.media.romote.model.Channel;
 import wseemann.media.romote.service.CommandService;
+import wseemann.media.romote.service.NotificationService;
 import wseemann.media.romote.util.ImageCache;
 import wseemann.media.romote.util.ImageFetcher;
 import wseemann.media.romote.util.Utils;
 import wseemann.media.romote.utils.CommandHelper;
+import wseemann.media.romote.utils.Constants;
+import wseemann.media.romote.utils.NotificationUtils;
 
 /**
  * The main fragment that powers the ImageGridActivity screen. Fairly straight forward GridView
@@ -89,6 +96,10 @@ public class ChannelFragment extends Fragment implements LoaderManager.LoaderCal
         mImageFetcher.addImageCache(getActivity().getSupportFragmentManager(), cacheParams);
 
         mAdapter = new ChannelAdapter(getActivity(), mImageFetcher, new ArrayList<Channel>(), mHandler);
+
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(Constants.UPDATE_DEVICE_BROADCAST);
+        getActivity().registerReceiver(mUpdateReceiver, intentFilter);
     }
 
     @Override
@@ -204,9 +215,16 @@ public class ChannelFragment extends Fragment implements LoaderManager.LoaderCal
     }
 
     @Override
+    public void onStop() {
+        super.onStop();
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
         mImageFetcher.closeCache();
+
+        getActivity().unregisterReceiver(mUpdateReceiver);
     }
 
     @Override
@@ -293,4 +311,12 @@ public class ChannelFragment extends Fragment implements LoaderManager.LoaderCal
         popup.inflate(R.menu.channel_menu);
         popup.show();
     }
+
+    private BroadcastReceiver mUpdateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Log.d("----->", "called");
+            getLoaderManager().restartLoader(0, new Bundle(), ChannelFragment.this);
+        }
+    };
 }

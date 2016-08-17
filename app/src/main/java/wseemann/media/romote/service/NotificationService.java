@@ -13,11 +13,14 @@ import android.graphics.drawable.Drawable;
 import android.os.Binder;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
+import android.support.v4.media.MediaMetadataCompat;
+import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Log;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
+import com.android.volley.toolbox.ImageRequest;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.squareup.picasso.Picasso;
@@ -52,13 +55,15 @@ public class NotificationService extends Service {
 
     private SharedPreferences mPreferences;
 
+    private MediaSessionCompat mediaSession;
+
     private int mServiceStartId;
     private boolean mServiceInUse = true;
 
+    private final Random mGenerator = new Random();
+
     // Binder given to clients
     private final IBinder mBinder = new LocalBinder();
-    // Random number generator
-    private final Random mGenerator = new Random();
 
     /**
      * Class used for the client Binder.  Because we know this service always
@@ -156,6 +161,7 @@ public class NotificationService extends Service {
                         if (channels.size() > 0) {
                             mChannel = channels.get(0);
                             Picasso.with(getApplicationContext()).load(CommandHelper.getIconURL(NotificationService.this, channels.get(0).getId())).into(target);
+                            //getArtwork(CommandHelper.getIconURL(NotificationService.this, channels.get(0).getId()));
                         }
                     }
                 }, new Response.ErrorListener() {
@@ -171,8 +177,12 @@ public class NotificationService extends Service {
     private Target target = new Target() {
         @Override
         public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-            notification = NotificationUtils.buildNotification(NotificationService.this, mDevice.getModelName(), mChannel.getTitle(), bitmap);
-            mNM.notify(NOTIFICATION, notification);
+            try {
+                mDevice = PreferenceUtils.getConnectedDevice(NotificationService.this);
+                notification = NotificationUtils.buildNotification(NotificationService.this, mDevice.getModelName(), mChannel.getTitle(), bitmap);
+                mNM.notify(NOTIFICATION, notification);
+            } catch (Exception ex) {
+            }
         }
 
         @Override
@@ -224,4 +234,57 @@ public class NotificationService extends Service {
             }
         }
     };
+
+    private void setUpMediaSession() {
+        mediaSession = new MediaSessionCompat(this, TAG, null, null);
+
+        try {
+            //mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
+            mediaSession.setActive(true);
+        } catch (NullPointerException ex) {
+        }
+    }
+
+    private void updateMediaSessionMetadata() {
+        MediaMetadataCompat.Builder builder = new MediaMetadataCompat.Builder();
+        builder.putString(MediaMetadataCompat.METADATA_KEY_ARTIST, "artist");
+        builder.putString(MediaMetadataCompat.METADATA_KEY_ALBUM, "album");
+        builder.putString(MediaMetadataCompat.METADATA_KEY_TITLE, "Track name");
+        builder.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, 100);
+
+        //getArtwork();
+
+        mediaSession.setMetadata(builder.build());
+    }
+
+    private void getArtwork(String url) {
+        synchronized(this) {
+            // Instantiate the RequestQueue.
+            RequestQueue queue = Volley.newRequestQueue(this);
+
+            // Retrieves an image specified by the URL, displays it in the UI.
+            ImageRequest request = new ImageRequest(url,
+                    new Response.Listener<Bitmap>() {
+                        @Override
+                        public void onResponse(Bitmap bitmap) {
+                            MediaMetadataCompat.Builder builder = new MediaMetadataCompat.Builder();
+                            builder.putString(MediaMetadataCompat.METADATA_KEY_ARTIST, "artist");
+                            builder.putString(MediaMetadataCompat.METADATA_KEY_ALBUM, "album");
+                            builder.putString(MediaMetadataCompat.METADATA_KEY_TITLE, "Track name");
+                            builder.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, 100);
+                            builder.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, bitmap);
+                            mediaSession.setMetadata(builder.build());
+
+                            Log.d(TAG, "Loaded Bitmap for mediaSession");
+                        }
+                    }, 0, 0, null,
+                    new Response.ErrorListener() {
+                        public void onErrorResponse(VolleyError error) {
+                            Log.e(TAG, "Error loading Bitmap for mediaSession metadata");
+                        }
+                    });
+
+            queue.add(request);
+        }
+    }
 }

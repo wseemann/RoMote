@@ -198,7 +198,7 @@ public class MainFragment extends ListFragment {
 
         if (id == R.id.action_refresh) {
             setLoadingText(true);
-            mSwiperefresh.setRefreshing(true);
+            //mSwiperefresh.setRefreshing(true);
             getLoaderManager().restartLoader(0, new Bundle(), mAvailableDevicesLoader);
             return true;
         }
