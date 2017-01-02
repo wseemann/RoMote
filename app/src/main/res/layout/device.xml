@@ -17,19 +17,27 @@
         android:src="@drawable/ic_action_overflow"
         android:background="@android:color/transparent"/>
 
-    <ImageView
-        android:id="@android:id/icon"
+    <LinearLayout
+        android:id="@+id/icon_layout"
         android:layout_width="100dip"
         android:layout_height="100dip"
+        android:orientation="vertical"
         android:layout_alignParentLeft="true"
-        android:background="@color/purple"/>
+        android:gravity="center">
+
+        <ImageView
+            android:id="@android:id/icon"
+            android:layout_width="70dip"
+            android:layout_height="70dip"/>
+
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:paddingLeft="10dip"
-        android:layout_toRightOf="@android:id/icon"
+        android:layout_toRightOf="@+id/icon_layout"
         android:layout_toLeftOf="@id/overflow_button"
         android:layout_centerVertical="true">
 

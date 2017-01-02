@@ -3,6 +3,8 @@ package wseemann.media.romote.fragment;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.support.v4.app.Fragment;
@@ -20,6 +22,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ScrollView;
 
 import java.util.List;
 
@@ -27,6 +30,7 @@ import wseemann.media.romote.R;
 import wseemann.media.romote.service.CommandService;
 import wseemann.media.romote.utils.CommandConstants;
 import wseemann.media.romote.utils.CommandHelper;
+import wseemann.media.romote.view.MyLinearLayout;
 import wseemann.media.romote.view.RepeatingImageButton;
 
 /**
@@ -37,6 +41,13 @@ public class RemoteFragment extends Fragment {
     private String mOldText = "";
     private EditText mTextBox;
     private ImageView mVoiceSearcButton;
+
+    private ScrollView mScrollView;
+    private MyLinearLayout mLinearLayout;
+    private ImageView mSearchIcon;
+    private Drawable mTextBoxBackground;
+
+    private boolean mOverrideFocusChange = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -51,6 +62,11 @@ public class RemoteFragment extends Fragment {
 
         mTextBox = (EditText) view.findViewById(R.id.textbox);
         mVoiceSearcButton = (ImageView) view.findViewById(R.id.voice_search_btn);
+
+        mScrollView = (ScrollView) view.findViewById(R.id.scroll_view);
+        mLinearLayout = (MyLinearLayout) view.findViewById(R.id.layout);
+
+        mSearchIcon = (ImageView) view.findViewById(R.id.search_icon);
 
         return view;
     }
@@ -84,6 +100,8 @@ public class RemoteFragment extends Fragment {
         linkButton(CommandConstants.FWD_COMMAND, R.id.fwd_button);
 
         final EditText textbox = (EditText) getView().findViewById(R.id.textbox);
+        mTextBoxBackground = textbox.getBackground();
+        textbox.setBackgroundResource(0);
         textbox.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -186,16 +204,34 @@ public class RemoteFragment extends Fragment {
 
             }
         });
+        textbox.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if (!hasFocus) {
+                    if (!mOverrideFocusChange) {
+                        mSearchIcon.setVisibility(View.INVISIBLE);
+                        mVoiceSearcButton.setVisibility(View.INVISIBLE);
+
+                        textbox.setBackgroundResource(0);
+                        InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                        inputMethodManager.hideSoftInputFromWindow(mTextBox.getWindowToken(), 0);
+                    }
+                }
+            }
+        });
 
         ImageButton keyboardButton = (ImageButton) getView().findViewById(R.id.keyboard_button);
         keyboardButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                textbox.setVisibility(View.VISIBLE);
-                textbox.setBackgroundColor(getResources().getColor(android.R.color.white));
+                mOverrideFocusChange = true;
 
-                ((InputMethodManager) RemoteFragment.this.getActivity().getSystemService(Context.INPUT_METHOD_SERVICE))
-                        .showSoftInput(textbox, InputMethodManager.SHOW_FORCED);
+                mLinearLayout.setRedraw(false);
+                new RedrawTask().execute();
+
+                textbox.requestFocus();
+                InputMethodManager inputMethodManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+                inputMethodManager.showSoftInput(textbox, 0);
             }
         });
     }
@@ -209,6 +245,8 @@ public class RemoteFragment extends Fragment {
                 Intent intent = new Intent(RemoteFragment.this.getContext(), CommandService.class);
                 intent.setAction(CommandHelper.getKeypressURL(RemoteFragment.this.getActivity(), command));
                 RemoteFragment.this.getActivity().startService(intent);
+
+                clearTextBox();
             }
         });
 
@@ -218,6 +256,8 @@ public class RemoteFragment extends Fragment {
                 Intent intent = new Intent(RemoteFragment.this.getContext(), CommandService.class);
                 intent.setAction(CommandHelper.getKeypressURL(RemoteFragment.this.getActivity(), command));
                 RemoteFragment.this.getActivity().startService(intent);
+
+                clearTextBox();
             }
         }, 400);
     }
@@ -231,6 +271,8 @@ public class RemoteFragment extends Fragment {
                 Intent intent = new Intent(RemoteFragment.this.getContext(), CommandService.class);
                 intent.setAction(CommandHelper.getKeypressURL(RemoteFragment.this.getActivity(), command));
                 RemoteFragment.this.getActivity().startService(intent);
+
+                clearTextBox();
             }
         });
     }
@@ -244,8 +286,15 @@ public class RemoteFragment extends Fragment {
                 Intent intent = new Intent(RemoteFragment.this.getContext(), CommandService.class);
                 intent.setAction(CommandHelper.getKeypressURL(RemoteFragment.this.getActivity(), command));
                 RemoteFragment.this.getActivity().startService(intent);
+
+                clearTextBox();
             }
         });
+    }
+
+    private void clearTextBox() {
+        mTextBox.setText("");
+        mTextBox.clearFocus();
     }
 
     @Override
@@ -290,5 +339,36 @@ public class RemoteFragment extends Fragment {
             //Toast.makeText(getActivity(), spokenText, Toast.LENGTH_LONG).show();
         }
         super.onActivityResult(requestCode, resultCode, data);
+    }
+
+    private class RedrawTask extends AsyncTask<Void, Void, String> {
+
+        public RedrawTask() {
+
+        }
+
+        @Override
+        public String doInBackground(Void... Void) {
+            try {
+                Thread.sleep(500);
+            } catch (Exception ex) {
+
+            }
+
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String str) {
+            mScrollView.fullScroll(ScrollView.FOCUS_DOWN);
+
+            mSearchIcon.setVisibility(View.VISIBLE);
+            mVoiceSearcButton.setVisibility(View.VISIBLE);
+            mTextBox.setBackgroundDrawable(mTextBoxBackground);
+
+            mTextBox.requestFocus();
+
+            mOverrideFocusChange = false;
+        }
     }
 }
