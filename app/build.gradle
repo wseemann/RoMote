@@ -1,15 +1,15 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 23
+    compileSdkVersion 25
     buildToolsVersion "23.0.3"
 
     defaultConfig {
         applicationId "wseemann.media.romote"
         minSdkVersion 11
-        targetSdkVersion 23
-        versionCode 6
-        versionName "1.0.5"
+        targetSdkVersion 25
+        versionCode 7
+        versionName "1.0.6"
     }
     buildTypes {
         release {
@@ -22,10 +22,10 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:23.4.0'
+    compile 'com.android.support:appcompat-v7:25.0.0'
     compile project(':volley')
-    compile 'com.android.support:support-v4:23.4.0'
+    compile 'com.android.support:support-v4:25.0.0'
     compile files('libs/jdom-2.0.6.jar')
-    compile 'com.android.support:design:23.4.0'
+    compile 'com.android.support:design:25.0.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
 }
