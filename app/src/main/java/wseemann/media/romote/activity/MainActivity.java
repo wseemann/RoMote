@@ -17,6 +17,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -30,6 +31,8 @@ import wseemann.media.romote.service.NotificationService;
 
 public class MainActivity extends ConnectivityActivity implements
         InstallChannelDialog.InstallChannelListener {
+
+    private StoreFragment mStoreFragment;
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -45,8 +48,6 @@ public class MainActivity extends ConnectivityActivity implements
      * The {@link ViewPager} that will host the section contents.
      */
     private ViewPager mViewPager;
-
-    private int mAppWidgetId;
 
     private NotificationService mService;
     boolean mBound = false;
@@ -81,7 +82,7 @@ public class MainActivity extends ConnectivityActivity implements
         // Set up the ViewPager with the sections adapter.
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
-        mViewPager.setOffscreenPageLimit(2);
+        mViewPager.setOffscreenPageLimit(3);
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
@@ -123,6 +124,21 @@ public class MainActivity extends ConnectivityActivity implements
         return super.onOptionsItemSelected(item);
     }
 
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (mViewPager.getCurrentItem() != 3) {
+            return super.onKeyDown(keyCode, event);
+        }
+
+        if (mStoreFragment != null) {
+            if (mStoreFragment.onKeyDown(keyCode, event)) {
+                return true;
+            }
+        }
+
+        return super.onKeyDown(keyCode, event);
+    }
+
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
@@ -146,7 +162,8 @@ public class MainActivity extends ConnectivityActivity implements
             } else if (position == 2) {
                 return new ChannelFragment();
             } else {
-                return new StoreFragment();
+                mStoreFragment = new StoreFragment();
+                return mStoreFragment;
             }
         }
 
