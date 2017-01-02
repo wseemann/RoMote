@@ -2,9 +2,12 @@ package wseemann.media.romote.adapter;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.os.Handler;
 import android.os.Message;
-import android.util.Log;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +36,7 @@ public class DeviceAdapter extends ArrayAdapter<Device> {
     }
 
     private class ViewHolder {
+        ImageView mIcon;
         TextView mText1;
         TextView mText2;
         TextView mText3;
@@ -47,6 +51,7 @@ public class DeviceAdapter extends ArrayAdapter<Device> {
         if (convertView == null) {
             convertView = mInflater.inflate(R.layout.device, null);
             holder = new ViewHolder();
+            holder.mIcon = (ImageView) convertView.findViewById(android.R.id.icon);
             holder.mText1 = (TextView) convertView.findViewById(android.R.id.text1);
             holder.mText2 = (TextView) convertView.findViewById(android.R.id.text2);
             holder.mText3 = (TextView) convertView.findViewById(R.id.text3);
@@ -64,6 +69,20 @@ public class DeviceAdapter extends ArrayAdapter<Device> {
             connectedDevice = PreferenceUtils.getConnectedDevice(mContext);
         } catch (Exception ex) {
         }
+
+        Resources res = parent.getContext().getResources();
+        Bitmap image = Bitmap.createBitmap(70, 70, Bitmap.Config.ARGB_8888);
+
+        if (connectedDevice != null && device.getSerialNumber().equals(connectedDevice.getSerialNumber())) {
+            image.eraseColor(res.getColor(R.color.purple));
+        } else {
+            image.eraseColor(res.getColor(R.color.semi_transparent));
+        }
+
+        RoundedBitmapDrawable roundedBitmapDrawable =
+                RoundedBitmapDrawableFactory.create(res, image);
+        roundedBitmapDrawable.setCornerRadius(Math.max(image.getWidth(), image.getHeight()) / 2.0f);
+        holder.mIcon.setImageDrawable(roundedBitmapDrawable);
 
         holder.mText1.setText(device.getModelName()); //device.getUserDeviceName());
         holder.mText2.setText("SN: " + device.getSerialNumber());
