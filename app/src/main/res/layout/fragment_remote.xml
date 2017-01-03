@@ -157,20 +157,34 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:background="@android:color/white"
-                android:orientation="vertical"
+                android:orientation="horizontal"
                 android:paddingBottom="2dip"
-                android:paddingTop="4dip"
-                android:visibility="visible">
+                android:paddingTop="4dip">
+
+                <ImageButton
+                    android:id="@+id/volume_button"
+                    android:layout_width="0dip"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
+                    android:background="@drawable/remote_button_dark"
+                    android:src="@drawable/ic_action_volume_on_light" />
 
                 <ImageButton
                     android:id="@+id/keyboard_button"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="0dip"
+                    android:layout_height="fill_parent"
+                    android:layout_weight="1"
                     android:layout_gravity="center"
                     android:background="@drawable/remote_button_dark"
                     android:contentDescription="@string/keyboard"
                     android:src="@drawable/ic_action_keyboard_light" />
+
+                <View
+                    android:layout_width="0dip"
+                    android:layout_height="20dip"
+                    android:layout_weight="1"/>
 
             </LinearLayout>
 

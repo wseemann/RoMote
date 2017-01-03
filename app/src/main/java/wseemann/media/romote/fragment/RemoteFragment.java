@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -36,7 +37,7 @@ import wseemann.media.romote.view.RepeatingImageButton;
 /**
  * Created by wseemann on 6/19/16.
  */
-public class RemoteFragment extends Fragment {
+public class RemoteFragment extends Fragment implements VolumeDialogFragment.VolumeDialogListener {
 
     private String mOldText = "";
     private EditText mTextBox;
@@ -220,6 +221,15 @@ public class RemoteFragment extends Fragment {
             }
         });
 
+        ImageButton volumeButton = (ImageButton) getView().findViewById(R.id.volume_button);
+        volumeButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                DialogFragment fragment = VolumeDialogFragment.newInstance(RemoteFragment.this);
+                fragment.show(getFragmentManager(), "volume_dialog");
+            }
+        });
+
         ImageButton keyboardButton = (ImageButton) getView().findViewById(R.id.keyboard_button);
         keyboardButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -370,5 +380,12 @@ public class RemoteFragment extends Fragment {
 
             mOverrideFocusChange = false;
         }
+    }
+
+    @Override
+    public void onVolumeChanged(String command) {
+        Intent intent = new Intent(RemoteFragment.this.getContext(), CommandService.class);
+        intent.setAction(CommandHelper.getKeypressURL(RemoteFragment.this.getActivity(), command));
+        RemoteFragment.this.getActivity().startService(intent);
     }
 }

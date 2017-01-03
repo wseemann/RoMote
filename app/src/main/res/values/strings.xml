@@ -51,4 +51,7 @@
     <string name="notification_title_checkbox_preference">Enable notification widget</string>
     <string name="notification_to_pause_summary_checkbox_preference">Enable the ability to control playback using a notification widget</string>
 
+    <string name="volume_dialog_title">Volume controls</string>
+    <string name="close">Close</string>
+
 </resources>
