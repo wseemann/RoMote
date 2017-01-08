@@ -88,7 +88,6 @@ public class VolumeDialogFragment extends DialogFragment implements DialogInterf
             @Override
             public void onClick(View view) {
                 if (mListener != null) {
-                    Log.d("-------->", keypress);
                     mListener.onVolumeChanged(keypress);
                 }
             }
