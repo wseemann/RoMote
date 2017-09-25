@@ -24,7 +24,6 @@ dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:25.0.0'
-    compile project(':volley')
     compile 'com.android.support:support-v4:25.0.0'
     compile files('libs/jdom-2.0.6.jar')
     compile 'com.android.support:design:25.0.0'
