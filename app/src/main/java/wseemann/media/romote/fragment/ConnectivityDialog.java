@@ -4,6 +4,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.content.ActivityNotFoundException;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -45,7 +46,12 @@ public class ConnectivityDialog extends DialogFragment {
         builder.setMessage(getString(R.string.connectivity_dialog_message));
         builder.setNeutralButton(R.string.connectivity_dialog_button, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
+                try {
+                    // In some cases, a matching Activity may not exist,so ensure you safeguard against this.
+                    startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
+                } catch (ActivityNotFoundException ex) {
+                    startActivity(new Intent(Settings.ACTION_SETTINGS));
+                }
             }
         });
 
