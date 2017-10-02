@@ -17,7 +17,6 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.PopupMenu;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -162,6 +161,9 @@ public class MainFragment extends ListFragment {
         mFab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                //ManualConnectionDialog fragment = ManualConnectionDialog.getInstance(getActivity());
+                //fragment.show(MainFragment.this.getFragmentManager(), ManualConnectionDialog.class.getName());
+
                 Intent intent = new Intent(MainFragment.this.getActivity(), ManualConnectionActivity.class);
                 startActivityForResult(intent, 0);
             }
