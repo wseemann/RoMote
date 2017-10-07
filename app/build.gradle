@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
 
 android {
     compileSdkVersion 25
@@ -27,4 +28,8 @@ dependencies {
     compile 'com.android.support:design:25.0.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile group: 'org.jdom', name: 'jdom2', version: '2.0.6'
+    compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+}
+repositories {
+    mavenCentral()
 }
