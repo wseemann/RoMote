@@ -3,23 +3,22 @@ package wseemann.media.romote.fragment;
 import android.os.Bundle;
 import android.support.v4.app.ListFragment;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-
 import java.util.ArrayList;
 import java.util.List;
 
 import wseemann.media.romote.R;
 import wseemann.media.romote.adapter.DeviceInfoAdapter;
-import wseemann.media.romote.model.Device;
 import wseemann.media.romote.model.Entry;
-import wseemann.media.romote.parser.DeviceInfoParser;
+import wseemann.media.romote.tasks.RequestCallback;
+import wseemann.media.romote.tasks.RequestTask;
 import wseemann.media.romote.utils.CommandHelper;
 import wseemann.media.romote.utils.DBUtils;
+import wseemann.media.romote.utils.RokuRequestTypes;
+
+import com.jaku.core.JakuRequest;
+import com.jaku.model.Device;
+import com.jaku.parser.DeviceParser;
+import com.jaku.request.QueryDeviceInfoRequest;
 
 /**
  * Created by wseemann on 6/19/16.
@@ -78,34 +77,28 @@ public class DeviceInfoFragment extends ListFragment {
     }
 
     private void sendCommand(String command) {
-        // Instantiate the RequestQueue.
-        RequestQueue queue = Volley.newRequestQueue(getActivity());
-
         String url = command;
 
-        // Request a string response from the provided URL.
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        DeviceInfoParser parser = new DeviceInfoParser();
+        QueryDeviceInfoRequest queryActiveAppRequest = new QueryDeviceInfoRequest(url);
+        JakuRequest request = new JakuRequest(queryActiveAppRequest, new DeviceParser());
 
-                        Device device = parser.parse(response);
-
-                        List<Entry> entries = parseDevice(device);
-
-                        mAdapter.addAll(entries);
-                        mAdapter.notifyDataSetChanged();
-                        DeviceInfoFragment.this.setListShown(true);
-                    }
-                }, new Response.ErrorListener() {
+        new RequestTask(request, new RequestCallback() {
             @Override
-            public void onErrorResponse(VolleyError error) {
+            public void requestResult(RokuRequestTypes rokuRequestType, RequestTask.Result result) {
+                Device device = (Device) result.mResultValue;
+
+                List<Entry> entries = parseDevice(device);
+
+                mAdapter.addAll(entries);
+                mAdapter.notifyDataSetChanged();
                 DeviceInfoFragment.this.setListShown(true);
             }
-        });
-        // Add the request to the RequestQueue.
-        queue.add(stringRequest);
+
+            @Override
+            public void onErrorResponse(RequestTask.Result result) {
+                DeviceInfoFragment.this.setListShown(true);
+            }
+        }).execute(RokuRequestTypes.query_device_info);
     }
 
     private List<Entry> parseDevice(Device device) {

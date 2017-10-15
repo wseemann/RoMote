@@ -25,12 +25,17 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ScrollView;
 
+import com.jaku.core.JakuRequest;
+import com.jaku.core.KeypressKeyValues;
+import com.jaku.request.KeypressRequest;
+
 import java.util.List;
 
 import wseemann.media.romote.R;
-import wseemann.media.romote.service.CommandService;
-import wseemann.media.romote.utils.CommandConstants;
+import wseemann.media.romote.tasks.RequestCallback;
+import wseemann.media.romote.tasks.RequestTask;
 import wseemann.media.romote.utils.CommandHelper;
+import wseemann.media.romote.utils.RokuRequestTypes;
 import wseemann.media.romote.view.MyLinearLayout;
 import wseemann.media.romote.view.RepeatingImageButton;
 
@@ -84,21 +89,21 @@ public class RemoteFragment extends Fragment implements VolumeDialogFragment.Vol
         });
         mVoiceSearcButton.requestFocus();
 
-        linkButton(CommandConstants.BACK_COMMAND, R.id.back_button);
-        linkRepeatingButton(CommandConstants.UP_COMMAND, R.id.up_button);
-        linkAltButton(CommandConstants.HOME_COMMAND, R.id.home_button);
+        linkButton(KeypressKeyValues.BACK, R.id.back_button);
+        linkRepeatingButton(KeypressKeyValues.UP, R.id.up_button);
+        linkAltButton(KeypressKeyValues.HOME, R.id.home_button);
 
-        linkRepeatingButton(CommandConstants.LEFT_COMMAND, R.id.left_button);
-        linkAltButton(CommandConstants.SELECT_COMMAND, R.id.select_button);
-        linkRepeatingButton(CommandConstants.RIGHT_COMMAND, R.id.right_button);
+        linkRepeatingButton(KeypressKeyValues.LEFT, R.id.left_button);
+        linkAltButton(KeypressKeyValues.SELECT, R.id.select_button);
+        linkRepeatingButton(KeypressKeyValues.RIGHT, R.id.right_button);
 
-        linkButton(CommandConstants.INSTANT_REPLAY_COMMAND, R.id.instant_replay_button);
-        linkRepeatingButton(CommandConstants.DOWN_COMMAND, R.id.down_button);
-        linkButton(CommandConstants.INFO_COMMAND, R.id.info_button);
+        linkButton(KeypressKeyValues.INTANT_REPLAY, R.id.instant_replay_button);
+        linkRepeatingButton(KeypressKeyValues.DOWN, R.id.down_button);
+        linkButton(KeypressKeyValues.INFO, R.id.info_button);
 
-        linkButton(CommandConstants.REV_COMMAND, R.id.rev_button);
-        linkButton(CommandConstants.PLAY_COMMAND, R.id.play_button);
-        linkButton(CommandConstants.FWD_COMMAND, R.id.fwd_button);
+        linkButton(KeypressKeyValues.REV, R.id.rev_button);
+        linkButton(KeypressKeyValues.PLAY, R.id.play_button);
+        linkButton(KeypressKeyValues.FWD, R.id.fwd_button);
 
         final EditText textbox = (EditText) getView().findViewById(R.id.textbox);
         mTextBoxBackground = textbox.getBackground();
@@ -109,9 +114,7 @@ public class RemoteFragment extends Fragment implements VolumeDialogFragment.Vol
                 if (keyCode == 67 &&
                         event.getAction() == KeyEvent.ACTION_DOWN &&
                         textbox.length() == 0) {
-                    Intent intent = new Intent(RemoteFragment.this.getContext(), CommandService.class);
-                    intent.setAction(CommandHelper.getKeypressURL(RemoteFragment.this.getActivity(), CommandConstants.BACKSPACE_COMMAND));
-                    RemoteFragment.this.getActivity().startService(intent);
+                    sendBackspace();
                     return true;
                 }
 
@@ -130,9 +133,7 @@ public class RemoteFragment extends Fragment implements VolumeDialogFragment.Vol
                     int diff = mOldText.length() - newText.length();
 
                     for (int i = 0; i < diff; i++) {
-                        Intent intent = new Intent(RemoteFragment.this.getContext(), CommandService.class);
-                        intent.setAction(CommandHelper.getKeypressURL(RemoteFragment.this.getActivity(), CommandConstants.BACKSPACE_COMMAND));
-                        RemoteFragment.this.getActivity().startService(intent);
+                        sendBackspace();
                     }
 
                     mOldText = newText;
@@ -143,26 +144,9 @@ public class RemoteFragment extends Fragment implements VolumeDialogFragment.Vol
                 if (difference > 1) {
                     newText.replace(mOldText, "");
 
-                    char [] chars =  newText.toCharArray();
-
-                    String [] commands = new String[chars.length];
-
-                    for (int i = 0; i < chars.length; i++) {
-                        char key = chars[i];
-
-                        if (key == ' ') {
-                            key = '+';
-                        }
-
-                        commands[i] = CommandHelper.getKeypressURL(RemoteFragment.this.getActivity(), CommandConstants.INPUT_COMMAND + String.valueOf(key));
-                    }
-
                     mOldText = newText;
 
-                    Intent intent = new Intent(RemoteFragment.this.getContext(), CommandService.class);
-                    intent.setAction("commands");
-                    intent.putExtra("commands", commands);
-                    RemoteFragment.this.getActivity().startService(intent);
+                    sendStringLiteral(newText);
 
                     return;
                 }
@@ -174,25 +158,17 @@ public class RemoteFragment extends Fragment implements VolumeDialogFragment.Vol
                 }
 
                 if (mOldText.length() > newText.length()) {
-                    key = CommandConstants.BACKSPACE_COMMAND;
-                }
-
-                if (key != null && key.equals(" ")) {
-                    key = "+";
+                    key = "BACKSPACE";
                 }
 
                 mOldText = newText;
 
                 if (key != null) {
-                    Intent intent = new Intent(RemoteFragment.this.getContext(), CommandService.class);
-
-                    if (key.equals(CommandConstants.BACKSPACE_COMMAND)) {
-                        intent.setAction(CommandHelper.getKeypressURL(RemoteFragment.this.getActivity(), key));
+                    if (key.equals("BACKSPACE")) {
+                        sendBackspace();
                     } else {
-                        intent.setAction(CommandHelper.getKeypressURL(RemoteFragment.this.getActivity(), CommandConstants.INPUT_COMMAND + key));
+                        sendStringLiteral(key);
                     }
-
-                    RemoteFragment.this.getActivity().startService(intent);
                 }
             }
             @Override
@@ -246,15 +222,13 @@ public class RemoteFragment extends Fragment implements VolumeDialogFragment.Vol
         });
     }
 
-    private void linkRepeatingButton(final String command, int id) {
+    private void linkRepeatingButton(final KeypressKeyValues keypressKeyValue, int id) {
         RepeatingImageButton button = (RepeatingImageButton) getView().findViewById(id);
 
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(RemoteFragment.this.getContext(), CommandService.class);
-                intent.setAction(CommandHelper.getKeypressURL(RemoteFragment.this.getActivity(), command));
-                RemoteFragment.this.getActivity().startService(intent);
+                performKeypress(keypressKeyValue);
 
                 clearTextBox();
             }
@@ -263,43 +237,56 @@ public class RemoteFragment extends Fragment implements VolumeDialogFragment.Vol
         button.setRepeatListener(new RepeatingImageButton.RepeatListener() {
             @Override
             public void onRepeat(View v, long duration, int repeatcount) {
-                Intent intent = new Intent(RemoteFragment.this.getContext(), CommandService.class);
-                intent.setAction(CommandHelper.getKeypressURL(RemoteFragment.this.getActivity(), command));
-                RemoteFragment.this.getActivity().startService(intent);
+                performKeypress(keypressKeyValue);
 
                 clearTextBox();
             }
         }, 400);
     }
 
-    private void linkButton(final String command, int id) {
+    private void linkButton(final KeypressKeyValues keypressKeyValue, int id) {
         ImageButton button = (ImageButton) getView().findViewById(id);
 
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(RemoteFragment.this.getContext(), CommandService.class);
-                intent.setAction(CommandHelper.getKeypressURL(RemoteFragment.this.getActivity(), command));
-                RemoteFragment.this.getActivity().startService(intent);
+                performKeypress(keypressKeyValue);
 
                 clearTextBox();
             }
         });
     }
 
-    private void linkAltButton(final String command, int id) {
+    private void linkAltButton(final KeypressKeyValues keypressKeyValue, int id) {
         Button button = (Button) getView().findViewById(id);
 
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent intent = new Intent(RemoteFragment.this.getContext(), CommandService.class);
-                intent.setAction(CommandHelper.getKeypressURL(RemoteFragment.this.getActivity(), command));
-                RemoteFragment.this.getActivity().startService(intent);
+                performKeypress(keypressKeyValue);
 
                 clearTextBox();
             }
         });
+    }
+
+    private void performKeypress(KeypressKeyValues keypressKeyValue) {
+        String url = CommandHelper.getDeviceURL(getActivity());
+
+        KeypressRequest keypressRequest = new KeypressRequest(url, keypressKeyValue.getValue());
+        JakuRequest request = new JakuRequest(keypressRequest, null);
+
+        new RequestTask(request, new RequestCallback() {
+            @Override
+            public void requestResult(RokuRequestTypes rokuRequestType, RequestTask.Result result) {
+
+            }
+
+            @Override
+            public void onErrorResponse(RequestTask.Result result) {
+
+            }
+        }).execute(RokuRequestTypes.keypress);
     }
 
     private void clearTextBox() {
@@ -382,10 +369,61 @@ public class RemoteFragment extends Fragment implements VolumeDialogFragment.Vol
         }
     }
 
+    private void sendBackspace() {
+        String url = CommandHelper.getDeviceURL(getActivity());
+
+        KeypressRequest keypressRequest = new KeypressRequest(url, KeypressKeyValues.BACKSPACE.getValue());
+        JakuRequest request = new JakuRequest(keypressRequest, null);
+
+        new RequestTask(request, new RequestCallback() {
+            @Override
+            public void requestResult(RokuRequestTypes rokuRequestType, RequestTask.Result result) {
+
+            }
+
+            @Override
+            public void onErrorResponse(RequestTask.Result result) {
+
+            }
+        }).execute(RokuRequestTypes.keypress);
+    }
+
+    private void sendStringLiteral(String stringLiteral) {
+        String url = CommandHelper.getDeviceURL(getActivity());
+
+        KeypressRequest keypressRequest = new KeypressRequest(url, KeypressKeyValues.LIT_.getValue() + stringLiteral);
+        JakuRequest request = new JakuRequest(keypressRequest, null);
+
+        new RequestTask(request, new RequestCallback() {
+            @Override
+            public void requestResult(RokuRequestTypes rokuRequestType, RequestTask.Result result) {
+
+            }
+
+            @Override
+            public void onErrorResponse(RequestTask.Result result) {
+
+            }
+        }).execute(RokuRequestTypes.keypress);
+    }
+
     @Override
-    public void onVolumeChanged(String command) {
-        Intent intent = new Intent(RemoteFragment.this.getContext(), CommandService.class);
-        intent.setAction(CommandHelper.getKeypressURL(RemoteFragment.this.getActivity(), command));
-        RemoteFragment.this.getActivity().startService(intent);
+    public void onVolumeChanged(final KeypressKeyValues keypressKeyValue) {
+        String url = CommandHelper.getDeviceURL(getActivity());
+
+        KeypressRequest keypressRequest = new KeypressRequest(url, keypressKeyValue.getValue());
+        JakuRequest request = new JakuRequest(keypressRequest, null);
+
+        new RequestTask(request, new RequestCallback() {
+            @Override
+            public void requestResult(RokuRequestTypes rokuRequestType, RequestTask.Result result) {
+
+            }
+
+            @Override
+            public void onErrorResponse(RequestTask.Result result) {
+
+            }
+        }).execute(RokuRequestTypes.keypress);
     }
 }

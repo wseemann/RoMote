@@ -9,34 +9,38 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
+import android.graphics.BitmapFactory;
 import android.os.Binder;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Log;
-import com.android.volley.Request;
+
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.ImageRequest;
-import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.squareup.picasso.Picasso;
+import com.jaku.core.JakuRequest;
+import com.jaku.parser.AppsParser;
+import com.jaku.parser.IconParser;
+import com.jaku.request.QueryActiveAppRequest;
+import com.jaku.request.QueryIconRequest;
 
 import java.util.List;
 import java.util.Random;
 
-import wseemann.media.romote.model.Channel;
-import wseemann.media.romote.model.Device;
-import wseemann.media.romote.parser.ActiveAppParser;
+import com.jaku.model.Channel;
+import com.jaku.model.Device;
+
+import wseemann.media.romote.tasks.RequestCallback;
+import wseemann.media.romote.tasks.RequestTask;
 import wseemann.media.romote.utils.CommandHelper;
 import wseemann.media.romote.utils.Constants;
 import wseemann.media.romote.utils.NotificationUtils;
 import wseemann.media.romote.utils.PreferenceUtils;
-
-import com.squareup.picasso.Target;
+import wseemann.media.romote.utils.RokuRequestTypes;
 
 /**
  * Created by wseemann on 6/19/16.
@@ -100,7 +104,7 @@ public class NotificationService extends Service {
                 notification = NotificationUtils.buildNotification(NotificationService.this, null, null, null);
 
                 mNM.notify(NOTIFICATION, notification);
-                sendStatusCommand("");
+                sendStatusCommand();
             }
         } catch (Exception ex) {
         }
@@ -144,55 +148,57 @@ public class NotificationService extends Service {
         return true;
     }
 
-    private void sendStatusCommand(String command) {
-        // Instantiate the RequestQueue.
-        RequestQueue queue = Volley.newRequestQueue(this);
-        String url = CommandHelper.getActiveAppURL(this);
+    private void sendStatusCommand() {
+        String url = CommandHelper.getDeviceURL(this);
 
-        // Request a string response from the provided URL.
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        ActiveAppParser parser = new ActiveAppParser();
+        QueryActiveAppRequest queryActiveAppRequest = new QueryActiveAppRequest(url);
+        JakuRequest request = new JakuRequest(queryActiveAppRequest, new AppsParser());
 
-                        List<Channel> channels = parser.parse(response);
-
-                        if (channels.size() > 0) {
-                            mChannel = channels.get(0);
-                            Picasso.with(getApplicationContext()).load(CommandHelper.getIconURL(NotificationService.this, channels.get(0).getId())).into(target);
-                            //getArtwork(CommandHelper.getIconURL(NotificationService.this, channels.get(0).getId()));
-                        }
-                    }
-                }, new Response.ErrorListener() {
+        new RequestTask(request, new RequestCallback() {
             @Override
-            public void onErrorResponse(VolleyError error) {
+            public void requestResult(RokuRequestTypes rokuRequestType, RequestTask.Result result) {
+                List<Channel> channels = (List<Channel>) result.mResultValue;
+
+                if (channels.size() > 0) {
+                    mChannel = channels.get(0);
+                    getAppIcon(mChannel.getId());
+                }
+            }
+
+            @Override
+            public void onErrorResponse(RequestTask.Result result) {
                 Log.d(TAG, "That didn't work!");
             }
-        });
-        // Add the request to the RequestQueue.
-        queue.add(stringRequest);
+        }).execute(RokuRequestTypes.query_active_app);
     }
 
-    private Target target = new Target() {
-        @Override
-        public void onBitmapLoaded(Bitmap bitmap, Picasso.LoadedFrom from) {
-            try {
-                mDevice = PreferenceUtils.getConnectedDevice(NotificationService.this);
-                notification = NotificationUtils.buildNotification(NotificationService.this, mDevice.getModelName(), mChannel.getTitle(), bitmap);
-                mNM.notify(NOTIFICATION, notification);
-            } catch (Exception ex) {
+    private void getAppIcon(String appId) {
+        String url = CommandHelper.getDeviceURL(this);
+
+        QueryIconRequest queryIconRequest = new QueryIconRequest(url, appId);
+        JakuRequest request = new JakuRequest(queryIconRequest, new IconParser());
+
+        new RequestTask(request, new RequestCallback() {
+            @Override
+            public void requestResult(RokuRequestTypes rokuRequestType, RequestTask.Result result) {
+                try {
+                    byte [] data = (byte []) result.mResultValue;
+
+                    Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+                    
+                    mDevice = PreferenceUtils.getConnectedDevice(NotificationService.this);
+                    notification = NotificationUtils.buildNotification(NotificationService.this, mDevice.getModelName(), mChannel.getTitle(), bitmap);
+                    mNM.notify(NOTIFICATION, notification);
+                } catch (Exception ex) {
+                }
             }
-        }
 
-        @Override
-        public void onBitmapFailed(Drawable errorDrawable) {
-        }
-
-        @Override
-        public void onPrepareLoad(Drawable placeHolderDrawable) {
-        }
-    };
+            @Override
+            public void onErrorResponse(RequestTask.Result result) {
+                Log.d(TAG, "That didn't work!");
+            }
+        }).execute(RokuRequestTypes.query_icon);
+    }
 
     private BroadcastReceiver mUpdateReceiver = new BroadcastReceiver() {
         @Override
@@ -205,7 +211,7 @@ public class NotificationService extends Service {
 
                 if (enableNotification && mDevice != null) {
                     mNM.notify(NOTIFICATION, notification);
-                    sendStatusCommand("");
+                    sendStatusCommand();
                 } else {
                     mNM.cancel(NOTIFICATION);
                 }
@@ -227,7 +233,7 @@ public class NotificationService extends Service {
 
                 if (enableNotification && mDevice != null) {
                     mNM.notify(NOTIFICATION, notification);
-                    sendStatusCommand("");
+                    sendStatusCommand();
                 } else {
                     mNM.cancel(NOTIFICATION);
                 }

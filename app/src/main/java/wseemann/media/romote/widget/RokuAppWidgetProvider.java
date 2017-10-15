@@ -11,11 +11,11 @@ import android.widget.RemoteViews;
 
 import wseemann.media.romote.R;
 import wseemann.media.romote.activity.MainActivity;
-import wseemann.media.romote.model.Device;
 import wseemann.media.romote.service.CommandService;
-import wseemann.media.romote.utils.CommandConstants;
-import wseemann.media.romote.utils.CommandHelper;
 import wseemann.media.romote.utils.PreferenceUtils;
+
+import com.jaku.core.KeypressKeyValues;
+import com.jaku.model.Device;
 
 public class RokuAppWidgetProvider extends AppWidgetProvider {
 
@@ -122,28 +122,29 @@ public class RokuAppWidgetProvider extends AppWidgetProvider {
     private void linkButtons(Context context, RemoteViews views, boolean playerActive) {
         Log.d(TAG, "linkButtons called");
 
-        linkButton(context, views, CommandConstants.BACK_COMMAND, R.id.back_button, 0);
-        linkButton(context, views, CommandConstants.UP_COMMAND, R.id.up_button, 1);
-        linkButton(context, views, CommandConstants.HOME_COMMAND, R.id.home_button, 2);
+        linkButton(context, views, KeypressKeyValues.BACK, R.id.back_button, 0);
+        linkButton(context, views, KeypressKeyValues.UP, R.id.up_button, 1);
+        linkButton(context, views, KeypressKeyValues.HOME, R.id.home_button, 2);
 
-        linkButton(context, views, CommandConstants.LEFT_COMMAND, R.id.left_button, 3);
-        linkButton(context, views, CommandConstants.SELECT_COMMAND, R.id.select_button, 4);
-        linkButton(context, views, CommandConstants.RIGHT_COMMAND, R.id.right_button, 5);
+        linkButton(context, views, KeypressKeyValues.LEFT, R.id.left_button, 3);
+        linkButton(context, views, KeypressKeyValues.SELECT, R.id.select_button, 4);
+        linkButton(context, views, KeypressKeyValues.RIGHT, R.id.right_button, 5);
 
-        linkButton(context, views, CommandConstants.INSTANT_REPLAY_COMMAND, R.id.instant_replay_button, 6);
-        linkButton(context, views, CommandConstants.DOWN_COMMAND, R.id.down_button, 7);
-        linkButton(context, views, CommandConstants.INFO_COMMAND, R.id.info_button, 8);
+        linkButton(context, views, KeypressKeyValues.INTANT_REPLAY, R.id.instant_replay_button, 6);
+        linkButton(context, views, KeypressKeyValues.DOWN, R.id.down_button, 7);
+        linkButton(context, views, KeypressKeyValues.INFO, R.id.info_button, 8);
 
-        linkButton(context, views, CommandConstants.REV_COMMAND, R.id.rev_button, 9);
-        linkButton(context, views, CommandConstants.PLAY_COMMAND, R.id.play_button, 10);
-        linkButton(context, views, CommandConstants.FWD_COMMAND, R.id.fwd_button, 11);
+        linkButton(context, views, KeypressKeyValues.REV, R.id.rev_button, 9);
+        linkButton(context, views, KeypressKeyValues.PLAY, R.id.play_button, 10);
+        linkButton(context, views, KeypressKeyValues.FWD, R.id.fwd_button, 11);
     }
 
-    private void linkButton(Context context, RemoteViews views, String command, int id, int requestCode) {
+    private void linkButton(Context context, RemoteViews views, KeypressKeyValues keypressKeyValue, int id, int requestCode) {
         // Connect up various buttons and touch events
         final ComponentName serviceName = new ComponentName(context, CommandService.class);
 
-        Intent intent = new Intent(CommandHelper.getKeypressURL(context, command));
+        Intent intent = new Intent();
+        intent.putExtra("keypress", keypressKeyValue);
         intent.setComponent(serviceName);
         PendingIntent pendingIntent = PendingIntent.getService(context,
                 requestCode /* no requestCode */, intent, 0 /* no flags */);

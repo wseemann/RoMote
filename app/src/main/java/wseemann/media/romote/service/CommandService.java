@@ -2,19 +2,16 @@ package wseemann.media.romote.service;
 
 import android.app.IntentService;
 import android.content.Intent;
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
+import com.jaku.core.JakuRequest;
+import com.jaku.core.KeypressKeyValues;
+import com.jaku.request.KeypressRequest;
 
-import java.util.ArrayList;
-import java.util.List;
+import wseemann.media.romote.tasks.RequestCallback;
+import wseemann.media.romote.tasks.RequestTask;
+import wseemann.media.romote.utils.CommandHelper;
+import wseemann.media.romote.utils.RokuRequestTypes;
 
 /**
  * Created by wseemann on 6/19/16.
@@ -25,15 +22,6 @@ public class CommandService extends IntentService {
 
     public static final String PLAY_PAUSE_ACTION = "wseemann.media.romote.service.PLAY_PAUSE";
 
-    private RequestQueue mRequestQueue;
-    private List<String> mCommanQueue;
-    private Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message message) {
-            processNextCommand();
-        }
-    };
-
     public CommandService() {
         super(CommandService.class.getName());
     }
@@ -41,10 +29,6 @@ public class CommandService extends IntentService {
     @Override
     public void onCreate() {
         super.onCreate();
-
-        // Instantiate the RequestQueue.
-        mRequestQueue = Volley.newRequestQueue(this);
-        mCommanQueue = new ArrayList<String>();
     }
 
     @Override
@@ -52,54 +36,29 @@ public class CommandService extends IntentService {
         Log.d(TAG, "onHandleIntent called");
 
         if (intent != null) {
-            if (intent.getAction() != null) {
-                Log.d(TAG, "onHandleIntent: " + intent.getAction());
-
-                if (intent.getAction().equals("command")) {
-                    sendCommand(intent.getAction());
-                } else if (intent.getAction().equals("commands")) {
-                    String [] commands = intent.getStringArrayExtra("commands");
-
-                    for (int i = 0; i < commands.length; i++) {
-                        mCommanQueue.add(commands[i]);
-                    }
-
-                    processNextCommand();
-                } else {
-                    sendCommand(intent.getAction());
-                }
-            }
+            //if (intent.getAction() != null) {
+                //Log.d(TAG, "onHandleIntent: " + intent.getAction());
+                performKeypress((KeypressKeyValues) intent.getSerializableExtra("keypress"));
+            //}
         }
     }
 
-    private void sendCommand(String command) {
-        // Request a string response from the provided URL.
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, command,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        mHandler.sendEmptyMessage(0);
-                    }
-                }, new Response.ErrorListener() {
+    private void performKeypress(KeypressKeyValues keypressKeyValue) {
+        String url = CommandHelper.getDeviceURL(CommandService.this);
+
+        KeypressRequest keypressRequest = new KeypressRequest(url, keypressKeyValue.getValue());
+        JakuRequest request = new JakuRequest(keypressRequest, null);
+
+        new RequestTask(request, new RequestCallback() {
             @Override
-            public void onErrorResponse(VolleyError error) {
-                Log.d(TAG, "That didn't work!");
-                mHandler.sendEmptyMessage(0);
+            public void requestResult(RokuRequestTypes rokuRequestType, RequestTask.Result result) {
+
             }
-        });
-        // Add the request to the RequestQueue.
-        mRequestQueue.add(stringRequest);
-    }
 
-    private synchronized void processNextCommand() {
-        if (mCommanQueue.size() == 0) {
-            return;
-        }
+            @Override
+            public void onErrorResponse(RequestTask.Result result) {
 
-        String command = mCommanQueue.get(0);
-
-        mCommanQueue.remove(0);
-
-        sendCommand(command);
+            }
+        }).execute(RokuRequestTypes.keypress);
     }
 }

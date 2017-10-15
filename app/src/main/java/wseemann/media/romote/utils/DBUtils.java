@@ -8,8 +8,9 @@ import android.database.sqlite.SQLiteDatabase;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.jaku.model.Device;
+
 import wseemann.media.romote.database.DeviceDatabase;
-import wseemann.media.romote.model.Device;
 
 /**
  * Created by wseemann on 6/20/16.

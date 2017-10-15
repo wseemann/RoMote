@@ -15,10 +15,11 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.jaku.model.Device;
+
 import java.util.List;
 
 import wseemann.media.romote.R;
-import wseemann.media.romote.model.Device;
 import wseemann.media.romote.utils.PreferenceUtils;
 
 /**

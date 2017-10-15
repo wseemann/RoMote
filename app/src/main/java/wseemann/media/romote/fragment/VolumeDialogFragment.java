@@ -10,8 +10,9 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 
+import com.jaku.core.KeypressKeyValues;
+
 import wseemann.media.romote.R;
-import wseemann.media.romote.utils.CommandConstants;
 
 public class VolumeDialogFragment extends DialogFragment implements DialogInterface.OnCancelListener {
 
@@ -19,7 +20,7 @@ public class VolumeDialogFragment extends DialogFragment implements DialogInterf
      * implement this interface in order to receive event callbacks.
      * Each method passes the DialogFragment in case the host needs to query it. */
     public interface VolumeDialogListener {
-        public void onVolumeChanged(String command);
+        public void onVolumeChanged(final KeypressKeyValues keypressKeyValue);
     }
 
     // Use this instance of the interface to deliver action events
@@ -58,11 +59,11 @@ public class VolumeDialogFragment extends DialogFragment implements DialogInterf
         final View view = factory.inflate(R.layout.dialog_fragment_volume, null);
 
         Button muteVolumeButton = (Button) view.findViewById(R.id.mute_volume_button);
-        addOnClickListener(muteVolumeButton, CommandConstants.VOLUME_MUTE_COMMAND);
+        addOnClickListener(muteVolumeButton, KeypressKeyValues.VOLUME_MUTE);
         Button decreaseVolumeButton = (Button) view.findViewById(R.id.decrease_volume_button);
-        addOnClickListener(decreaseVolumeButton, CommandConstants.VOLUME_DOWN_COMMAND);
+        addOnClickListener(decreaseVolumeButton, KeypressKeyValues.VOLUME_DOWN);
         Button increaseVolumeButton = (Button) view.findViewById(R.id.increase_volume_button);
-        addOnClickListener(increaseVolumeButton, CommandConstants.VOLUME_UP_COMMAND);
+        addOnClickListener(increaseVolumeButton, KeypressKeyValues.VOLUME_UP);
 
         // Use the Builder class for convenient dialog construction
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -82,12 +83,12 @@ public class VolumeDialogFragment extends DialogFragment implements DialogInterf
 
     }
 
-    private void addOnClickListener(Button button, final String keypress) {
+    private void addOnClickListener(Button button, final KeypressKeyValues keypressKeyValue) {
         button.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (mListener != null) {
-                    mListener.onVolumeChanged(keypress);
+                    mListener.onVolumeChanged(keypressKeyValue);
                 }
             }
         });

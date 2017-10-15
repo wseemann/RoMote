@@ -1,14 +1,18 @@
 package wseemann.media.romote.activity;
 
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AppCompatActivity;
 
-import wseemann.media.romote.service.CommandService;
-import wseemann.media.romote.utils.CommandConstants;
+import com.jaku.core.JakuRequest;
+import com.jaku.core.KeypressKeyValues;
+import com.jaku.request.KeypressRequest;
+
+import wseemann.media.romote.tasks.RequestCallback;
+import wseemann.media.romote.tasks.RequestTask;
 import wseemann.media.romote.utils.CommandHelper;
+import wseemann.media.romote.utils.RokuRequestTypes;
 import wseemann.media.romote.utils.ShakeMonitor;
 
 /**
@@ -42,9 +46,22 @@ public class ShakeActivity extends AppCompatActivity {
     private ShakeMonitor.OnShakeListener mShakeListener = new ShakeMonitor.OnShakeListener() {
         @Override
         public void onShake() {
-            Intent intent = new Intent(ShakeActivity.this, CommandService.class);
-            intent.setAction(CommandHelper.getKeypressURL(ShakeActivity.this, CommandConstants.PLAY_COMMAND));
-            ShakeActivity.this.startService(intent);
+            String url = CommandHelper.getDeviceURL(ShakeActivity.this);
+
+            KeypressRequest keypressRequest = new KeypressRequest(url, KeypressKeyValues.PLAY.getValue());
+            JakuRequest request = new JakuRequest(keypressRequest, null);
+
+            new RequestTask(request, new RequestCallback() {
+                @Override
+                public void requestResult(RokuRequestTypes rokuRequestType, RequestTask.Result result) {
+
+                }
+
+                @Override
+                public void onErrorResponse(RequestTask.Result result) {
+
+                }
+            }).execute(RokuRequestTypes.keypress);
         }
     };
 

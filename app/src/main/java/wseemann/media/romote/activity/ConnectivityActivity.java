@@ -7,7 +7,6 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
-import android.util.Log;
 
 import wseemann.media.romote.fragment.ConnectivityDialog;
 import wseemann.media.romote.utils.NetworkMonitor;

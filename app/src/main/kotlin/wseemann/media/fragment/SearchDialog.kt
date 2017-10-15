@@ -12,16 +12,7 @@ import android.widget.EditText
 import android.widget.LinearLayout
 import android.widget.TextView
 
-import com.android.volley.Request
-import com.android.volley.RequestQueue
-import com.android.volley.Response
-import com.android.volley.VolleyError
-import com.android.volley.toolbox.StringRequest
-import com.android.volley.toolbox.Volley
-
 import wseemann.media.romote.R
-import wseemann.media.romote.model.Device
-import wseemann.media.romote.parser.DeviceInfoParser
 import wseemann.media.romote.utils.CommandHelper
 import wseemann.media.romote.utils.DBUtils
 import wseemann.media.romote.utils.PreferenceUtils

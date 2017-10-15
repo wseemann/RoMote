@@ -12,10 +12,11 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import wseemann.media.romote.model.Device;
-import wseemann.media.romote.parser.DeviceInfoParser;
 import wseemann.media.romote.utils.DBUtils;
 import wseemann.media.romote.utils.RokuScan;
+
+import com.jaku.model.Device;
+import com.jaku.parser.DeviceParser;
 
 /**
  * A custom Loader that loads all of the installed applications.
@@ -43,11 +44,11 @@ public class AvailableDevicesLoader extends AsyncTaskLoader<List<Device>> {
         String [] rokuDevices = RokuScan.scanForAllRokus();
 
         for (int i = 0; i < rokuDevices.length; i++) {
-            String host = "http://" + rokuDevices[i] + ":8060";
+            /*String host = "http://" + rokuDevices[i] + ":8060";
 
             String xml = download(host + "/query/device-info");
 
-            DeviceInfoParser parser = new DeviceInfoParser();
+            DeviceParser parser = new DeviceParser();
 
             Device device = parser.parse(xml);
             device.setHost(host);
@@ -63,7 +64,7 @@ public class AvailableDevicesLoader extends AsyncTaskLoader<List<Device>> {
 
             if (!exists) {
                 availableDevices.add(device);
-            }
+            }*/
         }
 
         // Sort the list.

@@ -4,16 +4,14 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.content.AsyncTaskLoader;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
+import java.util.ArrayList;
 import java.util.List;
 
-import wseemann.media.romote.model.Channel;
-import wseemann.media.romote.parser.ChannelParser;
 import wseemann.media.romote.utils.CommandHelper;
+
+import com.jaku.api.QueryRequests;
+import com.jaku.model.Channel;
 
 /**
  * A custom Loader that loads all of the installed applications.
@@ -35,11 +33,14 @@ public class ChannelLoader extends AsyncTaskLoader<List<Channel>> {
      */
     @Override public List<Channel> loadInBackground() {
         // Retrieve all Channels.
-        String xml = download(CommandHelper.getAppQueryURL(getContext()));
+        List<Channel> channels = null;
 
-        ChannelParser parser = new ChannelParser();
-
-        List<Channel> channels = parser.parse(xml);
+        try {
+            channels = QueryRequests.queryAppsRequest(CommandHelper.getDeviceURL(getContext()));
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            channels = new ArrayList<Channel>();
+        }
 
         // Sort the list.
         //Collections.sort(entries, ALPHA_COMPARATOR);
@@ -145,49 +146,5 @@ public class ChannelLoader extends AsyncTaskLoader<List<Channel>> {
     protected void onReleaseResources(List<Channel> channels) {
         // For a simple List<> there is nothing to do.  For something
         // like a Cursor, we would close it here.
-    }
-
-    private String download(String url) {
-
-        HttpURLConnection conn = null;
-        StringBuffer html = new StringBuffer();
-        String line = null;
-        BufferedReader reader = null;
-
-        try {
-            URL mURL = new URL(url);
-
-            if (mURL.getProtocol().equalsIgnoreCase("http")) {
-                conn = (HttpURLConnection) mURL.openConnection();
-            }
-
-            conn.setRequestProperty("User-Agent", "ServeStream");
-            conn.setConnectTimeout(6000);
-            conn.setReadTimeout(6000);
-            conn.setRequestMethod("GET");
-
-            // Start the query
-            reader = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            conn.connect();
-
-            while ((line = reader.readLine()) != null) {
-                html = html.append(line);
-            }
-
-        } catch (Exception ex) {
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException ex) {
-                }
-            }
-
-            if (conn != null) {
-                conn.disconnect();
-            }
-        }
-
-        return html.toString();
     }
 }

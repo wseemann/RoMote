@@ -15,7 +15,7 @@ import android.widget.TextView;
 import java.util.List;
 
 import wseemann.media.romote.R;
-import wseemann.media.romote.model.Channel;
+import com.jaku.model.Channel;
 import wseemann.media.romote.util.ImageFetcher;
 import wseemann.media.romote.utils.CommandHelper;
 

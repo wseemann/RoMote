@@ -29,7 +29,9 @@ dependencies {
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile group: 'org.jdom', name: 'jdom2', version: '2.0.6'
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    compile 'com.wseemann:jaku:1.1'
 }
 repositories {
     mavenCentral()
+    mavenLocal()
 }

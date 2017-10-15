@@ -11,8 +11,9 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
 
-import wseemann.media.romote.model.Device;
 import wseemann.media.romote.utils.DBUtils;
+
+import com.jaku.model.Device;
 
 /**
  * A custom Loader that loads all of the installed applications.

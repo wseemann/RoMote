@@ -38,7 +38,8 @@ import wseemann.media.romote.adapter.DeviceAdapter;
 import wseemann.media.romote.adapter.SeparatedListAdapter;
 import wseemann.media.romote.loader.AvailableDevicesLoader;
 import wseemann.media.romote.loader.PairedDevicesLoader;
-import wseemann.media.romote.model.Device;
+
+import com.jaku.model.Device;
 
 import wseemann.media.romote.R;
 import wseemann.media.romote.utils.Constants;

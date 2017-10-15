@@ -4,7 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 
-import wseemann.media.romote.model.Device;
+import com.jaku.model.Device;
 
 /**
  * Created by wseemann on 6/21/16.

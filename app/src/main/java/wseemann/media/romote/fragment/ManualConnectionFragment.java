@@ -7,7 +7,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,19 +16,17 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
-
 import wseemann.media.romote.R;
-import wseemann.media.romote.model.Device;
-import wseemann.media.romote.parser.DeviceInfoParser;
-import wseemann.media.romote.utils.CommandHelper;
+import wseemann.media.romote.tasks.RequestCallback;
+import wseemann.media.romote.tasks.RequestTask;
 import wseemann.media.romote.utils.DBUtils;
 import wseemann.media.romote.utils.PreferenceUtils;
+import wseemann.media.romote.utils.RokuRequestTypes;
+
+import com.jaku.core.JakuRequest;
+import com.jaku.model.Device;
+import com.jaku.parser.DeviceParser;
+import com.jaku.request.QueryDeviceInfoRequest;
 
 /**
  * Created by wseemann on 6/26/16.
@@ -70,7 +67,7 @@ public class ManualConnectionFragment extends Fragment {
 
                 mErrorText.setVisibility(View.GONE);
                 mProgressLayout.setVisibility(View.VISIBLE);
-                sendCommand(CommandHelper.getDeviceInfoURL(ManualConnectionFragment.this.getActivity(), mHost));
+                sendCommand(mHost);
             }
         });
 
@@ -79,33 +76,27 @@ public class ManualConnectionFragment extends Fragment {
     }
 
     private void sendCommand(String command) {
-        // Instantiate the RequestQueue.
-        RequestQueue queue = Volley.newRequestQueue(getActivity());
-
         String url = command;
 
-        // Request a string response from the provided URL.
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        mProgressLayout.setVisibility(View.GONE);
+        QueryDeviceInfoRequest queryActiveAppRequest = new QueryDeviceInfoRequest(url);
+        JakuRequest request = new JakuRequest(queryActiveAppRequest, new DeviceParser());
 
-                        DeviceInfoParser parser = new DeviceInfoParser();
-
-                        Device device = parser.parse(response);
-
-                        storeDevice(device);
-                    }
-                }, new Response.ErrorListener() {
+        new RequestTask(request, new RequestCallback() {
             @Override
-            public void onErrorResponse(VolleyError error) {
+            public void requestResult(RokuRequestTypes rokuRequestType, RequestTask.Result result) {
+                Device device = (Device) result.mResultValue;
+
+                mProgressLayout.setVisibility(View.GONE);
+
+                storeDevice(device);
+            }
+
+            @Override
+            public void onErrorResponse(RequestTask.Result result) {
                 mProgressLayout.setVisibility(View.GONE);
                 mErrorText.setVisibility(View.VISIBLE);
             }
-        });
-        // Add the request to the RequestQueue.
-        queue.add(stringRequest);
+        }).execute(RokuRequestTypes.query_device_info);
     }
 
     private void storeDevice(Device device) {

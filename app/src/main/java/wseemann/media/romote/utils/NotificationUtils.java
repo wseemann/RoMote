@@ -8,6 +8,8 @@ import android.graphics.Bitmap;
 import android.support.v4.app.TaskStackBuilder;
 import android.support.v7.app.NotificationCompat;
 
+import com.jaku.core.KeypressKeyValues;
+
 import wseemann.media.romote.R;
 import wseemann.media.romote.activity.MainActivity;
 import wseemann.media.romote.service.CommandService;
@@ -52,9 +54,9 @@ public class NotificationUtils {
             builder.setLargeIcon(bitmap);
         }
 
-        builder.addAction(GenerateActionCompat(context, R.drawable.ic_action_rewind, "Previous", 0, CommandConstants.REV_COMMAND));
-        builder.addAction(GenerateActionCompat(context, R.drawable.ic_action_pause, "Pause", 1, CommandConstants.PLAY_COMMAND));
-        builder.addAction(GenerateActionCompat(context, R.drawable.ic_action_fast_forward, "Next", 2, CommandConstants.FWD_COMMAND));
+        builder.addAction(GenerateActionCompat(context, R.drawable.ic_action_rewind, "Previous", 0, KeypressKeyValues.REV));
+        builder.addAction(GenerateActionCompat(context, R.drawable.ic_action_pause, "Pause", 1, KeypressKeyValues.PLAY));
+        builder.addAction(GenerateActionCompat(context, R.drawable.ic_action_fast_forward, "Next", 2, KeypressKeyValues.FWD));
 
         style.setShowActionsInCompactView(0, 1, 2);
         style.setShowCancelButton(true);
@@ -64,9 +66,9 @@ public class NotificationUtils {
         return builder.build();
     }
 
-    private static NotificationCompat.Action GenerateActionCompat(Context context, int icon, String title, int requestCode, String command) {
+    private static NotificationCompat.Action GenerateActionCompat(Context context, int icon, String title, int requestCode, KeypressKeyValues keypressKeyValue) {
         Intent intent = new Intent(context, CommandService.class);
-        intent.setAction(CommandHelper.getKeypressURL(context, command));
+        intent.putExtra("keypress", keypressKeyValue);
         PendingIntent pendingIntent = PendingIntent.getService(context, requestCode, intent, 0);
 
         return new NotificationCompat.Action.Builder(icon, title, pendingIntent).build();

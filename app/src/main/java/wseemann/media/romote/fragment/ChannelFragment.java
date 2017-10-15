@@ -10,7 +10,6 @@ import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
@@ -35,15 +34,18 @@ import wseemann.media.romote.BuildConfig;
 import wseemann.media.romote.R;
 import wseemann.media.romote.adapter.ChannelAdapter;
 import wseemann.media.romote.loader.ChannelLoader;
-import wseemann.media.romote.model.Channel;
-import wseemann.media.romote.service.CommandService;
-import wseemann.media.romote.service.NotificationService;
+import wseemann.media.romote.tasks.RequestCallback;
+import wseemann.media.romote.tasks.RequestTask;
 import wseemann.media.romote.util.ImageCache;
 import wseemann.media.romote.util.ImageFetcher;
 import wseemann.media.romote.util.Utils;
 import wseemann.media.romote.utils.CommandHelper;
 import wseemann.media.romote.utils.Constants;
-import wseemann.media.romote.utils.NotificationUtils;
+import wseemann.media.romote.utils.RokuRequestTypes;
+
+import com.jaku.core.JakuRequest;
+import com.jaku.model.Channel;
+import com.jaku.request.LaunchAppRequest;
 
 /**
  * The main fragment that powers the ImageGridActivity screen. Fairly straight forward GridView
@@ -132,9 +134,7 @@ public class ChannelFragment extends Fragment implements LoaderManager.LoaderCal
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Channel channel = (Channel) parent.getItemAtPosition(position);
 
-                Intent intent = new Intent(ChannelFragment.this.getContext(), CommandService.class);
-                intent.setAction(CommandHelper.getLaunchURL(ChannelFragment.this.getActivity(), channel.getId()));
-                ChannelFragment.this.getActivity().startService(intent);
+                performLaunch(channel.getId());
             }
         });
         mGridView.setOnScrollListener(new AbsListView.OnScrollListener() {
@@ -319,4 +319,23 @@ public class ChannelFragment extends Fragment implements LoaderManager.LoaderCal
             getLoaderManager().restartLoader(0, new Bundle(), ChannelFragment.this);
         }
     };
+
+    private void performLaunch(String appId) {
+        String url = CommandHelper.getDeviceURL(getActivity());
+
+        LaunchAppRequest launchAppIdRequest = new LaunchAppRequest(url, appId);
+        JakuRequest request = new JakuRequest(launchAppIdRequest, null);
+
+        new RequestTask(request, new RequestCallback() {
+            @Override
+            public void requestResult(RokuRequestTypes rokuRequestType, RequestTask.Result result) {
+
+            }
+
+            @Override
+            public void onErrorResponse(RequestTask.Result result) {
+
+            }
+        }).execute(RokuRequestTypes.launch);
+    }
 }
