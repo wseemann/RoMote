@@ -1,6 +1,7 @@
 package wseemann.media.romote.activity;
 
 import android.os.Bundle;
+import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.support.v7.widget.Toolbar;
@@ -9,9 +10,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.LinearLayout;
 
+import com.jaku.core.JakuRequest;
+import com.jaku.core.KeypressKeyValues;
+import com.jaku.request.KeypressRequest;
+
 import java.util.List;
 
 import wseemann.media.romote.R;
+import wseemann.media.romote.tasks.RequestCallback;
+import wseemann.media.romote.tasks.RequestTask;
+import wseemann.media.romote.utils.CommandHelper;
+import wseemann.media.romote.utils.RokuRequestTypes;
 
 /**
  * Created by wseemann on 2/20/16.
@@ -39,6 +48,34 @@ public class SettingsActivity extends PreferenceActivity {
         //getFragmentManager().beginTransaction().replace(android.R.id.content, new Prefs1Fragment()).commit();
         // Load the preferences from an XML resource
         addPreferencesFromResource(R.xml.preferences);
+
+        findPreference("find_remote").setOnPreferenceClickListener(
+                new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        performKeypress(KeypressKeyValues.FIND_REMOTE);
+                        return true;
+                    }
+                });
+    }
+
+    private void performKeypress(KeypressKeyValues keypressKeyValue) {
+        String url = CommandHelper.getDeviceURL(this);
+
+        KeypressRequest keypressRequest = new KeypressRequest(url, keypressKeyValue.getValue());
+        JakuRequest request = new JakuRequest(keypressRequest, null);
+
+        new RequestTask(request, new RequestCallback() {
+            @Override
+            public void requestResult(RokuRequestTypes rokuRequestType, RequestTask.Result result) {
+
+            }
+
+            @Override
+            public void onErrorResponse(RequestTask.Result result) {
+
+            }
+        }).execute(RokuRequestTypes.keypress);
     }
 
     /**
@@ -72,5 +109,4 @@ public class SettingsActivity extends PreferenceActivity {
             addPreferencesFromResource(R.xml.preferences);
         }
     }
-
 }

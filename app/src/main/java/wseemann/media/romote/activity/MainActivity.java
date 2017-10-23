@@ -233,7 +233,6 @@ public class MainActivity extends ConnectivityActivity implements
 
     @Override
     public void onSearch(String searchText) {
-        Log.d("----->", searchText);
         performSearch(searchText);
     }
 

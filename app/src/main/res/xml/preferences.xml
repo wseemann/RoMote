@@ -13,4 +13,15 @@
         android:summary="@string/notification_to_pause_summary_checkbox_preference"
         android:defaultValue="false"/>
 
+    <PreferenceCategory
+        android:title="Other">
+
+        <Preference
+            android:key="find_remote"
+            android:title="@string/find_remote_title_preference"
+            android:summary="@string/find_remote_summary_preference">
+        </Preference>
+
+    </PreferenceCategory>
+
 </PreferenceScreen>
