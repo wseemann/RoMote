@@ -18,12 +18,14 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ScrollView;
+import android.widget.TextView;
 
 import com.jaku.core.JakuRequest;
 import com.jaku.core.KeypressKeyValues;
@@ -108,19 +110,33 @@ public class RemoteFragment extends Fragment implements VolumeDialogFragment.Vol
         final EditText textbox = (EditText) getView().findViewById(R.id.textbox);
         mTextBoxBackground = textbox.getBackground();
         textbox.setBackgroundResource(0);
-        textbox.setOnKeyListener(new View.OnKeyListener() {
+        textbox.setOnEditorActionListener(new EditText.OnEditorActionListener() {
+            @Override
+            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
+                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                    if (event.getKeyCode() == 67 &&
+                            event.getAction() == KeyEvent.ACTION_DOWN) { //&&
+                        //textbox.length() == 0) {
+                        sendBackspace();
+                        return true;
+                    }
+                }
+                return false;
+            }
+        });
+        /*textbox.setOnKeyListener(new View.OnKeyListener() {
             @Override
             public boolean onKey(View v, int keyCode, KeyEvent event) {
                 if (keyCode == 67 &&
-                        event.getAction() == KeyEvent.ACTION_DOWN &&
-                        textbox.length() == 0) {
+                        event.getAction() == KeyEvent.ACTION_DOWN) { //&&
+                        //textbox.length() == 0) {
                     sendBackspace();
                     return true;
                 }
 
                 return false;
             }
-        });
+        });*/
         textbox.addTextChangedListener(new TextWatcher() {
             @Override
             public void onTextChanged(CharSequence s, int start, int before, int count) {

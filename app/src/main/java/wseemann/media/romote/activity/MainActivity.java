@@ -17,20 +17,31 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
+
+import com.jaku.core.JakuRequest;
+import com.jaku.core.KeypressKeyValues;
+import com.jaku.request.KeypressRequest;
+import com.jaku.request.SearchRequest;
 
 import wseemann.media.romote.R;
 import wseemann.media.romote.fragment.ChannelFragment;
 import wseemann.media.romote.fragment.InstallChannelDialog;
 import wseemann.media.romote.fragment.MainFragment;
 import wseemann.media.romote.fragment.RemoteFragment;
+import wseemann.media.romote.fragment.SearchDialog;
 import wseemann.media.romote.fragment.StoreFragment;
 import wseemann.media.romote.service.NotificationService;
+import wseemann.media.romote.tasks.RequestCallback;
+import wseemann.media.romote.tasks.RequestTask;
+import wseemann.media.romote.utils.CommandHelper;
+import wseemann.media.romote.utils.RokuRequestTypes;
 
 public class MainActivity extends ConnectivityActivity implements
-        InstallChannelDialog.InstallChannelListener {
+        InstallChannelDialog.InstallChannelListener, SearchDialog.SearchDialogListener {
 
     private StoreFragment mStoreFragment;
 
@@ -118,6 +129,10 @@ public class MainActivity extends ConnectivityActivity implements
 
         if (id == R.id.action_settings) {
             startActivity(new Intent(this, SettingsActivity.class));
+            return true;
+        } else if (id == R.id.action_search) {
+            SearchDialog fragment = SearchDialog.Companion.newInstance(this);
+            fragment.show(getSupportFragmentManager(), SearchDialog.class.getName());
             return true;
         }
 
@@ -214,5 +229,30 @@ public class MainActivity extends ConnectivityActivity implements
     @Override
     public void onInstallSelected(DialogFragment dialog) {
         dialog.dismiss();
+    }
+
+    @Override
+    public void onSearch(String searchText) {
+        Log.d("----->", searchText);
+        performSearch(searchText);
+    }
+
+    private void performSearch(String searchText) {
+        String url = CommandHelper.getDeviceURL(this);
+
+        SearchRequest searchRequest = new SearchRequest(url, searchText, null, null, null, null, null, null, null, null, null);
+        JakuRequest request = new JakuRequest(searchRequest, null);
+
+        new RequestTask(request, new RequestCallback() {
+            @Override
+            public void requestResult(RokuRequestTypes rokuRequestType, RequestTask.Result result) {
+
+            }
+
+            @Override
+            public void onErrorResponse(RequestTask.Result result) {
+
+            }
+        }).execute(RokuRequestTypes.search);
     }
 }

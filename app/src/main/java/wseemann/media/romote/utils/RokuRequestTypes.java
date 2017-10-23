@@ -9,7 +9,8 @@ public enum RokuRequestTypes {
     query_device_info("query/device-info"),
     launch("launch"),
     keypress("keypress"),
-    query_icon("query/icon");
+    query_icon("query/icon"),
+    search("search/browse?");
 
     private final String method;
 

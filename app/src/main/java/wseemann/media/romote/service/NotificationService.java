@@ -185,7 +185,7 @@ public class NotificationService extends Service {
                     byte [] data = (byte []) result.mResultValue;
 
                     Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-                    
+
                     mDevice = PreferenceUtils.getConnectedDevice(NotificationService.this);
                     notification = NotificationUtils.buildNotification(NotificationService.this, mDevice.getModelName(), mChannel.getTitle(), bitmap);
                     mNM.notify(NOTIFICATION, notification);

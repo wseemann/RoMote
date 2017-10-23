@@ -10,6 +10,7 @@
     <string name="action_info">Info</string>
     <string name="action_unpair">Unpair</string>
     <string name="action_settings">Settings</string>
+    <string name="action_search">Search</string>
     <string name="action_share">Share</string>
     <string name="keyboard">Keyboard</string>
     <string name="no_network_connection_toast">No network connection</string>
@@ -21,6 +22,8 @@
     <string name="connect_manually">Connect Manually</string>
     <string name="connect_help">Enter your Roku device\'s complete IP address</string>
     <string name="connect">Connect</string>
+    <string name="search_help">Enter your search criteria:</string>
+    <string name="go">Go</string>
     <string name="checking_ip_address">Checking IP Address ...</string>
     <string name="no_roku_device">No Roku device could be found at this IP Address. Please check the IP address and try again.</string>
     <string name="connected">Connected</string>
