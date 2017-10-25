@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 public class DeviceDatabase extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
     private static final String DATABASE_NAME = "devices";
     public static final String DEVICES_TABLE_NAME = "devices";
 
@@ -33,12 +33,20 @@ public class DeviceDatabase extends SQLiteOpenHelper {
     public static final String TIME_ZONE = "time_zone";
     public static final String TIME_ZONE_OFFSET = "time_zone_offset";
     public static final String POWER_MODE = "power_mode";
+
+    public static final String SUPPORTS_SUSPEND = "supports_suspend";
+    public static final String SUPPORTS_FIND_REMOTE = "supports_find_remote";
+    public static final String SUPPORTS_AUDIO_GUIDE = "supports_audio_guide";
+
     public static final String DEVELOPER_ENABLED = "developer_enabled";
     public static final String KEYED_DEVELOPER_ID = "keyed_developer_id";
     public static final String SEARCH_ENABLED = "search_enabled";
     public static final String VOICE_SEARCH_ENABLED = "voice_search_enabled";
     public static final String NOTIFICATIONS_ENABLED = "notifications_enabled";
     public static final String NOTIFICATIONS_FIRST_USE = "notifications_first_use";
+
+    public static final String SUPPORTS_PRIVATE_LISTENING = "supports_private_listening";
+
     public static final String HEADPHONES_CONNECTED = "headphones_connected";
 
     private static final String DEVICES_TABLE_CREATE =
@@ -64,13 +72,23 @@ public class DeviceDatabase extends SQLiteOpenHelper {
                     + TIME_ZONE + " TEXT,"
                     + TIME_ZONE_OFFSET + " TEXT,"
                     + POWER_MODE + " TEXT,"
+                    + SUPPORTS_SUSPEND + " TEXT,"
+                    + SUPPORTS_FIND_REMOTE + " TEXT,"
+                    + SUPPORTS_AUDIO_GUIDE + " TEXT,"
                     + DEVELOPER_ENABLED + " TEXT,"
                     + KEYED_DEVELOPER_ID + " TEXT,"
                     + SEARCH_ENABLED + " TEXT,"
                     + VOICE_SEARCH_ENABLED + " TEXT,"
                     + NOTIFICATIONS_ENABLED + " TEXT,"
                     + NOTIFICATIONS_FIRST_USE + " TEXT,"
+                    + SUPPORTS_PRIVATE_LISTENING + " TEXT,"
                     + HEADPHONES_CONNECTED + " TEXT);";
+
+    private static final String[] DEVICES_TABLE_ALTER_VERSION_TWO = {
+            "ALTER TABLE " + DEVICES_TABLE_NAME + " ADD COLUMN " + SUPPORTS_SUSPEND + " TEXT;",
+            "ALTER TABLE " + DEVICES_TABLE_NAME + " ADD COLUMN " + SUPPORTS_FIND_REMOTE + " TEXT;",
+            "ALTER TABLE " + DEVICES_TABLE_NAME + " ADD COLUMN " + SUPPORTS_AUDIO_GUIDE + " TEXT;",
+            "ALTER TABLE " + DEVICES_TABLE_NAME + " ADD COLUMN " + SUPPORTS_PRIVATE_LISTENING + " TEXT;"};
 
     public DeviceDatabase(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -83,6 +101,10 @@ public class DeviceDatabase extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
+        if (newVersion == 2) {
+            for (int i = 0; i < DEVICES_TABLE_ALTER_VERSION_TWO.length; i++) {
+                db.execSQL(DEVICES_TABLE_ALTER_VERSION_TWO[i]);
+            }
+        }
     }
 }

@@ -12,6 +12,7 @@ import android.widget.LinearLayout;
 
 import com.jaku.core.JakuRequest;
 import com.jaku.core.KeypressKeyValues;
+import com.jaku.model.Device;
 import com.jaku.request.KeypressRequest;
 
 import java.util.List;
@@ -20,6 +21,7 @@ import wseemann.media.romote.R;
 import wseemann.media.romote.tasks.RequestCallback;
 import wseemann.media.romote.tasks.RequestTask;
 import wseemann.media.romote.utils.CommandHelper;
+import wseemann.media.romote.utils.PreferenceUtils;
 import wseemann.media.romote.utils.RokuRequestTypes;
 
 /**
@@ -49,6 +51,10 @@ public class SettingsActivity extends PreferenceActivity {
         // Load the preferences from an XML resource
         addPreferencesFromResource(R.xml.preferences);
 
+        if (!deviceSupportsFindRemote()) {
+            findPreference("find_remote").setEnabled(false);
+        }
+
         findPreference("find_remote").setOnPreferenceClickListener(
                 new Preference.OnPreferenceClickListener() {
                     @Override
@@ -76,6 +82,20 @@ public class SettingsActivity extends PreferenceActivity {
 
             }
         }).execute(RokuRequestTypes.keypress);
+    }
+
+    private boolean deviceSupportsFindRemote() {
+        try {
+            Device device = PreferenceUtils.getConnectedDevice(this);
+
+            if (device.getSupportsFindRemote() != null) {
+                return Boolean.valueOf(device.getSupportsFindRemote());
+            }
+        } catch(Exception ex) {
+            ex.printStackTrace();
+        }
+
+        return false;
     }
 
     /**

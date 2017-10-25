@@ -13,10 +13,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import wseemann.media.romote.utils.DBUtils;
-import wseemann.media.romote.utils.RokuScan;
 
+import com.jaku.api.DeviceRequests;
 import com.jaku.model.Device;
-import com.jaku.parser.DeviceParser;
 
 /**
  * A custom Loader that loads all of the installed applications.
@@ -41,30 +40,25 @@ public class AvailableDevicesLoader extends AsyncTaskLoader<List<Device>> {
         List<Device> devices = DBUtils.getAllDevices(getContext());
         List<Device> availableDevices = new ArrayList<Device>();
 
-        String [] rokuDevices = RokuScan.scanForAllRokus();
+        try {
+            List<Device> rokuDevices = DeviceRequests.discoverDevices();
 
-        for (int i = 0; i < rokuDevices.length; i++) {
-            /*String host = "http://" + rokuDevices[i] + ":8060";
+            for (Device device: rokuDevices) {
+                boolean exists = false;
 
-            String xml = download(host + "/query/device-info");
+                for (int j = 0; j < devices.size(); j++) {
+                    if (devices.get(j).getSerialNumber().equals(device.getSerialNumber())) {
+                        exists = true;
+                        break;
+                    }
+                }
 
-            DeviceParser parser = new DeviceParser();
-
-            Device device = parser.parse(xml);
-            device.setHost(host);
-
-            boolean exists = false;
-
-            for (int j = 0; j < devices.size(); j++) {
-                if (devices.get(j).getSerialNumber().equals(device.getSerialNumber())) {
-                    exists = true;
-                    break;
+                if (!exists) {
+                    availableDevices.add(device);
                 }
             }
-
-            if (!exists) {
-                availableDevices.add(device);
-            }*/
+        } catch (IOException ex) {
+            ex.printStackTrace();
         }
 
         // Sort the list.

@@ -17,11 +17,6 @@ import android.support.v4.media.MediaMetadataCompat;
 import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Log;
 
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.ImageRequest;
-import com.android.volley.toolbox.Volley;
 import com.jaku.core.JakuRequest;
 import com.jaku.parser.AppsParser;
 import com.jaku.parser.IconParser;
@@ -264,7 +259,7 @@ public class NotificationService extends Service {
     }
 
     private void getArtwork(String url) {
-        synchronized(this) {
+        /*synchronized(this) {
             // Instantiate the RequestQueue.
             RequestQueue queue = Volley.newRequestQueue(this);
 
@@ -291,6 +286,6 @@ public class NotificationService extends Service {
                     });
 
             queue.add(request);
-        }
+        }*/
     }
 }

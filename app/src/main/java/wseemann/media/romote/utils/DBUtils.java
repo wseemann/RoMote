@@ -86,12 +86,16 @@ public class DBUtils {
         values.put(DeviceDatabase.TIME_ZONE, device.getTimeZone());
         values.put(DeviceDatabase.TIME_ZONE_OFFSET, device.getTimeZoneOffset());
         values.put(DeviceDatabase.POWER_MODE, device.getPowerMode());
+        values.put(DeviceDatabase.SUPPORTS_SUSPEND, device.getSupportsSuspend());
+        values.put(DeviceDatabase.SUPPORTS_FIND_REMOTE, device.getSupportsFindRemote());
+        values.put(DeviceDatabase.SUPPORTS_AUDIO_GUIDE, device.getSupportsAudioGuide());
         values.put(DeviceDatabase.DEVELOPER_ENABLED, device.getDeveloperEnabled());
         values.put(DeviceDatabase.KEYED_DEVELOPER_ID, device.getKeyedDeveloperId());
         values.put(DeviceDatabase.SEARCH_ENABLED, device.getSearchEnabled());
         values.put(DeviceDatabase.VOICE_SEARCH_ENABLED, device.getVoiceSearchEnabled());
         values.put(DeviceDatabase.NOTIFICATIONS_ENABLED, device.getNotificationsEnabled());
         values.put(DeviceDatabase.NOTIFICATIONS_FIRST_USE, device.getNotificationsFirstUse());
+        values.put(DeviceDatabase.SUPPORTS_PRIVATE_LISTENING, device.getSupportsPrivateListening());
         values.put(DeviceDatabase.HEADPHONES_CONNECTED, device.getHeadphonesConnected());
 
         id = db.insert(DeviceDatabase.DEVICES_TABLE_NAME, null, values);
@@ -168,12 +172,16 @@ public class DBUtils {
         device.setTimeZone(cursor.getString(cursor.getColumnIndex(DeviceDatabase.TIME_ZONE)));
         device.setTimeZoneOffset(cursor.getString(cursor.getColumnIndex(DeviceDatabase.TIME_ZONE_OFFSET)));
         device.setPowerMode(cursor.getString(cursor.getColumnIndex(DeviceDatabase.POWER_MODE)));
+        device.setSupportsSuspend(cursor.getString(cursor.getColumnIndex(DeviceDatabase.SUPPORTS_SUSPEND)));
+        device.setSupportsFindRemote(cursor.getString(cursor.getColumnIndex(DeviceDatabase.SUPPORTS_FIND_REMOTE)));
+        device.setSupportsAudioGuide(cursor.getString(cursor.getColumnIndex(DeviceDatabase.SUPPORTS_AUDIO_GUIDE)));
         device.setDeveloperEnabled(cursor.getString(cursor.getColumnIndex(DeviceDatabase.DEVELOPER_ENABLED)));
         device.setKeyedDeveloperId(cursor.getString(cursor.getColumnIndex(DeviceDatabase.KEYED_DEVELOPER_ID)));
         device.setSearchEnabled(cursor.getString(cursor.getColumnIndex(DeviceDatabase.SEARCH_ENABLED)));
         device.setVoiceSearchEnabled(cursor.getString(cursor.getColumnIndex(DeviceDatabase.VOICE_SEARCH_ENABLED)));
         device.setNotificationsEnabled(cursor.getString(cursor.getColumnIndex(DeviceDatabase.NOTIFICATIONS_ENABLED)));
         device.setNotificationsFirstUse(cursor.getString(cursor.getColumnIndex(DeviceDatabase.NOTIFICATIONS_FIRST_USE)));
+        device.setSupportsPrivateListening(cursor.getString(cursor.getColumnIndex(DeviceDatabase.SUPPORTS_PRIVATE_LISTENING)));
         device.setHeadphonesConnected(cursor.getString(cursor.getColumnIndex(DeviceDatabase.HEADPHONES_CONNECTED)));
 
         return device;

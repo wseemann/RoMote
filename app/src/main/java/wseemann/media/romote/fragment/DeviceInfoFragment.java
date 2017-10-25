@@ -123,12 +123,16 @@ public class DeviceInfoFragment extends ListFragment {
         entries.add(new Entry("time-zone", device.getTimeZone()));
         entries.add(new Entry("time-zone-offset", device.getTimeZoneOffset()));
         entries.add(new Entry("power-mode", device.getPowerMode()));
+        entries.add(new Entry("supports-suspend", device.getSupportsSuspend()));
+        entries.add(new Entry("supports-find-remote", device.getSupportsFindRemote()));
+        entries.add(new Entry("supports-audio-guide", device.getSupportsAudioGuide()));
         entries.add(new Entry("developer-enabled", device.getDeveloperEnabled()));
         entries.add(new Entry("keyed-developer-id", device.getKeyedDeveloperId()));
         entries.add(new Entry("search-enabled", device.getSearchEnabled()));
         entries.add(new Entry("voice-search-enabled", device.getVoiceSearchEnabled()));
         entries.add(new Entry("notifications-enabled", device.getNotificationsEnabled()));
         entries.add(new Entry("notifications-first-use", device.getNotificationsFirstUse()));
+        entries.add(new Entry("supports-private-listening", device.getSupportsPrivateListening()));
         entries.add(new Entry("headphones-connected", device.getHeadphonesConnected()));
 
         return entries;
