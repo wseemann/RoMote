@@ -1,235 +1,146 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:background="@drawable/remote_bg">
 
-    <ScrollView
-        android:id="@+id/scroll_view"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:fillViewport="true">
+        android:orientation="vertical">
 
-        <wseemann.media.romote.view.MyLinearLayout
-            android:id="@+id/layout"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:layout_height="52dip"
+            android:layout_marginTop="10dip"
+            android:layout_marginLeft="20dip"
+            android:layout_marginRight="20dip"
+            android:orientation="horizontal">
 
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+            <ImageButton
+                android:id="@+id/back_button"
+                android:layout_width="0dip"
+                android:layout_height="fill_parent"
+                android:layout_marginRight="10dip"
                 android:layout_weight="1"
-                android:background="@android:color/white"
-                android:orientation="horizontal">
+                android:background="@drawable/remote_buttonshape"
+                android:src="@mipmap/remote_back" />
 
-                <ImageButton
-                    android:id="@+id/back_button"
-                    android:layout_width="0dip"
-                    android:layout_height="fill_parent"
-                    android:layout_weight="1"
-                    android:background="@drawable/remote_button_dark"
-                    android:src="@drawable/ic_action_back_light" />
-
-                <wseemann.media.romote.view.RepeatingImageButton
-                    android:id="@+id/up_button"
-                    android:layout_width="0dip"
-                    android:layout_height="fill_parent"
-                    android:layout_weight="1"
-                    android:background="@drawable/remote_button_dark"
-                    android:src="@drawable/ic_action_collapse_light" />
-
-                <Button
-                    android:id="@+id/home_button"
-                    android:layout_width="0dip"
-                    android:layout_height="fill_parent"
-                    android:layout_weight="1"
-                    android:background="@drawable/remote_button_dark"
-                    android:text="@string/home"
-                    android:textAppearance="@android:style/TextAppearance.Medium"
-                    android:textColor="@android:color/black"
-                    android:textStyle="bold" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+            <ImageButton
+                android:id="@+id/info_button"
+                android:layout_width="0dip"
+                android:layout_height="fill_parent"
+                android:layout_marginLeft="10dip"
+                android:layout_marginRight="10dip"
                 android:layout_weight="1"
-                android:background="@android:color/white"
-                android:orientation="horizontal">
+                android:background="@drawable/remote_buttonshape"
+                android:src="@mipmap/remote_options" />
 
-                <wseemann.media.romote.view.RepeatingImageButton
-                    android:id="@+id/left_button"
-                    android:layout_width="0dip"
-                    android:layout_height="fill_parent"
-                    android:layout_weight="1"
-                    android:background="@drawable/remote_button_dark"
-                    android:src="@drawable/ic_action_previous_item_light" />
-
-                <Button
-                    android:id="@+id/select_button"
-                    android:layout_width="0dip"
-                    android:layout_height="fill_parent"
-                    android:layout_weight="1"
-                    android:background="@drawable/remote_button_dark"
-                    android:text="@string/ok"
-                    android:textAppearance="@android:style/TextAppearance.Medium"
-                    android:textColor="@android:color/black"
-                    android:textStyle="bold" />
-
-                <wseemann.media.romote.view.RepeatingImageButton
-                    android:id="@+id/right_button"
-                    android:layout_width="0dip"
-                    android:layout_height="fill_parent"
-                    android:layout_weight="1"
-                    android:background="@drawable/remote_button_dark"
-                    android:src="@drawable/ic_action_next_item_light" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+            <ImageButton
+                android:id="@+id/home_button"
+                android:layout_width="0dip"
+                android:layout_height="fill_parent"
+                android:layout_marginLeft="10dip"
+                android:layout_marginRight="10dip"
                 android:layout_weight="1"
-                android:background="@android:color/white"
-                android:orientation="horizontal">
+                android:background="@drawable/remote_buttonshape"
+                android:src="@mipmap/remote_home" />
 
-                <ImageButton
-                    android:id="@+id/instant_replay_button"
-                    android:layout_width="0dip"
-                    android:layout_height="fill_parent"
-                    android:layout_weight="1"
-                    android:background="@drawable/remote_button_dark"
-                    android:src="@drawable/ic_action_undo_light" />
-
-                <wseemann.media.romote.view.RepeatingImageButton
-                    android:id="@+id/down_button"
-                    android:layout_width="0dip"
-                    android:layout_height="fill_parent"
-                    android:layout_weight="1"
-                    android:background="@drawable/remote_button_dark"
-                    android:src="@drawable/ic_action_expand_light" />
-
-                <ImageButton
-                    android:id="@+id/info_button"
-                    android:layout_width="0dip"
-                    android:layout_height="fill_parent"
-                    android:layout_weight="1"
-                    android:background="@drawable/remote_button_dark"
-                    android:src="@drawable/ic_action_about_light" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
+            <ImageButton
+                android:id="@+id/power_button"
+                android:layout_width="52dip"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="10dip"
+                android:background="@drawable/remote_buttonshape"
+                android:src="@mipmap/remote_power" />
+
+        </LinearLayout>
+
+        <wseemann.media.romote.view.RemoteButtonLayout
+            android:id="@+id/dpad"
+            android:layout_width="match_parent"
+            android:layout_height="0dip"
+            android:layout_weight="1" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="52dip"
+            android:layout_marginTop="10dip"
+            android:layout_marginLeft="20dip"
+            android:layout_marginRight="20dip"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/rev_button"
+                android:layout_width="0dip"
+                android:layout_height="fill_parent"
+                android:layout_marginRight="10dip"
                 android:layout_weight="1"
-                android:background="@android:color/white"
-                android:orientation="horizontal">
+                android:background="@drawable/remote_buttonshape"
+                android:src="@mipmap/remote_rw" />
 
-                <ImageButton
-                    android:id="@+id/rev_button"
-                    android:layout_width="0dip"
-                    android:layout_height="fill_parent"
-                    android:layout_weight="1"
-                    android:background="@drawable/remote_button_dark"
-                    android:src="@drawable/ic_action_rewind_light" />
-
-                <ImageButton
-                    android:id="@+id/play_button"
-                    android:layout_width="0dip"
-                    android:layout_height="fill_parent"
-                    android:layout_weight="1"
-                    android:background="@drawable/remote_button_dark"
-                    android:src="@drawable/ic_action_play_over_video_light" />
-
-                <ImageButton
-                    android:id="@+id/fwd_button"
-                    android:layout_width="0dip"
-                    android:layout_height="fill_parent"
-                    android:layout_weight="1"
-                    android:background="@drawable/remote_button_dark"
-                    android:src="@drawable/ic_action_fast_forward_light" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+            <ImageButton
+                android:id="@+id/play_button"
+                android:layout_width="0dip"
+                android:layout_height="fill_parent"
+                android:layout_marginLeft="10dip"
+                android:layout_marginRight="10dip"
                 android:layout_weight="1"
-                android:background="@android:color/white"
-                android:orientation="horizontal"
-                android:paddingBottom="2dip"
-                android:paddingTop="4dip">
+                android:background="@drawable/remote_buttonshape"
+                android:src="@mipmap/remote_playpause" />
 
-                <ImageButton
-                    android:id="@+id/volume_button"
-                    android:layout_width="0dip"
-                    android:layout_height="fill_parent"
-                    android:layout_weight="1"
-                    android:background="@drawable/remote_button_dark"
-                    android:src="@drawable/ic_action_volume_on_light" />
+            <ImageButton
+                android:id="@+id/fwd_button"
+                android:layout_width="0dip"
+                android:layout_height="fill_parent"
+                android:layout_marginLeft="10dip"
+                android:layout_weight="1"
+                android:background="@drawable/remote_buttonshape"
+                android:src="@mipmap/remote_ff" />
 
-                <ImageButton
-                    android:id="@+id/keyboard_button"
-                    android:layout_width="0dip"
-                    android:layout_height="fill_parent"
-                    android:layout_weight="1"
-                    android:layout_gravity="center"
-                    android:background="@drawable/remote_button_dark"
-                    android:contentDescription="@string/keyboard"
-                    android:src="@drawable/ic_action_keyboard_light" />
+        </LinearLayout>
 
-                <View
-                    android:layout_width="0dip"
-                    android:layout_height="20dip"
-                    android:layout_weight="1"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="52dip"
+            android:layout_marginTop="10dip"
+            android:layout_marginBottom="10dip"
+            android:layout_marginLeft="20dip"
+            android:layout_marginRight="20dip"
+            android:orientation="horizontal">
 
-            </LinearLayout>
+            <ImageButton
+                android:id="@+id/instant_replay_button"
+                android:layout_width="0dip"
+                android:layout_height="fill_parent"
+                android:layout_marginRight="10dip"
+                android:layout_weight="1"
+                android:background="@drawable/remote_buttonshape"
+                android:src="@mipmap/remote_replay" />
 
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@android:color/white"
-                android:focusable="true"
-                android:focusableInTouchMode="true">
+            <ImageButton
+                android:id="@+id/keyboard_button"
+                android:layout_width="0dip"
+                android:layout_height="fill_parent"
+                android:layout_gravity="center"
+                android:layout_marginLeft="10dip"
+                android:layout_marginRight="10dip"
+                android:layout_weight="1"
+                android:background="@drawable/remote_buttonshape"
+                android:contentDescription="@string/keyboard"
+                android:src="@mipmap/remote_keyboard_2" />
 
-                <ImageView
-                    android:id="@+id/search_icon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="26dip"
-                    android:layout_alignParentLeft="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginLeft="14dip"
-                    android:src="@drawable/ic_action_search"
-                    android:visibility="invisible"/>
+            <ImageButton
+                android:id="@+id/volume_button"
+                android:layout_width="0dip"
+                android:layout_height="fill_parent"
+                android:layout_marginLeft="10dip"
+                android:layout_weight="1"
+                android:background="@drawable/remote_buttonshape"
+                android:src="@mipmap/remote_private_listening_available" />
 
-                <ImageView
-                    android:id="@+id/voice_search_btn"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentRight="true"
-                    android:layout_centerVertical="true"
-                    android:layout_marginRight="14dip"
-                    android:background="@drawable/ic_voice_search_api_holo_light"
-                    android:visibility="invisible"/>
+        </LinearLayout>
 
-                <EditText
-                    android:id="@+id/textbox"
-                    android:layout_width="fill_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_centerVertical="true"
-                    android:layout_marginLeft="0dip"
-                    android:layout_marginRight="2dip"
-                    android:layout_toLeftOf="@id/voice_search_btn"
-                    android:layout_toRightOf="@id/search_icon"
-                    android:hint=""/>
+    </LinearLayout>
 
-            </RelativeLayout>
-
-        </wseemann.media.romote.view.MyLinearLayout>
-
-    </ScrollView>
-
-</FrameLayout>
+</android.support.constraint.ConstraintLayout>

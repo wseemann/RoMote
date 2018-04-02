@@ -1,5 +1,7 @@
 package wseemann.media.romote.activity;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
@@ -21,6 +23,7 @@ import wseemann.media.romote.R;
 import wseemann.media.romote.tasks.RequestCallback;
 import wseemann.media.romote.tasks.RequestTask;
 import wseemann.media.romote.utils.CommandHelper;
+import wseemann.media.romote.utils.Constants;
 import wseemann.media.romote.utils.PreferenceUtils;
 import wseemann.media.romote.utils.RokuRequestTypes;
 
@@ -60,6 +63,17 @@ public class SettingsActivity extends PreferenceActivity {
                     @Override
                     public boolean onPreferenceClick(Preference preference) {
                         performKeypress(KeypressKeyValues.FIND_REMOTE);
+                        return true;
+                    }
+                });
+
+        findPreference("donate").setOnPreferenceClickListener(
+                new Preference.OnPreferenceClickListener() {
+                    @Override
+                    public boolean onPreferenceClick(Preference preference) {
+                        Intent intent = new Intent(Intent.ACTION_VIEW);
+                        intent.setData(Uri.parse(Constants.PAYPAL_DONATION_LINK));
+                        startActivity(intent);
                         return true;
                     }
                 });

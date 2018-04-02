@@ -25,9 +25,8 @@ import android.widget.TextView;
 import java.util.List;
 
 import wseemann.media.romote.R;
-import wseemann.media.romote.activity.MainActivity;
+import wseemann.media.romote.activity.AltMainActivity;
 import wseemann.media.romote.activity.ManualConnectionActivity;
-import wseemann.media.romote.loader.AvailableDevicesLoader;
 import wseemann.media.romote.utils.DBUtils;
 import wseemann.media.romote.utils.PreferenceUtils;
 
@@ -106,7 +105,7 @@ public class ConfigureDeviceFragment extends Fragment implements LoaderManager.L
         super.onActivityResult(requestCode, resultCode, data);
 
         if (requestCode == 0 && resultCode == Activity.RESULT_OK) {
-            startActivity(new Intent(ConfigureDeviceFragment.this.getActivity(), MainActivity.class));
+            startActivity(new Intent(ConfigureDeviceFragment.this.getActivity(), AltMainActivity.class));
             ConfigureDeviceFragment.this.getActivity().finish();
         }
     }
@@ -139,7 +138,8 @@ public class ConfigureDeviceFragment extends Fragment implements LoaderManager.L
 
     @Override
     public Loader<List<Device>> onCreateLoader(int arg0, Bundle args) {
-        return new AvailableDevicesLoader(getActivity(), args);
+        //return new AvailableDevicesLoader(getActivity(), args);
+        return null;
     }
 
     @Override
@@ -229,7 +229,7 @@ public class ConfigureDeviceFragment extends Fragment implements LoaderManager.L
             editor.putBoolean("first_use", false);
             editor.commit();
 
-            startActivity(new Intent(ConfigureDeviceFragment.this.getActivity(), MainActivity.class));
+            startActivity(new Intent(ConfigureDeviceFragment.this.getActivity(), AltMainActivity.class));
             ConfigureDeviceFragment.this.getActivity().finish();
         }
     };

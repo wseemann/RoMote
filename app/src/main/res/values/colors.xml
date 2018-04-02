@@ -14,4 +14,6 @@
     <color name="semi_transparent">#66000000</color>
 
     <color name="light_button">#22000000</color>
+
+    <color name="gunmetal">#2C3539</color>
 </resources>

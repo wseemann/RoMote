@@ -22,6 +22,12 @@
             android:summary="@string/find_remote_summary_preference">
         </Preference>
 
+        <Preference
+            android:key="donate"
+            android:title="@string/donate_title_preference"
+            android:summary="@string/donate_summary_preference">
+        </Preference>
+
     </PreferenceCategory>
 
 </PreferenceScreen>

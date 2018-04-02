@@ -11,7 +11,7 @@ import android.support.v7.app.NotificationCompat;
 import com.jaku.core.KeypressKeyValues;
 
 import wseemann.media.romote.R;
-import wseemann.media.romote.activity.MainActivity;
+import wseemann.media.romote.activity.AltMainActivity;
 import wseemann.media.romote.service.CommandService;
 
 /**
@@ -37,7 +37,7 @@ public class NotificationUtils {
         }
 
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
-        stackBuilder.addNextIntentWithParentStack(new Intent(context, MainActivity.class)
+        stackBuilder.addNextIntentWithParentStack(new Intent(context, AltMainActivity.class)
                 .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
         PendingIntent contentIntent = stackBuilder.getPendingIntent((int) System.currentTimeMillis(), 0);
 

@@ -42,6 +42,8 @@ import wseemann.media.romote.loader.PairedDevicesLoader;
 import com.jaku.model.Device;
 
 import wseemann.media.romote.R;
+import wseemann.media.romote.loader.SupportAvailableDevicesLoader;
+import wseemann.media.romote.loader.SupportPairedDevicesLoader;
 import wseemann.media.romote.utils.Constants;
 import wseemann.media.romote.utils.DBUtils;
 import wseemann.media.romote.utils.PreferenceUtils;
@@ -225,7 +227,7 @@ public class MainFragment extends ListFragment {
 
         @Override
         public Loader<List<Device>> onCreateLoader(int arg0, Bundle args) {
-            return new PairedDevicesLoader(getActivity(), args);
+            return new SupportPairedDevicesLoader(getActivity(), args);
         }
 
         @Override
@@ -257,7 +259,7 @@ public class MainFragment extends ListFragment {
 
         @Override
         public Loader<List<Device>> onCreateLoader(int arg0, Bundle args) {
-            return new AvailableDevicesLoader(getActivity(), args);
+            return new SupportAvailableDevicesLoader(getActivity(), args);
         }
 
         @Override

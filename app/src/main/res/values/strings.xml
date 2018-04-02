@@ -3,6 +3,7 @@
 
     <string name="ok">OK</string>
     <string name="home">HOME</string>
+    <string name="clear">Clear</string>
 
     <string name="empty_list">No devices detected</string>
     <string name="empty_channel_list">No channels detected</string>
@@ -57,7 +58,16 @@
     <string name="find_remote_title_preference"> Find Remote</string>
     <string name="find_remote_summary_preference">Locate a missing remote</string>
 
+    <string name="donate_title_preference"> Donate</string>
+    <string name="donate_summary_preference">Support RoMote development</string>
+
     <string name="volume_dialog_title">Volume controls</string>
     <string name="close">Close</string>
+
+    <string name="navigation_drawer_open">Open navigation drawer</string>
+    <string name="navigation_drawer_close">Close navigation drawer</string>
+
+    <string name="power_dialog_title">Power Off</string>
+    <string name="power_dialog_message">Are you sure you want to turn off the device?</string>
 
 </resources>
