@@ -6,10 +6,11 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 
 import wseemann.media.romote.R;
 
-public class RemoteButtonLayout extends FrameLayout {
+public class RemoteButtonLayout extends LinearLayout {
 
     private RepeatingImageButton mUpButton;
     private RepeatingImageButton mLeftButton;

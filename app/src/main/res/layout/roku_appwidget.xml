@@ -2,165 +2,242 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/semi_transparent">
+    android:background="@drawable/widget_remote_background"
+    android:orientation="vertical">">
 
     <LinearLayout
         android:id="@+id/info_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_weight="1"
-        android:background="@color/semi_transparent">
+        android:layout_height="52dip"
+        android:background="@color/semi_transparent"
+        android:orientation="horizontal">
 
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
-            android:background="@mipmap/ic_launcher"/>
+            android:background="@mipmap/ic_launcher" />
 
         <TextView
             android:id="@+id/model_name_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
+            android:text="Roku"
             android:textAppearance="@android:style/TextAppearance.Medium"
-            android:textColor="@android:color/white"
-            android:text="Roku"/>
+            android:textColor="@android:color/white" />
 
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_weight="1">
+        android:layout_height="0dip"
+        android:layout_weight="1"
+        android:orientation="vertical">
 
-        <ImageButton
-            android:id="@+id/back_button"
-            android:layout_width="0dip"
-            android:layout_height="fill_parent"
-            android:layout_weight="1"
-            android:src="@drawable/ic_action_back"
-            android:background="@drawable/widget_remote_button"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="52dip"
+            android:layout_marginLeft="20dip"
+            android:layout_marginRight="20dip"
+            android:layout_marginTop="10dip"
+            android:orientation="horizontal">
 
-        <ImageButton
-            android:id="@+id/up_button"
-            android:layout_width="0dip"
-            android:layout_height="fill_parent"
-            android:layout_weight="1"
-            android:src="@drawable/ic_action_collapse"
-            android:background="@drawable/widget_remote_button"/>
+            <ImageButton
+                android:id="@+id/back_button"
+                android:layout_width="0dip"
+                android:layout_height="fill_parent"
+                android:layout_marginRight="10dip"
+                android:layout_weight="1"
+                android:background="@drawable/background_remote_button_selector"
+                android:src="@mipmap/remote_back" />
 
-        <Button
-            android:id="@+id/home_button"
-            android:layout_width="0dip"
-            android:layout_height="fill_parent"
-            android:layout_weight="1"
-            android:text="@string/home"
-            android:textAppearance="@android:style/TextAppearance.Medium"
-            android:textColor="@android:color/white"
-            android:textStyle="bold"
-            android:background="@drawable/widget_remote_button"/>
+            <ImageButton
+                android:id="@+id/info_button"
+                android:layout_width="0dip"
+                android:layout_height="fill_parent"
+                android:layout_marginLeft="10dip"
+                android:layout_marginRight="10dip"
+                android:layout_weight="1"
+                android:background="@drawable/background_remote_button_selector"
+                android:src="@mipmap/remote_options" />
 
-    </LinearLayout>
+            <ImageButton
+                android:id="@+id/instant_replay_button"
+                android:layout_width="0dip"
+                android:layout_height="fill_parent"
+                android:layout_marginLeft="10dip"
+                android:layout_marginRight="10dip"
+                android:layout_weight="1"
+                android:background="@drawable/background_remote_button_selector"
+                android:src="@mipmap/remote_replay" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_weight="1">
+            <ImageButton
+                android:id="@+id/home_button"
+                android:layout_width="0dip"
+                android:layout_height="fill_parent"
+                android:layout_marginLeft="10dip"
+                android:layout_weight="1"
+                android:background="@drawable/background_remote_button_selector"
+                android:src="@mipmap/remote_home" />
 
-        <ImageButton
-            android:id="@+id/left_button"
-            android:layout_width="0dip"
-            android:layout_height="fill_parent"
-            android:layout_weight="1"
-            android:src="@drawable/ic_action_previous_item"
-            android:background="@drawable/widget_remote_button"/>
+        </LinearLayout>
 
-        <Button
-            android:id="@+id/select_button"
-            android:layout_width="0dip"
-            android:layout_height="fill_parent"
-            android:layout_weight="1"
-            android:text="@string/ok"
-            android:textAppearance="@android:style/TextAppearance.Medium"
-            android:textColor="@android:color/white"
-            android:textStyle="bold"
-            android:background="@drawable/widget_remote_button"/>
+        <RelativeLayout
+            android:id="@+id/dpad"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="30dp"
+            android:paddingRight="30dp"
+            android:paddingTop="10dp">
 
-        <ImageButton
-            android:id="@+id/right_button"
-            android:layout_width="0dip"
-            android:layout_height="fill_parent"
-            android:layout_weight="1"
-            android:src="@drawable/ic_action_next_item"
-            android:background="@drawable/widget_remote_button"/>
+            <RelativeLayout
+                android:id="@+id/dpad_section"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerHorizontal="true">
 
-    </LinearLayout>
+                <ImageView
+                    android:id="@+id/frame"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_centerInParent="true"
+                    android:adjustViewBounds="true"
+                    android:scaleType="fitCenter"
+                    android:src="@mipmap/remote_dpad_bg" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_weight="1">
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_alignBottom="@id/frame"
+                    android:layout_alignLeft="@id/frame"
+                    android:layout_alignRight="@id/frame"
+                    android:layout_alignTop="@id/frame"
+                    android:layout_centerInParent="true"
+                    android:orientation="vertical">
 
-        <ImageButton
-            android:id="@+id/instant_replay_button"
-            android:layout_width="0dip"
-            android:layout_height="fill_parent"
-            android:layout_weight="1"
-            android:src="@drawable/ic_action_undo"
-            android:background="@drawable/widget_remote_button"/>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dip"
+                        android:layout_weight="1"
+                        android:orientation="horizontal">
 
-        <ImageButton
-            android:id="@+id/down_button"
-            android:layout_width="0dip"
-            android:layout_height="fill_parent"
-            android:layout_weight="1"
-            android:src="@drawable/ic_action_expand"
-            android:background="@drawable/widget_remote_button"/>
+                        <LinearLayout
+                            android:layout_width="0dip"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1" />
 
-        <ImageButton
-            android:id="@+id/info_button"
-            android:layout_width="0dip"
-            android:layout_height="fill_parent"
-            android:layout_weight="1"
-            android:src="@drawable/ic_action_about"
-            android:background="@drawable/widget_remote_button"/>
+                        <ImageButton
+                            android:id="@+id/up_button"
+                            android:layout_width="0dip"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:background="@drawable/background_glow_selector" />
 
-    </LinearLayout>
+                        <LinearLayout
+                            android:layout_width="0dip"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1" />
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_weight="1">
+                    </LinearLayout>
 
-        <ImageButton
-            android:id="@+id/rev_button"
-            android:layout_width="0dip"
-            android:layout_height="fill_parent"
-            android:layout_weight="1"
-            android:src="@drawable/ic_action_rewind"
-            android:background="@drawable/widget_remote_button"/>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dip"
+                        android:layout_weight="1"
+                        android:orientation="horizontal">
 
-        <ImageButton
-            android:id="@+id/play_button"
-            android:layout_width="0dip"
-            android:layout_height="fill_parent"
-            android:layout_weight="1"
-            android:src="@drawable/ic_action_pause"
-            android:background="@drawable/widget_remote_button"/>
+                        <ImageButton
+                            android:id="@+id/left_button"
+                            android:layout_width="0dip"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:background="@drawable/background_glow_selector" />
 
-        <ImageButton
-            android:id="@+id/fwd_button"
-            android:layout_width="0dip"
-            android:layout_height="fill_parent"
-            android:layout_weight="1"
-            android:src="@drawable/ic_action_fast_forward"
-            android:background="@drawable/widget_remote_button"/>
+                        <ImageButton
+                            android:id="@+id/ok_button"
+                            android:layout_width="0dip"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:background="@drawable/background_glow_selector" />
+
+                        <ImageButton
+                            android:id="@+id/right_button"
+                            android:layout_width="0dip"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:background="@drawable/background_glow_selector" />
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="0dip"
+                        android:layout_weight="1"
+                        android:orientation="horizontal">
+
+                        <LinearLayout
+                            android:layout_width="0dip"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1" />
+
+                        <ImageButton
+                            android:id="@+id/down_button"
+                            android:layout_width="0dip"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1"
+                            android:background="@drawable/background_glow_selector" />
+
+                        <LinearLayout
+                            android:layout_width="0dip"
+                            android:layout_height="match_parent"
+                            android:layout_weight="1" />
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </RelativeLayout>
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="52dip"
+            android:layout_marginLeft="20dip"
+            android:layout_marginRight="20dip"
+            android:layout_marginTop="10dip"
+            android:orientation="horizontal">
+
+            <ImageButton
+                android:id="@+id/rev_button"
+                android:layout_width="0dip"
+                android:layout_height="fill_parent"
+                android:layout_marginRight="10dip"
+                android:layout_weight="1"
+                android:background="@drawable/background_remote_button_selector"
+                android:src="@mipmap/remote_rw" />
+
+            <ImageButton
+                android:id="@+id/play_button"
+                android:layout_width="0dip"
+                android:layout_height="fill_parent"
+                android:layout_marginLeft="10dip"
+                android:layout_marginRight="10dip"
+                android:layout_weight="1"
+                android:background="@drawable/background_remote_button_selector"
+                android:src="@mipmap/remote_playpause" />
+
+            <ImageButton
+                android:id="@+id/fwd_button"
+                android:layout_width="0dip"
+                android:layout_height="fill_parent"
+                android:layout_marginLeft="10dip"
+                android:layout_weight="1"
+                android:background="@drawable/background_remote_button_selector"
+                android:src="@mipmap/remote_ff" />
+
+        </LinearLayout>
 
     </LinearLayout>
 

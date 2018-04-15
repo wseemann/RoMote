@@ -48,7 +48,7 @@ public class NotificationUtils {
                 .setContentText(contentText)
                 .setContentIntent(contentIntent)
                 .setWhen(0)
-                .setSmallIcon(R.mipmap.ic_launcher);
+                .setSmallIcon(R.drawable.ic_notification_icon);
 
         if (bitmap != null) {
             builder.setLargeIcon(bitmap);

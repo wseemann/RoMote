@@ -95,9 +95,15 @@
                 android:resource="@xml/roku_appwidget_info" />
         </receiver>
 
-        <service android:name="wseemann.media.romote.service.CommandService"/>
+        <service android:name="wseemann.media.romote.service.CommandService"
+            android:exported="false"/>
 
-        <service android:name="wseemann.media.romote.service.NotificationService"/>
+        <service android:name="wseemann.media.romote.service.NotificationService"
+            android:exported="false"/>
+
+        <receiver android:name="wseemann.media.romote.receiver.CommandReceiver"
+           android:exported="false"/>
+
     </application>
 
 </manifest>

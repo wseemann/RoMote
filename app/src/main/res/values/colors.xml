@@ -16,4 +16,6 @@
     <color name="light_button">#22000000</color>
 
     <color name="gunmetal">#2C3539</color>
+
+    <color name="dark_grey_button">#2a2530</color>
 </resources>

@@ -11,6 +11,7 @@ import android.widget.RemoteViews;
 
 import wseemann.media.romote.R;
 import wseemann.media.romote.activity.MainActivity;
+import wseemann.media.romote.receiver.CommandReceiver;
 import wseemann.media.romote.service.CommandService;
 import wseemann.media.romote.utils.PreferenceUtils;
 
@@ -127,7 +128,7 @@ public class RokuAppWidgetProvider extends AppWidgetProvider {
         linkButton(context, views, KeypressKeyValues.HOME, R.id.home_button, 2);
 
         linkButton(context, views, KeypressKeyValues.LEFT, R.id.left_button, 3);
-        linkButton(context, views, KeypressKeyValues.SELECT, R.id.select_button, 4);
+        linkButton(context, views, KeypressKeyValues.SELECT, R.id.ok_button, 4);
         linkButton(context, views, KeypressKeyValues.RIGHT, R.id.right_button, 5);
 
         linkButton(context, views, KeypressKeyValues.INTANT_REPLAY, R.id.instant_replay_button, 6);
@@ -141,12 +142,12 @@ public class RokuAppWidgetProvider extends AppWidgetProvider {
 
     private void linkButton(Context context, RemoteViews views, KeypressKeyValues keypressKeyValue, int id, int requestCode) {
         // Connect up various buttons and touch events
-        final ComponentName serviceName = new ComponentName(context, CommandService.class);
+        final ComponentName serviceName = new ComponentName(context, CommandReceiver.class);
 
         Intent intent = new Intent();
         intent.putExtra("keypress", keypressKeyValue);
         intent.setComponent(serviceName);
-        PendingIntent pendingIntent = PendingIntent.getService(context,
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context,
                 requestCode /* no requestCode */, intent, 0 /* no flags */);
         views.setOnClickPendingIntent(id, pendingIntent);
     }

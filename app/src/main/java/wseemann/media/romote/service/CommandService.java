@@ -20,8 +20,6 @@ public class CommandService extends IntentService {
 
     private static final String TAG = CommandService.class.getName();
 
-    public static final String PLAY_PAUSE_ACTION = "wseemann.media.romote.service.PLAY_PAUSE";
-
     public CommandService() {
         super(CommandService.class.getName());
     }

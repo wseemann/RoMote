@@ -20,38 +20,38 @@
             <ImageButton
                 android:id="@+id/back_button"
                 android:layout_width="0dip"
-                android:layout_height="fill_parent"
+                android:layout_height="match_parent"
                 android:layout_marginRight="10dip"
                 android:layout_weight="1"
-                android:background="@drawable/remote_buttonshape"
+                android:background="@drawable/remote_button_bg"
                 android:src="@mipmap/remote_back" />
 
             <ImageButton
                 android:id="@+id/info_button"
                 android:layout_width="0dip"
-                android:layout_height="fill_parent"
+                android:layout_height="match_parent"
                 android:layout_marginLeft="10dip"
                 android:layout_marginRight="10dip"
                 android:layout_weight="1"
-                android:background="@drawable/remote_buttonshape"
+                android:background="@drawable/remote_button_bg"
                 android:src="@mipmap/remote_options" />
 
             <ImageButton
                 android:id="@+id/home_button"
                 android:layout_width="0dip"
-                android:layout_height="fill_parent"
+                android:layout_height="match_parent"
                 android:layout_marginLeft="10dip"
                 android:layout_marginRight="10dip"
                 android:layout_weight="1"
-                android:background="@drawable/remote_buttonshape"
+                android:background="@drawable/remote_button_bg"
                 android:src="@mipmap/remote_home" />
 
             <ImageButton
                 android:id="@+id/power_button"
                 android:layout_width="52dip"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_marginLeft="10dip"
-                android:background="@drawable/remote_buttonshape"
+                android:background="@drawable/remote_button_bg"
                 android:src="@mipmap/remote_power" />
 
         </LinearLayout>
@@ -76,7 +76,7 @@
                 android:layout_height="fill_parent"
                 android:layout_marginRight="10dip"
                 android:layout_weight="1"
-                android:background="@drawable/remote_buttonshape"
+                android:background="@drawable/remote_button_bg"
                 android:src="@mipmap/remote_rw" />
 
             <ImageButton
@@ -86,7 +86,7 @@
                 android:layout_marginLeft="10dip"
                 android:layout_marginRight="10dip"
                 android:layout_weight="1"
-                android:background="@drawable/remote_buttonshape"
+                android:background="@drawable/remote_button_bg"
                 android:src="@mipmap/remote_playpause" />
 
             <ImageButton
@@ -95,7 +95,7 @@
                 android:layout_height="fill_parent"
                 android:layout_marginLeft="10dip"
                 android:layout_weight="1"
-                android:background="@drawable/remote_buttonshape"
+                android:background="@drawable/remote_button_bg"
                 android:src="@mipmap/remote_ff" />
 
         </LinearLayout>
@@ -115,7 +115,7 @@
                 android:layout_height="fill_parent"
                 android:layout_marginRight="10dip"
                 android:layout_weight="1"
-                android:background="@drawable/remote_buttonshape"
+                android:background="@drawable/remote_button_bg"
                 android:src="@mipmap/remote_replay" />
 
             <ImageButton
@@ -126,7 +126,7 @@
                 android:layout_marginLeft="10dip"
                 android:layout_marginRight="10dip"
                 android:layout_weight="1"
-                android:background="@drawable/remote_buttonshape"
+                android:background="@drawable/remote_button_bg"
                 android:contentDescription="@string/keyboard"
                 android:src="@mipmap/remote_keyboard_2" />
 
@@ -136,7 +136,7 @@
                 android:layout_height="fill_parent"
                 android:layout_marginLeft="10dip"
                 android:layout_weight="1"
-                android:background="@drawable/remote_buttonshape"
+                android:background="@drawable/remote_button_bg"
                 android:src="@mipmap/remote_private_listening_available" />
 
         </LinearLayout>
