@@ -28,12 +28,12 @@ class SearchDialog : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         super.onCreateDialog(savedInstanceState)
 
-        val inflater = activity.layoutInflater
+        val inflater = activity!!.layoutInflater
 
         var view: View = inflater.inflate(R.layout.dialog_fragment_search, null)
-        var searchEditText: EditText = view.findViewById(R.id.ip_address_text) as EditText
-        var cancelButton: Button = view.findViewById(R.id.cancel_button) as Button
-        var searchButton: Button = view.findViewById(R.id.connect_button) as Button
+        var searchEditText: EditText = view.findViewById<EditText>(R.id.ip_address_text)
+        var cancelButton: Button = view.findViewById<Button>(R.id.cancel_button)
+        var searchButton: Button = view.findViewById<Button>(R.id.connect_button)
 
         cancelButton.setOnClickListener {
             dismiss()

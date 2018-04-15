@@ -1,6 +1,7 @@
 package wseemann.media.romote.service;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.BroadcastReceiver;
@@ -11,6 +12,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Binder;
+import android.os.Build;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v4.media.MediaMetadataCompat;
@@ -29,6 +31,7 @@ import java.util.Random;
 import com.jaku.model.Channel;
 import com.jaku.model.Device;
 
+import wseemann.media.romote.R;
 import wseemann.media.romote.tasks.RequestCallback;
 import wseemann.media.romote.tasks.RequestTask;
 import wseemann.media.romote.utils.CommandHelper;
@@ -84,6 +87,14 @@ public class NotificationService extends Service {
         registerReceiver(mUpdateReceiver, intentFilter);
 
         mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            NotificationChannel channel = new NotificationChannel(getString(R.string.app_name), getString(R.string.app_name), NotificationManager.IMPORTANCE_DEFAULT);
+            channel.setDescription("");
+            channel.enableLights(false);
+            channel.enableVibration(false);
+            mNM.createNotificationChannel(channel);
+        }
 
         //startForeground(NotificationService.NOTIFICATION, notification);
 

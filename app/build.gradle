@@ -2,15 +2,15 @@ apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 
 android {
-    compileSdkVersion 25
-    buildToolsVersion '26.0.2'
+    compileSdkVersion 27
+    buildToolsVersion '27.0.3'
 
     defaultConfig {
         applicationId "wseemann.media.romote"
-        minSdkVersion 11
-        targetSdkVersion 25
-        versionCode 9
-        versionName "1.0.8"
+        minSdkVersion 21
+        targetSdkVersion 27
+        versionCode 10
+        versionName "1.0.9"
     }
     buildTypes {
         release {
@@ -25,10 +25,10 @@ android {
 
 dependencies {
     testCompile 'junit:junit:4.12'
-    compile 'com.android.support:appcompat-v7:25.4.0'
-    compile 'com.android.support:support-v4:25.4.0'
-    compile 'com.android.support:design:25.4.0'
-    compile 'com.android.support.constraint:constraint-layout:1.0.2'
+    compile 'com.android.support:appcompat-v7:27.1.1'
+    compile 'com.android.support:support-v4:27.1.1'
+    compile 'com.android.support:design:27.1.1'
+    compile 'com.android.support.constraint:constraint-layout:1.1.0'
     compile 'com.squareup.picasso:picasso:2.5.2'
     compile group: 'org.jdom', name: 'jdom2', version: '2.0.6'
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
