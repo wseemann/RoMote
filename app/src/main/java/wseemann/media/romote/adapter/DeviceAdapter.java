@@ -85,7 +85,12 @@ public class DeviceAdapter extends ArrayAdapter<Device> {
         roundedBitmapDrawable.setCornerRadius(Math.max(image.getWidth(), image.getHeight()) / 2.0f);
         holder.mIcon.setImageDrawable(roundedBitmapDrawable);
 
-        holder.mText1.setText(device.getModelName()); //device.getUserDeviceName());
+        String deviceName = device.getModelName();
+        String friendlyName = device.getUserDeviceName();
+        if (friendlyName != null && !friendlyName.isEmpty()) {
+            deviceName = friendlyName + " (" + deviceName + ")";
+        }
+        holder.mText1.setText(deviceName); //device.getUserDeviceName());
         holder.mText2.setText("SN: " + device.getSerialNumber());
 
         if (connectedDevice != null && device.getSerialNumber().equals(connectedDevice.getSerialNumber())) {
