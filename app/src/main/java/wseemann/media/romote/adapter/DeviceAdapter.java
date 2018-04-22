@@ -87,9 +87,11 @@ public class DeviceAdapter extends ArrayAdapter<Device> {
 
         String deviceName = device.getModelName();
         String friendlyName = device.getUserDeviceName();
+
         if (friendlyName != null && !friendlyName.isEmpty()) {
             deviceName = friendlyName + " (" + deviceName + ")";
         }
+
         holder.mText1.setText(deviceName); //device.getUserDeviceName());
         holder.mText2.setText("SN: " + device.getSerialNumber());
 

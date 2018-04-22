@@ -163,14 +163,16 @@ public class ConfigureDeviceFragment extends Fragment implements LoaderManager.L
             if (!containDevice(devices.get(i))) {
                 RelativeLayout view = (RelativeLayout) getActivity().getLayoutInflater().inflate(R.layout.configure_device_list_item, null, false);
 
-                TextView text1 = (TextView) view.findViewById(android.R.id.text1);
-                TextView text2 = (TextView) view.findViewById(android.R.id.text2);
+                TextView text1 = view.findViewById(android.R.id.text1);
+                TextView text2 = view.findViewById(android.R.id.text2);
 
                 String deviceName = devices.get(i).getModelName();
                 String friendlyName = devices.get(i).getUserDeviceName();
+
                 if (friendlyName != null && !friendlyName.isEmpty()) {
                     deviceName = friendlyName + " (" + deviceName + ")";
                 }
+
                 text1.setText(deviceName);
                 text2.setText("SN: " + devices.get(i).getSerialNumber());
 
