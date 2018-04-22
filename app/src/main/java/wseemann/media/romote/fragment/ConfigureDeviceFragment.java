@@ -166,7 +166,12 @@ public class ConfigureDeviceFragment extends Fragment implements LoaderManager.L
                 TextView text1 = (TextView) view.findViewById(android.R.id.text1);
                 TextView text2 = (TextView) view.findViewById(android.R.id.text2);
 
-                text1.setText(devices.get(i).getModelName());
+                String deviceName = devices.get(i).getModelName();
+                String friendlyName = devices.get(i).getUserDeviceName();
+                if (friendlyName != null && !friendlyName.isEmpty()) {
+                    deviceName = friendlyName + " (" + deviceName + ")";
+                }
+                text1.setText(deviceName);
                 text2.setText("SN: " + devices.get(i).getSerialNumber());
 
                 view.setTag(devices.get(i));
