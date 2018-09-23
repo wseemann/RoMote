@@ -315,7 +315,6 @@ public class ChannelFragment extends Fragment implements LoaderManager.LoaderCal
     private BroadcastReceiver mUpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            Log.d("----->", "called");
             getLoaderManager().restartLoader(0, new Bundle(), ChannelFragment.this);
         }
     };
@@ -337,5 +336,11 @@ public class ChannelFragment extends Fragment implements LoaderManager.LoaderCal
 
             }
         }).execute(RokuRequestTypes.launch);
+    }
+
+    public void refresh() {
+        if (mAdapter.getChannelCount() == 0) {
+            getLoaderManager().restartLoader(0, new Bundle(), this);
+        }
     }
 }

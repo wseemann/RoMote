@@ -130,4 +130,8 @@ public class ChannelAdapter extends ArrayAdapter<Channel> {
     public int getNumColumns() {
         return mNumColumns;
     }
+
+    public int getChannelCount() {
+        return mChannels.size();
+    }
 }

@@ -63,6 +63,8 @@ public class MainActivity extends ConnectivityActivity implements
     private NotificationService mService;
     boolean mBound = false;
 
+    private ChannelFragment mChannelFragment;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,6 +96,15 @@ public class MainActivity extends ConnectivityActivity implements
         mViewPager = (ViewPager) findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
         mViewPager.setOffscreenPageLimit(3);
+        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+            public void onPageScrollStateChanged(int state) {}
+            public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
+            public void onPageSelected(int position) {
+                if (mChannelFragment != null) {
+                    mChannelFragment.refresh();
+                }
+            }
+        });
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
@@ -110,6 +121,13 @@ public class MainActivity extends ConnectivityActivity implements
         if (mBound) {
             unbindService(mConnection);
             mBound = false;
+        }
+    }
+
+    @Override
+    protected void onWifiConnected() {
+        if (mChannelFragment != null) {
+            mChannelFragment.refresh();
         }
     }
 
@@ -175,7 +193,8 @@ public class MainActivity extends ConnectivityActivity implements
             } else if (position == 1) {
                 return new RemoteFragment();
             } else if (position == 2) {
-                return new ChannelFragment();
+                mChannelFragment = new ChannelFragment();
+                return mChannelFragment;
             } else {
                 mStoreFragment = new StoreFragment();
                 return mStoreFragment;

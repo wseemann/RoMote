@@ -16,7 +16,7 @@
             android:layout_height="match_parent"
             android:columnWidth="@dimen/image_thumbnail_size"
             android:horizontalSpacing="@dimen/image_thumbnail_spacing"
-            android:numColumns="3"
+            android:numColumns="@integer/fragment_channel_columns"
             android:stretchMode="columnWidth"
             android:verticalSpacing="@dimen/image_thumbnail_spacing"
             android:padding="@dimen/image_thumbnail_spacing"/>

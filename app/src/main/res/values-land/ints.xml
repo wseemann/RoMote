@@ -1,0 +1,3 @@
+<resources>
+    <integer name="fragment_channel_columns">4</integer>
+</resources>

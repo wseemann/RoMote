@@ -96,11 +96,29 @@ public class ConnectivityActivity extends ShakeActivity {
     private BroadcastReceiver mConnectivityReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            if (!mNetworkMonitor.isConnectedToiWiFi() && mDialog == null) {
-                showDialog();
+            if (intent == null
+                    || (!intent.getAction().equals(WifiManager.WIFI_STATE_CHANGED_ACTION)
+                    && !intent.getAction().equals("android.net.conn.CONNECTIVITY_CHANGE"))) {
+                return;
+            }
+
+            if (intent.getAction().equals(WifiManager.WIFI_STATE_CHANGED_ACTION)) {
+                int wifiState = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE, WifiManager.WIFI_STATE_DISABLED);
+
+                boolean isConnected = wifiState == WifiManager.WIFI_STATE_ENABLED;
+
+                if (!isConnected && mDialog == null) { //!mNetworkMonitor.isConnectedToiWiFi() && mDialog == null) {
+                    showDialog();
+                    onWifiDisconnected();
+                }
             } else if (mNetworkMonitor.isConnectedToiWiFi() && mDialog != null) {
                 dismissDialog();
+                onWifiConnected();
             }
         }
     };
+
+    protected void onWifiConnected() {}
+
+    protected void onWifiDisconnected() {}
 }
