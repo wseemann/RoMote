@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
+import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -15,7 +16,6 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 
 import com.jaku.core.JakuRequest;
@@ -24,9 +24,11 @@ import com.jaku.request.KeypressRequest;
 
 import java.util.List;
 
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import wseemann.media.romote.R;
-import wseemann.media.romote.tasks.RequestCallback;
-import wseemann.media.romote.tasks.RequestTask;
+import wseemann.media.romote.tasks.RxRequestTask;
 import wseemann.media.romote.utils.CommandHelper;
 import wseemann.media.romote.utils.RokuRequestTypes;
 import wseemann.media.romote.view.RemoteButtonLayout;
@@ -47,10 +49,10 @@ public class RemoteFragment extends Fragment implements VolumeDialogFragment.Vol
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_remote, container, false);
 
-        mRemoteButtonLayout = (RemoteButtonLayout) view.findViewById(R.id.dpad);
+        mRemoteButtonLayout = view.findViewById(R.id.dpad);
 
         return view;
     }
@@ -83,56 +85,44 @@ public class RemoteFragment extends Fragment implements VolumeDialogFragment.Vol
         linkButton(KeypressKeyValues.PLAY, R.id.play_button);
         linkButton(KeypressKeyValues.FWD, R.id.fwd_button);
 
-        ImageButton volumeButton = (ImageButton) getView().findViewById(R.id.volume_button);
-        volumeButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                DialogFragment fragment = VolumeDialogFragment.newInstance(RemoteFragment.this);
-                fragment.show(getFragmentManager(), "volume_dialog");
-            }
+        ImageButton volumeButton = getView().findViewById(R.id.volume_button);
+        volumeButton.setOnClickListener(view -> {
+            DialogFragment fragment = VolumeDialogFragment.newInstance(RemoteFragment.this);
+            fragment.show(getFragmentManager(), "volume_dialog");
         });
 
-        ImageButton keyboardButton = (ImageButton) getView().findViewById(R.id.keyboard_button);
-        keyboardButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                TextInputDialog fragment = new TextInputDialog();
-                fragment.show(RemoteFragment.this.getFragmentManager(), TextInputDialog.class.getName());
-            }
+        ImageButton keyboardButton = getView().findViewById(R.id.keyboard_button);
+        keyboardButton.setOnClickListener(view -> {
+            TextInputDialog fragment = new TextInputDialog();
+            fragment.show(RemoteFragment.this.getFragmentManager(), TextInputDialog.class.getName());
         });
 
-        ImageButton powerButton = (ImageButton) getView().findViewById(R.id.power_button);
-        powerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                builder.setTitle(R.string.power_dialog_title);
-                builder.setMessage(R.string.power_dialog_message);
-                builder.setCancelable(true);
-                builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                    }
-                });
-                builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int whichButton) {
-                        performKeypress(KeypressKeyValues.POWER_OFF);
-                    }
-                });
+        ImageButton powerButton = getView().findViewById(R.id.power_button);
+        powerButton.setOnClickListener(view -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+            builder.setTitle(R.string.power_dialog_title);
+            builder.setMessage(R.string.power_dialog_message);
+            builder.setCancelable(true);
+            builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                }
+            });
+            builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    performKeypress(KeypressKeyValues.POWER_OFF);
+                }
+            });
 
-                Dialog dialog = builder.create();
-                dialog.show();
-            }
+            Dialog dialog = builder.create();
+            dialog.show();
         });
     }
 
     private void linkRepeatingButton(final KeypressKeyValues keypressKeyValue, int id) {
-        RepeatingImageButton button = (RepeatingImageButton) mRemoteButtonLayout.findViewById(id);
+        RepeatingImageButton button = mRemoteButtonLayout.findViewById(id);
 
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                performKeypress(keypressKeyValue);
-            }
+        button.setOnClickListener(view -> {
+            performKeypress(keypressKeyValue);
         });
 
         button.setRepeatListener(new RepeatingImageButton.RepeatListener() {
@@ -144,25 +134,18 @@ public class RemoteFragment extends Fragment implements VolumeDialogFragment.Vol
     }
 
     private void linkButton(final KeypressKeyValues keypressKeyValue, int id) {
-        ImageButton button = (ImageButton) getView().findViewById(id);
+        ImageButton button = getView().findViewById(id);
 
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                performKeypress(keypressKeyValue);
-            }
+        button.setOnClickListener(view -> {
+            performKeypress(keypressKeyValue);
         });
     }
 
-    private void linkAltButton(final KeypressKeyValues keypressKeyValue, int id) {
-        Button button = (Button) getView().findViewById(id);
-
-        button.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                performKeypress(keypressKeyValue);
-            }
-        });
+    private void performRequest(final JakuRequest request, final RokuRequestTypes rokuRequestType) {
+        Observable.fromCallable(new RxRequestTask(request, rokuRequestType))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(result -> { });
     }
 
     private void performKeypress(KeypressKeyValues keypressKeyValue) {
@@ -171,17 +154,7 @@ public class RemoteFragment extends Fragment implements VolumeDialogFragment.Vol
         KeypressRequest keypressRequest = new KeypressRequest(url, keypressKeyValue.getValue());
         JakuRequest request = new JakuRequest(keypressRequest, null);
 
-        new RequestTask(request, new RequestCallback() {
-            @Override
-            public void requestResult(RokuRequestTypes rokuRequestType, RequestTask.Result result) {
-
-            }
-
-            @Override
-            public void onErrorResponse(RequestTask.Result result) {
-
-            }
-        }).execute(RokuRequestTypes.keypress);
+        performRequest(request, RokuRequestTypes.keypress);
     }
 
     @Override
@@ -235,16 +208,6 @@ public class RemoteFragment extends Fragment implements VolumeDialogFragment.Vol
         KeypressRequest keypressRequest = new KeypressRequest(url, keypressKeyValue.getValue());
         JakuRequest request = new JakuRequest(keypressRequest, null);
 
-        new RequestTask(request, new RequestCallback() {
-            @Override
-            public void requestResult(RokuRequestTypes rokuRequestType, RequestTask.Result result) {
-
-            }
-
-            @Override
-            public void onErrorResponse(RequestTask.Result result) {
-
-            }
-        }).execute(RokuRequestTypes.keypress);
+        performRequest(request, RokuRequestTypes.keypress);
     }
 }
