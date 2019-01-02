@@ -11,7 +11,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
 import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.PopupMenu;
@@ -30,10 +29,14 @@ import android.widget.GridView;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.schedulers.Schedulers;
 import wseemann.media.romote.BuildConfig;
 import wseemann.media.romote.R;
 import wseemann.media.romote.adapter.ChannelAdapter;
-import wseemann.media.romote.loader.ChannelLoader;
+import wseemann.media.romote.tasks.ChannelTask;
 import wseemann.media.romote.tasks.RequestCallback;
 import wseemann.media.romote.tasks.RequestTask;
 import wseemann.media.romote.util.ImageCache;
@@ -54,7 +57,7 @@ import com.jaku.request.LaunchAppRequest;
  * cache is retained over configuration changes like orientation change so the images are populated
  * quickly if, for example, the user rotates the device.
  */
-public class ChannelFragment extends Fragment implements LoaderManager.LoaderCallbacks<List<Channel>> {
+public class ChannelFragment extends Fragment {
 
     private static final String TAG = "ImageGridFragment";
     private static final String IMAGE_CACHE_DIR = "thumbs";
@@ -65,6 +68,8 @@ public class ChannelFragment extends Fragment implements LoaderManager.LoaderCal
     private ImageFetcher mImageFetcher;
 
     private SwipeRefreshLayout mSwiperefresh;
+
+    private CompositeDisposable bin = new CompositeDisposable();
 
     @SuppressLint("HandlerLeak")
     private Handler mHandler = new Handler() {
@@ -109,21 +114,19 @@ public class ChannelFragment extends Fragment implements LoaderManager.LoaderCal
             LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         final View v = inflater.inflate(R.layout.fragment_channels, container, false);
-        final GridView mGridView = (GridView) v.findViewById(android.R.id.list);
+        final GridView mGridView = v.findViewById(android.R.id.list);
 
-        mSwiperefresh = (SwipeRefreshLayout) v.findViewById(R.id.swiperefresh);
+        mSwiperefresh = v.findViewById(R.id.swiperefresh);
         mSwiperefresh.setOnRefreshListener(
                 new SwipeRefreshLayout.OnRefreshListener() {
                     @Override
                     public void onRefresh() {
                         // This method performs the actual data-refresh operation.
                         // The method calls setRefreshing(false) when it's finished.
-                        getLoaderManager().restartLoader(0, new Bundle(), ChannelFragment.this);
+                        loadChannels();
                     }
                 }
         );
-
-
 
         //View emptyView = v.findViewById(android.R.id.empty);
         //mGridView.setEmptyView(emptyView);
@@ -189,14 +192,13 @@ public class ChannelFragment extends Fragment implements LoaderManager.LoaderCal
                     }
                 });
 
-
         return v;
     }
 
     @Override
     public void onActivityCreated(Bundle savedInstanceState){
         super.onActivityCreated(savedInstanceState);
-        getLoaderManager().initLoader(0, new Bundle(), this);
+        loadChannels();
     }
 
     @Override
@@ -222,6 +224,9 @@ public class ChannelFragment extends Fragment implements LoaderManager.LoaderCal
     @Override
     public void onDestroy() {
         super.onDestroy();
+
+        bin.dispose();
+
         mImageFetcher.closeCache();
 
         getActivity().unregisterReceiver(mUpdateReceiver);
@@ -239,20 +244,21 @@ public class ChannelFragment extends Fragment implements LoaderManager.LoaderCal
 
         if (id == R.id.action_refresh) {
             mSwiperefresh.setRefreshing(true);
-            getLoaderManager().restartLoader(0, new Bundle(), this);
+            loadChannels();
             return true;
         }
 
         return false;
     }
 
-    @Override
-    public Loader<List<Channel>> onCreateLoader(int arg0, Bundle args) {
-        return new ChannelLoader(getActivity(), args);
+    private void loadChannels() {
+        bin.add(Observable.fromCallable(new ChannelTask(getContext()))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(channels -> onLoadFinished((List<Channel>) channels)));
     }
 
-    @Override
-    public void onLoadFinished(Loader<List<Channel>> loader, List<Channel> channels) {
+    private void onLoadFinished(List<Channel> channels) {
         mSwiperefresh.setRefreshing(false);
 
         if (channels.size() == 0) {
@@ -278,7 +284,6 @@ public class ChannelFragment extends Fragment implements LoaderManager.LoaderCal
         }
     }
 
-    @Override
     public void onLoaderReset(Loader<List<Channel>> channels) {
         // Clear the devices in the adapter.
         mAdapter.clear();
@@ -315,7 +320,7 @@ public class ChannelFragment extends Fragment implements LoaderManager.LoaderCal
     private BroadcastReceiver mUpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            getLoaderManager().restartLoader(0, new Bundle(), ChannelFragment.this);
+            loadChannels();
         }
     };
 
@@ -340,7 +345,7 @@ public class ChannelFragment extends Fragment implements LoaderManager.LoaderCal
 
     public void refresh() {
         if (mAdapter.getChannelCount() == 0) {
-            getLoaderManager().restartLoader(0, new Bundle(), this);
+            loadChannels();
         }
     }
 }

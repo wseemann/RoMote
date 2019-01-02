@@ -89,8 +89,8 @@ public class NotificationService extends Service {
         mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(getString(R.string.app_name), getString(R.string.app_name), NotificationManager.IMPORTANCE_DEFAULT);
-            channel.setDescription("");
+            NotificationChannel channel = new NotificationChannel(getString(R.string.app_name), getString(R.string.app_name), NotificationManager.IMPORTANCE_LOW);
+            channel.setDescription(TAG);
             channel.enableLights(false);
             channel.enableVibration(false);
             mNM.createNotificationChannel(channel);

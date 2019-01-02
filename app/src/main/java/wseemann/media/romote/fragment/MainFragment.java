@@ -13,8 +13,6 @@ import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ListFragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.Loader;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.PopupMenu;
 import android.view.LayoutInflater;
@@ -32,18 +30,19 @@ import android.widget.Toast;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.schedulers.Schedulers;
 import wseemann.media.romote.activity.DeviceInfoActivity;
 import wseemann.media.romote.activity.ManualConnectionActivity;
 import wseemann.media.romote.adapter.DeviceAdapter;
 import wseemann.media.romote.adapter.SeparatedListAdapter;
-import wseemann.media.romote.loader.AvailableDevicesLoader;
-import wseemann.media.romote.loader.PairedDevicesLoader;
 
 import com.jaku.model.Device;
 
 import wseemann.media.romote.R;
-import wseemann.media.romote.loader.SupportAvailableDevicesLoader;
-import wseemann.media.romote.loader.SupportPairedDevicesLoader;
+import wseemann.media.romote.tasks.AvailableDevicesTask;
 import wseemann.media.romote.utils.Constants;
 import wseemann.media.romote.utils.DBUtils;
 import wseemann.media.romote.utils.PreferenceUtils;
@@ -65,6 +64,8 @@ public class MainFragment extends ListFragment {
     private FloatingActionButton mFab;
 
     private OnDeviceSelectedListener mListener;
+
+    private CompositeDisposable bin = new CompositeDisposable();
 
     @SuppressLint("HandlerLeak")
     private Handler mHandler = new Handler() {
@@ -95,14 +96,14 @@ public class MainFragment extends ListFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_main, container, false);
 
-        mSelectDeviceText = (TextView) view.findViewById(R.id.select_device_text);
-        mProgressLayout = (RelativeLayout) view.findViewById(R.id.progress_layout);
+        mSelectDeviceText = view.findViewById(R.id.select_device_text);
+        mProgressLayout = view.findViewById(R.id.progress_layout);
 
-        mList = (ListView) view.findViewById(android.R.id.list);
+        mList = view.findViewById(android.R.id.list);
         View emptyView = view.findViewById(android.R.id.empty);
         mList.setEmptyView(emptyView);
 
-        mSwiperefresh = (SwipeRefreshLayout) view.findViewById(R.id.swiperefresh);
+        mSwiperefresh = view.findViewById(R.id.swiperefresh);
         mSwiperefresh.setOnRefreshListener(
                 new SwipeRefreshLayout.OnRefreshListener() {
                     @Override
@@ -110,12 +111,12 @@ public class MainFragment extends ListFragment {
                         // This method performs the actual data-refresh operation.
                         // The method calls setRefreshing(false) when it's finished.
                         setLoadingText(true);
-                        getLoaderManager().restartLoader(0, new Bundle(), mAvailableDevicesLoader);
+                        loadAvailableDevices();
                     }
                 }
         );
 
-        mFab = (FloatingActionButton) view.findViewById(R.id.fab);
+        mFab = view.findViewById(R.id.fab);
 
         return view;
     }
@@ -157,7 +158,7 @@ public class MainFragment extends ListFragment {
                 mAvailableDeviceAdapter.clear();
                 mAdapter.notifyDataSetChanged();
 
-                getLoaderManager().restartLoader(1, new Bundle(), mPairedDevicesLoader);
+                loadPairedDevices();
             }
         });
 
@@ -191,6 +192,12 @@ public class MainFragment extends ListFragment {
     }
 
     @Override
+    public void onDestroy() {
+        super.onDestroy();
+        bin.dispose();
+    }
+
+    @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.main_menu, menu);
     }
@@ -203,7 +210,7 @@ public class MainFragment extends ListFragment {
         if (id == R.id.action_refresh) {
             setLoadingText(true);
             //mSwiperefresh.setRefreshing(true);
-            getLoaderManager().restartLoader(0, new Bundle(), mAvailableDevicesLoader);
+            loadAvailableDevices();
             return true;
         }
 
@@ -222,72 +229,31 @@ public class MainFragment extends ListFragment {
         }
     }
 
-    private LoaderManager.LoaderCallbacks<List<Device>> mPairedDevicesLoader
-            = new LoaderManager.LoaderCallbacks<List<Device>>() {
+    private void loadAvailableDevices() {
+        bin.add(Observable.fromCallable(new AvailableDevicesTask(getContext()))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(devices -> onAvailableDevicesLoadFinished((List<Device>) devices)));
+    }
 
-        @Override
-        public Loader<List<Device>> onCreateLoader(int arg0, Bundle args) {
-            return new SupportPairedDevicesLoader(getActivity(), args);
+    private void onAvailableDevicesLoadFinished(List<Device> devices) {
+        setLoadingText(false);
+        mSwiperefresh.setRefreshing(false);
+
+        mAvailableDeviceAdapter.clear();
+        mAdapter.notifyDataSetChanged();
+
+        if (devices.size() == 0) {
+            return;
         }
 
-        @Override
-        public void onLoadFinished(Loader<List<Device>> loader, List<Device> devices) {
-            mPairedDeviceAdapter.clear();
-            mAdapter.notifyDataSetChanged();
-
-            if (devices.size() == 0) {
-                return;
-            }
-
-            // Set the new devices in the adapter.
-            for (int i = 0; i < devices.size(); i++) {
-                mPairedDeviceAdapter.add(devices.get(i));
-            }
-
-            mAdapter.notifyDataSetChanged();
+        // Set the new devices in the adapter.
+        for (int i = 0; i < devices.size(); i++) {
+            mAvailableDeviceAdapter.add(devices.get(i));
         }
 
-        @Override
-        public void onLoaderReset(Loader<List<Device>> devices) {
-            // Clear the devices in the adapter.
-            mPairedDeviceAdapter.clear();
-        }
-    };
-
-    private LoaderManager.LoaderCallbacks<List<Device>> mAvailableDevicesLoader
-            = new LoaderManager.LoaderCallbacks<List<Device>>() {
-
-        @Override
-        public Loader<List<Device>> onCreateLoader(int arg0, Bundle args) {
-            return new SupportAvailableDevicesLoader(getActivity(), args);
-        }
-
-        @Override
-        public void onLoadFinished(Loader<List<Device>> loader, List<Device> devices) {
-            setLoadingText(false);
-            mSwiperefresh.setRefreshing(false);
-
-            mAvailableDeviceAdapter.clear();
-            mAdapter.notifyDataSetChanged();
-
-            if (devices.size() == 0) {
-                return;
-            }
-
-            // Set the new devices in the adapter.
-            for (int i = 0; i < devices.size(); i++) {
-                mAvailableDeviceAdapter.add(devices.get(i));
-            }
-
-            mAdapter.notifyDataSetChanged();
-        }
-
-        @Override
-        public void onLoaderReset(Loader<List<Device>> devices) {
-            // Clear the devices in the adapter.
-            mAvailableDeviceAdapter.clear();
-        }
-    };
+        mAdapter.notifyDataSetChanged();
+    }
 
     public void setLoadingText(boolean shown) {
         if (shown) {
@@ -338,11 +304,34 @@ public class MainFragment extends ListFragment {
 
     private void refreshList(boolean showLoadingText) {
         setLoadingText(showLoadingText);
-        getLoaderManager().restartLoader(1, new Bundle(), mPairedDevicesLoader);
-        getLoaderManager().restartLoader(0, new Bundle(), mAvailableDevicesLoader);
+        loadPairedDevices();
+        loadAvailableDevices();
+    }
+
+    private void loadPairedDevices() {
+        Observable.just(DBUtils.getAllDevices(getContext()))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(devices -> onPairedDeviceLoadFinished((List<Device>) devices));
+    }
+
+    private void onPairedDeviceLoadFinished(List<Device> devices) {
+        mPairedDeviceAdapter.clear();
+        mAdapter.notifyDataSetChanged();
+
+        if (devices.size() == 0) {
+            return;
+        }
+
+        // Set the new devices in the adapter.
+        for (int i = 0; i < devices.size(); i++) {
+            mPairedDeviceAdapter.add(devices.get(i));
+        }
+
+        mAdapter.notifyDataSetChanged();
     }
 
     public interface OnDeviceSelectedListener {
-        public void onDeviceSelected();
+        void onDeviceSelected();
     }
 }

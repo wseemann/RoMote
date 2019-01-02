@@ -12,8 +12,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.Loader;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,10 +22,14 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.disposables.CompositeDisposable;
+import io.reactivex.schedulers.Schedulers;
 import wseemann.media.romote.R;
 import wseemann.media.romote.activity.MainActivity;
 import wseemann.media.romote.activity.ManualConnectionActivity;
-import wseemann.media.romote.loader.SupportAvailableDevicesLoader;
+import wseemann.media.romote.tasks.AvailableDevicesTask;
 import wseemann.media.romote.utils.DBUtils;
 import wseemann.media.romote.utils.PreferenceUtils;
 
@@ -36,7 +38,7 @@ import com.jaku.model.Device;
 /**
  * Created by wseemann on 6/20/16.
  */
-public class ConfigureDeviceFragment extends Fragment implements LoaderManager.LoaderCallbacks<List<Device>> {
+public class ConfigureDeviceFragment extends Fragment {
 
     private TextView mWirelessNextworkTextview;
     private TextView mSelectDeviceText;
@@ -45,6 +47,8 @@ public class ConfigureDeviceFragment extends Fragment implements LoaderManager.L
     private Button mConnectManuallyButton;
 
     private Handler mHandler;
+
+    private CompositeDisposable bin = new CompositeDisposable();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -55,11 +59,11 @@ public class ConfigureDeviceFragment extends Fragment implements LoaderManager.L
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_configure_device, container, false);
 
-        mWirelessNextworkTextview = (TextView) view.findViewById(R.id.wireless_nextwork_textview);
-        mSelectDeviceText = (TextView) view.findViewById(R.id.select_device_text);
-        mProgressLayout = (RelativeLayout) view.findViewById(R.id.progress_layout);
-        mList = (LinearLayout) view.findViewById(R.id.list);
-        mConnectManuallyButton = (Button) view.findViewById(R.id.connect_manually_button);
+        mWirelessNextworkTextview = view.findViewById(R.id.wireless_nextwork_textview);
+        mSelectDeviceText = view.findViewById(R.id.select_device_text);
+        mProgressLayout = view.findViewById(R.id.progress_layout);
+        mList = view.findViewById(R.id.list);
+        mConnectManuallyButton = view.findViewById(R.id.connect_manually_button);
 
         return view;
     }
@@ -89,7 +93,7 @@ public class ConfigureDeviceFragment extends Fragment implements LoaderManager.L
             @Override
             public void run() {
                 setListShown(false);
-                getLoaderManager().restartLoader(0, new Bundle(), ConfigureDeviceFragment.this);
+                loadAvailableDevices();
             }
         }, 1000);
     }
@@ -99,6 +103,12 @@ public class ConfigureDeviceFragment extends Fragment implements LoaderManager.L
         super.onPause();
 
         mHandler.removeCallbacksAndMessages(null);
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        bin.dispose();
     }
 
     @Override
@@ -137,18 +147,19 @@ public class ConfigureDeviceFragment extends Fragment implements LoaderManager.L
         return networkName;
     }
 
-    @Override
-    public Loader<List<Device>> onCreateLoader(int arg0, Bundle args) {
-        return new SupportAvailableDevicesLoader(getActivity(), args);
+    private void loadAvailableDevices() {
+        bin.add(Observable.fromCallable(new AvailableDevicesTask(getContext()))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(devices -> onLoadFinished((List<Device>) devices)));
     }
 
-    @Override
-    public void onLoadFinished(Loader<List<Device>> loader, List<Device> devices) {
+    private void onLoadFinished(List<Device> devices) {
         mHandler.postDelayed(new Runnable() {
             @Override
             public void run() {
                 setListShown(false);
-                getLoaderManager().restartLoader(0, new Bundle(), ConfigureDeviceFragment.this);
+                loadAvailableDevices();
             }
         }, 5000);
 
@@ -189,12 +200,6 @@ public class ConfigureDeviceFragment extends Fragment implements LoaderManager.L
             setListShown(true);
             //setListShownNoAnimation(true);
         }
-    }
-
-    @Override
-    public void onLoaderReset(Loader<List<Device>> devices) {
-        // Clear the devices in the adapter.
-        // mAdapter.clear();
     }
 
     public void setListShown(boolean shown) {

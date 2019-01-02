@@ -45,12 +45,13 @@ public class NotificationUtils {
 
         Notification.MediaStyle style = new Notification.MediaStyle();
 
-        Notification.Builder builder = (Notification.Builder) new Notification.Builder(context)
+        Notification.Builder builder = new Notification.Builder(context)
                 .setContentTitle(contentTitle)
                 .setContentText(contentText)
                 .setContentIntent(contentIntent)
                 .setWhen(0)
-                .setSmallIcon(R.drawable.ic_notification_icon);
+                .setSmallIcon(R.drawable.ic_notification_icon)
+                .setPriority(Notification.PRIORITY_LOW);
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             builder.setChannelId(context.getString(R.string.app_name));
