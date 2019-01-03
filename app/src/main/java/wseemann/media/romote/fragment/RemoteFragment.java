@@ -10,6 +10,7 @@ import android.speech.RecognizerIntent;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -20,7 +21,10 @@ import android.widget.ImageButton;
 
 import com.jaku.core.JakuRequest;
 import com.jaku.core.KeypressKeyValues;
+import com.jaku.model.Device;
+import com.jaku.parser.DeviceParser;
 import com.jaku.request.KeypressRequest;
+import com.jaku.request.QueryDeviceInfoRequest;
 
 import java.util.List;
 
@@ -28,6 +32,8 @@ import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import wseemann.media.romote.R;
+import wseemann.media.romote.tasks.RequestCallback;
+import wseemann.media.romote.tasks.RequestTask;
 import wseemann.media.romote.tasks.RxRequestTask;
 import wseemann.media.romote.utils.CommandHelper;
 import wseemann.media.romote.utils.RokuRequestTypes;
@@ -99,22 +105,7 @@ public class RemoteFragment extends Fragment implements VolumeDialogFragment.Vol
 
         ImageButton powerButton = getView().findViewById(R.id.power_button);
         powerButton.setOnClickListener(view -> {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-            builder.setTitle(R.string.power_dialog_title);
-            builder.setMessage(R.string.power_dialog_message);
-            builder.setCancelable(true);
-            builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int whichButton) {
-                }
-            });
-            builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int whichButton) {
-                    performKeypress(KeypressKeyValues.POWER_OFF);
-                }
-            });
-
-            Dialog dialog = builder.create();
-            dialog.show();
+            obtainPowerMode();
         });
     }
 
@@ -146,6 +137,52 @@ public class RemoteFragment extends Fragment implements VolumeDialogFragment.Vol
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(result -> { });
+    }
+
+    private void obtainPowerMode() {
+        String url = CommandHelper.getDeviceURL(getActivity());
+
+        QueryDeviceInfoRequest queryActiveAppRequest = new QueryDeviceInfoRequest(url);
+        JakuRequest request = new JakuRequest(queryActiveAppRequest, new DeviceParser());
+
+        new RequestTask(request, new RequestCallback() {
+            @Override
+            public void requestResult(RokuRequestTypes rokuRequestType, RequestTask.Result result) {
+                performPowerAction((Device) result.mResultValue);
+            }
+
+            @Override
+            public void onErrorResponse(RequestTask.Result result) {
+                Log.d("TAG", result.mException.getMessage());
+            }
+        }).execute(RokuRequestTypes.query_device_info);
+    }
+
+    private void performPowerAction(final Device device) {
+        if (device == null) {
+            return;
+        }
+
+        if (device.getPowerMode().equals("PowerOn")) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+            builder.setTitle(R.string.power_dialog_title);
+            builder.setMessage(R.string.power_dialog_message);
+            builder.setCancelable(true);
+            builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                }
+            });
+            builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int whichButton) {
+                    performKeypress(KeypressKeyValues.POWER_OFF);
+                }
+            });
+
+            Dialog dialog = builder.create();
+            dialog.show();
+        } else {
+            performKeypress(KeypressKeyValues.POWER_ON);
+        }
     }
 
     private void performKeypress(KeypressKeyValues keypressKeyValue) {
