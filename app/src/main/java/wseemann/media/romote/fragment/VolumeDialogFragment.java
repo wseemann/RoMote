@@ -13,6 +13,7 @@ import android.widget.Button;
 import com.jaku.core.KeypressKeyValues;
 
 import wseemann.media.romote.R;
+import wseemann.media.romote.view.RepeatingImageButton;
 
 public class VolumeDialogFragment extends DialogFragment implements DialogInterface.OnCancelListener {
 
@@ -20,7 +21,7 @@ public class VolumeDialogFragment extends DialogFragment implements DialogInterf
      * implement this interface in order to receive event callbacks.
      * Each method passes the DialogFragment in case the host needs to query it. */
     public interface VolumeDialogListener {
-        public void onVolumeChanged(final KeypressKeyValues keypressKeyValue);
+        void onVolumeChanged(final KeypressKeyValues keypressKeyValue);
     }
 
     // Use this instance of the interface to deliver action events
@@ -43,9 +44,7 @@ public class VolumeDialogFragment extends DialogFragment implements DialogInterf
                     + " must implement VolumeDialogListener");
         }
 
-        VolumeDialogFragment frag = new VolumeDialogFragment();
-
-        return frag;
+        return new VolumeDialogFragment();
     }
 
     @Override
@@ -58,12 +57,14 @@ public class VolumeDialogFragment extends DialogFragment implements DialogInterf
         LayoutInflater factory = LayoutInflater.from(getActivity());
         final View view = factory.inflate(R.layout.dialog_fragment_volume, null);
 
-        Button muteVolumeButton = (Button) view.findViewById(R.id.mute_volume_button);
+        Button muteVolumeButton = view.findViewById(R.id.mute_volume_button);
         addOnClickListener(muteVolumeButton, KeypressKeyValues.VOLUME_MUTE);
-        Button decreaseVolumeButton = (Button) view.findViewById(R.id.decrease_volume_button);
+        RepeatingImageButton decreaseVolumeButton = view.findViewById(R.id.decrease_volume_button);
         addOnClickListener(decreaseVolumeButton, KeypressKeyValues.VOLUME_DOWN);
-        Button increaseVolumeButton = (Button) view.findViewById(R.id.increase_volume_button);
+        addRepeatingOnClickListener(decreaseVolumeButton, KeypressKeyValues.VOLUME_DOWN);
+        RepeatingImageButton increaseVolumeButton = view.findViewById(R.id.increase_volume_button);
         addOnClickListener(increaseVolumeButton, KeypressKeyValues.VOLUME_UP);
+        addRepeatingOnClickListener(increaseVolumeButton, KeypressKeyValues.VOLUME_UP);
 
         // Use the Builder class for convenient dialog construction
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -92,5 +93,16 @@ public class VolumeDialogFragment extends DialogFragment implements DialogInterf
                 }
             }
         });
+    }
+
+    private void addRepeatingOnClickListener(RepeatingImageButton button, final KeypressKeyValues keypressKeyValue) {
+        button.setRepeatListener(new RepeatingImageButton.RepeatListener() {
+            @Override
+            public void onRepeat(View v, long duration, int repeatcount) {
+                if (mListener != null) {
+                    mListener.onVolumeChanged(keypressKeyValue);
+                }
+            }
+        }, 250);
     }
 }

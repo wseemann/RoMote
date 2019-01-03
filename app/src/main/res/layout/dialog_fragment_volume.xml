@@ -16,7 +16,7 @@
         android:textAppearance="@android:style/TextAppearance.Medium"
         android:background="@drawable/buttonshape"/>
 
-    <Button
+    <wseemann.media.romote.view.RepeatingImageButton
         android:id="@+id/decrease_volume_button"
         android:layout_width="0dip"
         android:layout_height="35dip"
@@ -29,7 +29,7 @@
         android:textAppearance="@android:style/TextAppearance.Medium"
         android:background="@drawable/buttonshape"/>
 
-    <Button
+    <wseemann.media.romote.view.RepeatingImageButton
         android:id="@+id/increase_volume_button"
         android:layout_width="0dip"
         android:layout_height="35dip"

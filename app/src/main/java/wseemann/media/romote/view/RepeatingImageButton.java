@@ -23,13 +23,13 @@ import android.util.AttributeSet;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ImageButton;
+import android.widget.Button;
 
 /**
  * A button that will repeatedly call a 'listener' method
  * as long as the button is pressed.
  */
-public class RepeatingImageButton extends ImageButton {
+public class RepeatingImageButton extends Button {
 
     private long mStartTime;
     private int mRepeatCount;
@@ -41,7 +41,7 @@ public class RepeatingImageButton extends ImageButton {
     }
 
     public RepeatingImageButton(Context context, AttributeSet attrs) {
-        this(context, attrs, android.R.attr.imageButtonStyle);
+        this(context, attrs, android.R.attr.buttonStyle);
     }
 
     public RepeatingImageButton(Context context, AttributeSet attrs, int defStyle) {
