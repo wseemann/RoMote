@@ -33,7 +33,9 @@ public class ConnectivityActivity extends ShakeActivity {
     public void onResume() {
         super.onResume();
 
-        if (!mNetworkMonitor.isConnectedToiWiFi() && mDialog == null) {
+        if (!mNetworkMonitor.isConnectedToiWiFi() &&
+                !mNetworkMonitor.isMobileAccessPointOn() &&
+                mDialog == null) {
             showDialog();
         }
 
@@ -92,7 +94,6 @@ public class ConnectivityActivity extends ShakeActivity {
         }
     }
 
-
     private BroadcastReceiver mConnectivityReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -107,7 +108,9 @@ public class ConnectivityActivity extends ShakeActivity {
 
                 boolean isConnected = wifiState == WifiManager.WIFI_STATE_ENABLED;
 
-                if (!isConnected && mDialog == null) { //!mNetworkMonitor.isConnectedToiWiFi() && mDialog == null) {
+                if (!isConnected &&
+                        !mNetworkMonitor.isMobileAccessPointOn() &&
+                        mDialog == null) { //!mNetworkMonitor.isConnectedToiWiFi() && mDialog == null) {
                     showDialog();
                     onWifiDisconnected();
                 }

@@ -9,12 +9,15 @@ import android.net.NetworkInfo;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 
+import info.whitebyte.hotspotmanager.WifiApManager;
+
 /**
  * Created by wseemann on 6/19/16.
  */
 public class NetworkMonitor {
 
     private ConnectivityManager mCm;
+    private WifiApManager mWifiApManager;
 
     public NetworkMonitor(Activity activity, int requestCode) {
         // Here, thisActivity is the current activity
@@ -24,6 +27,7 @@ public class NetworkMonitor {
             requestPermission(activity, requestCode);
         } else {
             mCm = (ConnectivityManager) activity.getSystemService(Context.CONNECTIVITY_SERVICE);
+            mWifiApManager = new WifiApManager(activity);
         }
     }
 
@@ -42,6 +46,14 @@ public class NetworkMonitor {
         }
 
         return false;
+    }
+
+    public boolean isMobileAccessPointOn() {
+        if (mWifiApManager == null) {
+            return false;
+        }
+
+        return mWifiApManager.isWifiApEnabled();
     }
 
     private void requestPermission(Activity activity, int requestCode) {
