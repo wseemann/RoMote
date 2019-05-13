@@ -9,8 +9,6 @@ import android.net.NetworkInfo;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 
-import info.whitebyte.hotspotmanager.WifiApManager;
-
 /**
  * Created by wseemann on 6/19/16.
  */

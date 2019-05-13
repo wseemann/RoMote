@@ -12,8 +12,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Callable;
 
-import info.whitebyte.hotspotmanager.ClientScanResult;
-import info.whitebyte.hotspotmanager.WifiApManager;
+import wseemann.media.romote.model.ClientScanResult;
+import wseemann.media.romote.utils.WifiApManager;
 import wseemann.media.romote.utils.DBUtils;
 
 public class AvailableDevicesTask implements Callable {

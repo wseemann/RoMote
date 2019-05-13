@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package info.whitebyte.hotspotmanager;
+package wseemann.media.romote.utils;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -29,9 +29,11 @@ import android.net.Uri;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.Build;
-import android.os.Handler;
 import android.provider.Settings;
 import android.util.Log;
+
+import wseemann.media.romote.model.ClientScanResult;
+import wseemann.media.romote.utils.Constants.WIFI_AP_STATE;
 
 public class WifiApManager {
     private final WifiManager mWifiManager;
