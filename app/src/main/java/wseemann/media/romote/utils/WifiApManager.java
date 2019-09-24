@@ -192,7 +192,9 @@ public class WifiApManager {
             Log.e(this.getClass().toString(), e.toString());
         } finally {
             try {
-                br.close();
+                if (br != null) {
+                    br.close();
+                }
             } catch (IOException e) {
                 Log.e(this.getClass().toString(), e.getMessage());
             }
