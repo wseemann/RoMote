@@ -25,11 +25,17 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 
+import wseemann.media.romote.utils.ViewUtils;
+
 /**
  * A button that will repeatedly call a 'listener' method
  * as long as the button is pressed.
  */
 public class RepeatingImageButton extends Button {
+
+    private static final int VIBRATE_DURATION_MS = 100;
+
+    private View.OnClickListener mClickListener;
 
     private long mStartTime;
     private int mRepeatCount;
@@ -48,8 +54,20 @@ public class RepeatingImageButton extends Button {
         super(context, attrs, defStyle);
         setFocusable(true);
         setLongClickable(true);
+        super.setOnClickListener((View view) -> {
+            ViewUtils.provideHapticFeedback(view, VIBRATE_DURATION_MS);
+
+            if (mClickListener != null) {
+                mClickListener.onClick(view);
+            }
+        });
     }
-    
+
+    @Override
+    public void setOnClickListener(View.OnClickListener listener) {
+        mClickListener = listener;
+    }
+
     /**
      * Sets the listener to be called while the button is pressed and
      * the interval in milliseconds with which it will be called.
@@ -122,6 +140,7 @@ public class RepeatingImageButton extends Button {
     private  void doRepeat(boolean last) {
         long now = SystemClock.elapsedRealtime();
         if (mListener != null) {
+            ViewUtils.provideHapticFeedback(this, VIBRATE_DURATION_MS);
             mListener.onRepeat(this, now - mStartTime, last ? -1 : mRepeatCount++);
         }
     }

@@ -13,6 +13,12 @@
         android:summary="@string/notification_to_pause_summary_checkbox_preference"
         android:defaultValue="false"/>
 
+    <CheckBoxPreference
+        android:key="haptic_feedback_preference"
+        android:title="@string/haptic_feedback_title_checkbox_preference"
+        android:summary="@string/haptic_feedback_summary_checkbox_preference"
+        android:defaultValue="false"/>
+
     <PreferenceCategory
         android:title="Other">
 

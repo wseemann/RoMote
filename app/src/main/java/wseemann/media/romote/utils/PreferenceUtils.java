@@ -24,7 +24,7 @@ public class PreferenceUtils {
     }
 
     public static Device getConnectedDevice(Context context) throws Exception {
-        Device device = null;
+        Device device;
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
         String serialNumber = prefs.getString("serial_number", null);
@@ -36,5 +36,10 @@ public class PreferenceUtils {
         }
 
         return device;
+    }
+
+    public static boolean shouldProvideHapticFeedback(Context context) {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
+        return prefs.getBoolean("haptic_feedback_preference", false);
     }
 }

@@ -55,6 +55,9 @@
     <string name="notification_title_checkbox_preference">Enable notification widget</string>
     <string name="notification_to_pause_summary_checkbox_preference">Enable the ability to control playback using a notification widget</string>
 
+    <string name="haptic_feedback_title_checkbox_preference">Provide haptic feedback</string>
+    <string name="haptic_feedback_summary_checkbox_preference">Provide haptic feedback (vibrate) on remote button taps</string>
+
     <string name="find_remote_title_preference"> Find Remote</string>
     <string name="find_remote_summary_preference">Locate a missing remote</string>
 

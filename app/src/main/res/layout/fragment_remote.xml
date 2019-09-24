@@ -17,7 +17,7 @@
             android:layout_marginRight="20dip"
             android:orientation="horizontal">
 
-            <ImageButton
+            <wseemann.media.romote.view.VibratingImageButton
                 android:id="@+id/back_button"
                 android:layout_width="0dip"
                 android:layout_height="match_parent"
@@ -26,7 +26,7 @@
                 android:background="@drawable/remote_button_bg"
                 android:src="@mipmap/remote_back" />
 
-            <ImageButton
+            <wseemann.media.romote.view.VibratingImageButton
                 android:id="@+id/info_button"
                 android:layout_width="0dip"
                 android:layout_height="match_parent"
@@ -36,7 +36,7 @@
                 android:background="@drawable/remote_button_bg"
                 android:src="@mipmap/remote_options" />
 
-            <ImageButton
+            <wseemann.media.romote.view.VibratingImageButton
                 android:id="@+id/home_button"
                 android:layout_width="0dip"
                 android:layout_height="match_parent"
@@ -46,12 +46,13 @@
                 android:background="@drawable/remote_button_bg"
                 android:src="@mipmap/remote_home" />
 
-            <ImageButton
+            <wseemann.media.romote.view.VibratingImageButton
                 android:id="@+id/power_button"
                 android:layout_width="52dip"
                 android:layout_height="match_parent"
                 android:layout_marginLeft="10dip"
                 android:background="@drawable/remote_button_bg"
+                android:scaleType="center"
                 android:src="@mipmap/remote_power" />
 
         </LinearLayout>
@@ -70,7 +71,7 @@
             android:layout_marginRight="20dip"
             android:orientation="horizontal">
 
-            <ImageButton
+            <wseemann.media.romote.view.VibratingImageButton
                 android:id="@+id/rev_button"
                 android:layout_width="0dip"
                 android:layout_height="fill_parent"
@@ -79,7 +80,7 @@
                 android:background="@drawable/remote_button_bg"
                 android:src="@mipmap/remote_rw" />
 
-            <ImageButton
+            <wseemann.media.romote.view.VibratingImageButton
                 android:id="@+id/play_button"
                 android:layout_width="0dip"
                 android:layout_height="fill_parent"
@@ -89,7 +90,7 @@
                 android:background="@drawable/remote_button_bg"
                 android:src="@mipmap/remote_playpause" />
 
-            <ImageButton
+            <wseemann.media.romote.view.VibratingImageButton
                 android:id="@+id/fwd_button"
                 android:layout_width="0dip"
                 android:layout_height="fill_parent"
@@ -109,7 +110,7 @@
             android:layout_marginRight="20dip"
             android:orientation="horizontal">
 
-            <ImageButton
+            <wseemann.media.romote.view.VibratingImageButton
                 android:id="@+id/instant_replay_button"
                 android:layout_width="0dip"
                 android:layout_height="fill_parent"
@@ -118,7 +119,7 @@
                 android:background="@drawable/remote_button_bg"
                 android:src="@mipmap/remote_replay" />
 
-            <ImageButton
+            <wseemann.media.romote.view.VibratingImageButton
                 android:id="@+id/keyboard_button"
                 android:layout_width="0dip"
                 android:layout_height="fill_parent"
@@ -130,7 +131,7 @@
                 android:contentDescription="@string/keyboard"
                 android:src="@mipmap/remote_keyboard_2" />
 
-            <ImageButton
+            <wseemann.media.romote.view.VibratingImageButton
                 android:id="@+id/volume_button"
                 android:layout_width="0dip"
                 android:layout_height="fill_parent"
