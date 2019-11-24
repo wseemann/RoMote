@@ -53,10 +53,13 @@ public class RemoteButtonLayout extends LinearLayout {
 
         if (View.MeasureSpec.getMode(widthSpec) == View.MeasureSpec.EXACTLY
                 && View.MeasureSpec.getMode(heightSpec) == View.MeasureSpec.EXACTLY) {
-            setMeasuredDimension(width, height);
+            int size = Math.min(width, height);
+            setMeasuredDimension(size, size);
+            setBackgroundResource(R.mipmap.remote_dpad_bg);
         } else {
             int size = Math.min(width, height);
             setMeasuredDimension(size, size);
+            setBackgroundResource(R.mipmap.remote_dpad_bg);
         }
     }
 

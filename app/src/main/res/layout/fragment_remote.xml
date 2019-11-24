@@ -57,11 +57,18 @@
 
         </LinearLayout>
 
-        <wseemann.media.romote.view.RemoteButtonLayout
-            android:id="@+id/dpad"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="0dip"
-            android:layout_weight="1" />
+            android:layout_weight="1" >
+
+            <wseemann.media.romote.view.RemoteButtonLayout
+                android:id="@+id/dpad"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"/>
+
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"

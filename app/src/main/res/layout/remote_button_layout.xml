@@ -7,11 +7,9 @@
     android:layout_marginTop="10dip"
     android:layout_marginLeft="10dip"
     android:layout_marginRight="10dip"
-    android:layout_marginBottom="10dip"
-    android:background="@mipmap/remote_dpad_bg">
+    android:layout_marginBottom="10dip">
 
     <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="0dip"
         android:layout_weight="1"
