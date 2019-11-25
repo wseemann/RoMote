@@ -106,6 +106,27 @@ public class DBUtils {
         return id;
     }
 
+    public static long updateDevice(Context context, Device device) {
+        long id = -1;
+
+        DeviceDatabase deviceDatabase = new DeviceDatabase(context);
+        SQLiteDatabase db = deviceDatabase.getWritableDatabase();
+
+        ContentValues values = new ContentValues();
+        values.put(DeviceDatabase.HOST, device.getHost());
+
+        String whereClause = DeviceDatabase.SERIAL_NUMBER + " = ?";
+        String [] whereArgs = new String[1];
+        whereArgs[0] = device.getSerialNumber();
+
+        id = db.update(DeviceDatabase.DEVICES_TABLE_NAME, values, whereClause, whereArgs);
+
+        db.close();
+        deviceDatabase.close();
+
+        return id;
+    }
+
     public static Device getDevice(Context context, String serialNumber) {
         Device device = null;
 

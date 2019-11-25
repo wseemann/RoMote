@@ -133,7 +133,7 @@ public class RemoteFragment extends Fragment implements VolumeDialogFragment.Vol
     }
 
     private void performRequest(final JakuRequest request, final RokuRequestTypes rokuRequestType) {
-        Observable.fromCallable(new RxRequestTask(request, rokuRequestType))
+        Observable.fromCallable(new RxRequestTask(getContext().getApplicationContext(), request, rokuRequestType))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(result -> { });
@@ -186,6 +186,14 @@ public class RemoteFragment extends Fragment implements VolumeDialogFragment.Vol
     }
 
     private void performKeypress(KeypressKeyValues keypressKeyValue) {
+        /*try {
+            Device device = PreferenceUtils.getConnectedDevice(getContext());
+            device.setHost("http://1234");
+            DBUtils.updateDevice(getContext(), device);
+        } catch (Exception ex) {
+
+        }*/
+
         String url = CommandHelper.getDeviceURL(getActivity());
 
         KeypressRequest keypressRequest = new KeypressRequest(url, keypressKeyValue.getValue());

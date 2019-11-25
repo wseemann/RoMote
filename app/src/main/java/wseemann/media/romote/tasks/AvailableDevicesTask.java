@@ -21,14 +21,25 @@ public class AvailableDevicesTask implements Callable {
     private static final String TAG = AvailableDevicesTask.class.getName();
 
     private Context context;
+    private boolean filterPairedDevices;
 
     public AvailableDevicesTask(final Context context) {
+        this(context, true);
+    }
+
+    public AvailableDevicesTask(final Context context, boolean filterPairedDevices) {
         this.context = context;
+        this.filterPairedDevices = filterPairedDevices;
     }
 
     public List<Device> call() {
         // Retrieve all Devices.
-        List<Device> devices = DBUtils.getAllDevices(context);
+        List<Device> devices = new ArrayList();
+
+        if (filterPairedDevices) {
+            devices = DBUtils.getAllDevices(context);
+        }
+
         List<Device> availableDevices = new ArrayList<Device>();
 
         try {
