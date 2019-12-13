@@ -1,9 +1,10 @@
 package wseemann.media.romote.view;
 
 import android.content.Context;
-import android.support.v7.widget.AppCompatImageButton;
 import android.util.AttributeSet;
 import android.view.View;
+
+import androidx.appcompat.widget.AppCompatImageButton;
 
 import wseemann.media.romote.utils.ViewUtils;
 

@@ -1,13 +1,14 @@
 package wseemann.media.romote.fragment;
 
 import android.os.Bundle;
-import android.support.v4.app.Fragment;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
+
+import androidx.fragment.app.Fragment;
 
 import wseemann.media.romote.R;
 

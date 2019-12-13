@@ -11,10 +11,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.app.ListFragment;
-import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.widget.PopupMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -26,6 +22,10 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import androidx.appcompat.widget.PopupMenu;
+import androidx.fragment.app.ListFragment;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,6 +39,7 @@ import wseemann.media.romote.activity.ManualConnectionActivity;
 import wseemann.media.romote.adapter.DeviceAdapter;
 import wseemann.media.romote.adapter.SeparatedListAdapter;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.jaku.model.Device;
 
 import wseemann.media.romote.R;

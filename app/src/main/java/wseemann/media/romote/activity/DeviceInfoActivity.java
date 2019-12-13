@@ -1,8 +1,9 @@
 package wseemann.media.romote.activity;
 
-import android.support.v4.app.FragmentTransaction;
 import android.os.Bundle;
 import android.view.MenuItem;
+
+import androidx.fragment.app.FragmentTransaction;
 
 import wseemann.media.romote.R;
 import wseemann.media.romote.fragment.DeviceInfoFragment;

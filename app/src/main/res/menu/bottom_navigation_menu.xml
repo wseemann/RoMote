@@ -1,0 +1,23 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/action_devices"
+        android:enabled="true"
+        android:title="@string/title_devices"
+        app:labelVisibilityMode="labeled"
+        app:showAsAction="ifRoom"/>
+    <item android:id="@+id/action_remote"
+        android:enabled="true"
+        android:title="@string/title_remote"
+        app:labelVisibilityMode="labeled"
+        app:showAsAction="ifRoom"/>
+    <item android:id="@+id/action_channels"
+        android:enabled="true"
+        android:title="@string/title_channels"
+        app:labelVisibilityMode="labeled"
+        app:showAsAction="ifRoom"/>
+    <item android:id="@+id/action_store"
+        android:enabled="true"
+        android:title="@string/title_store"
+        app:labelVisibilityMode="labeled"
+        app:showAsAction="ifRoom"/>
+</menu>

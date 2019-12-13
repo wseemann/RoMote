@@ -8,23 +8,23 @@ import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.support.design.widget.TabLayout;
 
-import android.support.v7.widget.Toolbar;
-
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.view.ViewPager;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.Toolbar;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentPagerAdapter;
+import androidx.viewpager.widget.ViewPager;
+
+import com.google.android.material.bottomnavigation.BottomNavigationView;
+import com.google.android.material.bottomnavigation.LabelVisibilityMode;
+import com.google.android.material.tabs.TabLayout;
 import com.jaku.core.JakuRequest;
-import com.jaku.core.KeypressKeyValues;
-import com.jaku.request.KeypressRequest;
 import com.jaku.request.SearchRequest;
 
 import wseemann.media.romote.R;
@@ -108,6 +108,25 @@ public class MainActivity extends ConnectivityActivity implements
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
+
+        /*BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+        bottomNavigationView.setLabelVisibilityMode(LabelVisibilityMode.LABEL_VISIBILITY_LABELED);
+        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
+            @Override
+            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
+                if (menuItem.getItemId() == R.id.action_devices) {
+                    mViewPager.setCurrentItem(0);
+                } else if (menuItem.getItemId() == R.id.action_remote) {
+                    mViewPager.setCurrentItem(1);
+                } else if (menuItem.getItemId() == R.id.action_channels) {
+                    mViewPager.setCurrentItem(2);
+                } else if (menuItem.getItemId() == R.id.action_store) {
+                    mViewPager.setCurrentItem(3);
+                }
+
+                return false;
+            }
+        });*/
 
         // Bind to NotificationService
         Intent intent1 = new Intent(this, NotificationService.class);

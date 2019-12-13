@@ -3,11 +3,11 @@ package wseemann.media.romote.fragment
 import android.app.Activity
 import android.app.AlertDialog
 import android.app.Dialog
-import android.support.v4.app.DialogFragment
 import android.os.Bundle
 import android.view.View
 import android.widget.Button
 import android.widget.EditText
+import androidx.fragment.app.DialogFragment
 
 import wseemann.media.romote.R
 

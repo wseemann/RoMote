@@ -2,15 +2,16 @@ package wseemann.media.romote.view;
 
 import android.content.Context;
 import android.graphics.Rect;
-import android.support.annotation.NonNull;
 import android.util.AttributeSet;
 import android.view.KeyEvent;
-import android.widget.EditText;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.widget.AppCompatEditText;
 
 /**
  * Created by TheFinestArtist on 9/24/15.
  */
-public class KeyboardEditText extends EditText {
+public class KeyboardEditText extends AppCompatEditText {
 
     public KeyboardEditText(Context context) {
         super(context);
