@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 public class DeviceDatabase extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
     private static final String DATABASE_NAME = "devices";
     public static final String DEVICES_TABLE_NAME = "devices";
 
@@ -44,10 +44,10 @@ public class DeviceDatabase extends SQLiteOpenHelper {
     public static final String VOICE_SEARCH_ENABLED = "voice_search_enabled";
     public static final String NOTIFICATIONS_ENABLED = "notifications_enabled";
     public static final String NOTIFICATIONS_FIRST_USE = "notifications_first_use";
-
     public static final String SUPPORTS_PRIVATE_LISTENING = "supports_private_listening";
-
     public static final String HEADPHONES_CONNECTED = "headphones_connected";
+    public static final String IS_TV = "is_tv";
+    public static final String IS_STICK = "is_stick";
 
     private static final String DEVICES_TABLE_CREATE =
             "CREATE TABLE " + DEVICES_TABLE_NAME + " ("
@@ -82,13 +82,19 @@ public class DeviceDatabase extends SQLiteOpenHelper {
                     + NOTIFICATIONS_ENABLED + " TEXT,"
                     + NOTIFICATIONS_FIRST_USE + " TEXT,"
                     + SUPPORTS_PRIVATE_LISTENING + " TEXT,"
-                    + HEADPHONES_CONNECTED + " TEXT);";
+                    + HEADPHONES_CONNECTED + " TEXT,"
+                    + IS_TV + " TEXT,"
+                    + IS_STICK + " TEXT);";
 
     private static final String[] DEVICES_TABLE_ALTER_VERSION_TWO = {
             "ALTER TABLE " + DEVICES_TABLE_NAME + " ADD COLUMN " + SUPPORTS_SUSPEND + " TEXT;",
             "ALTER TABLE " + DEVICES_TABLE_NAME + " ADD COLUMN " + SUPPORTS_FIND_REMOTE + " TEXT;",
             "ALTER TABLE " + DEVICES_TABLE_NAME + " ADD COLUMN " + SUPPORTS_AUDIO_GUIDE + " TEXT;",
             "ALTER TABLE " + DEVICES_TABLE_NAME + " ADD COLUMN " + SUPPORTS_PRIVATE_LISTENING + " TEXT;"};
+
+    private static final String[] DEVICES_TABLE_ALTER_VERSION_THREE = {
+            "ALTER TABLE " + DEVICES_TABLE_NAME + " ADD COLUMN " + IS_TV + " TEXT;",
+            "ALTER TABLE " + DEVICES_TABLE_NAME + " ADD COLUMN " + IS_STICK + " TEXT;"};
 
     public DeviceDatabase(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -104,6 +110,10 @@ public class DeviceDatabase extends SQLiteOpenHelper {
         if (newVersion == 2) {
             for (int i = 0; i < DEVICES_TABLE_ALTER_VERSION_TWO.length; i++) {
                 db.execSQL(DEVICES_TABLE_ALTER_VERSION_TWO[i]);
+            }
+        } else if (newVersion == 3) {
+            for (int i = 0; i < DEVICES_TABLE_ALTER_VERSION_THREE.length; i++) {
+                db.execSQL(DEVICES_TABLE_ALTER_VERSION_THREE[i]);
             }
         }
     }

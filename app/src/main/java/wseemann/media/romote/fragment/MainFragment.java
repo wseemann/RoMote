@@ -44,6 +44,7 @@ import com.jaku.model.Device;
 
 import wseemann.media.romote.R;
 import wseemann.media.romote.tasks.AvailableDevicesTask;
+import wseemann.media.romote.tasks.UpdatePairedDeviceTask;
 import wseemann.media.romote.utils.Constants;
 import wseemann.media.romote.utils.DBUtils;
 import wseemann.media.romote.utils.PreferenceUtils;
@@ -307,6 +308,7 @@ public class MainFragment extends ListFragment {
         setLoadingText(showLoadingText);
         loadPairedDevices();
         loadAvailableDevices();
+        updatePairedDevice();
     }
 
     private void loadPairedDevices() {
@@ -315,6 +317,14 @@ public class MainFragment extends ListFragment {
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(devices -> onPairedDeviceLoadFinished((List<Device>) devices));
     }
+
+    private void updatePairedDevice() {
+        Observable.fromCallable(new UpdatePairedDeviceTask(getContext()))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe();
+    }
+
 
     private void onPairedDeviceLoadFinished(List<Device> devices) {
         mPairedDeviceAdapter.clear();

@@ -139,6 +139,7 @@ public class ChannelFragment extends Fragment {
                 Channel channel = (Channel) parent.getItemAtPosition(position);
 
                 performLaunch(channel.getId());
+                getContext().sendBroadcast(new Intent(Constants.UPDATE_DEVICE_BROADCAST));
             }
         });
         mGridView.setOnScrollListener(new AbsListView.OnScrollListener() {

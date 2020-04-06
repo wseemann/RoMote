@@ -28,8 +28,6 @@ import com.jaku.model.Device;
 import com.jaku.parser.DeviceParser;
 import com.jaku.request.QueryDeviceInfoRequest;
 
-import static wseemann.media.romote.fragment.VolumeDialogFragment.mListener;
-
 /**
  * Created by wseemann on 6/20/16.
  */
@@ -78,14 +76,10 @@ public class ManualConnectionDialog extends DialogFragment {
         builder.setMessage(getString(R.string.connect_help));
         builder.setPositiveButton(R.string.install_channel_dialog_button, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                if (mListener != null) {
-                }
             }
         });
         builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                if (mListener != null) {
-                }
             }
         });
 
