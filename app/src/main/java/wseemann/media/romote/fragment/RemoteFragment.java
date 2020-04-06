@@ -3,8 +3,11 @@ package wseemann.media.romote.fragment;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Bundle;
 import android.speech.RecognizerIntent;
 import android.util.Log;
@@ -17,7 +20,6 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
-import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
 import com.jaku.core.JakuRequest;
@@ -37,16 +39,17 @@ import wseemann.media.romote.tasks.RequestCallback;
 import wseemann.media.romote.tasks.RequestTask;
 import wseemann.media.romote.tasks.RxRequestTask;
 import wseemann.media.romote.utils.CommandHelper;
+import wseemann.media.romote.utils.Constants;
+import wseemann.media.romote.utils.PreferenceUtils;
 import wseemann.media.romote.utils.RokuRequestTypes;
-import wseemann.media.romote.view.RemoteButtonLayout;
 import wseemann.media.romote.view.RepeatingImageButton;
 
 /**
  * Created by wseemann on 6/19/16.
  */
-public class RemoteFragment extends Fragment implements VolumeDialogFragment.VolumeDialogListener {
+public class RemoteFragment extends Fragment {
 
-    private RemoteButtonLayout mRemoteButtonLayout;
+    private static final String TAG = "RemoteFragment";
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -57,11 +60,7 @@ public class RemoteFragment extends Fragment implements VolumeDialogFragment.Vol
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_remote, container, false);
-
-        mRemoteButtonLayout = view.findViewById(R.id.dpad);
-
-        return view;
+        return inflater.inflate(R.layout.fragment_remote, container, false);
     }
 
     @Override
@@ -77,26 +76,24 @@ public class RemoteFragment extends Fragment implements VolumeDialogFragment.Vol
         mVoiceSearcButton.requestFocus();*/
 
         linkButton(KeypressKeyValues.BACK, R.id.back_button);
-        linkRepeatingButton(KeypressKeyValues.UP, R.id.up_button);
+        linkRepeatingRemoteButton(KeypressKeyValues.UP, R.id.up_button);
         linkButton(KeypressKeyValues.HOME, R.id.home_button);
 
-        linkRepeatingButton(KeypressKeyValues.LEFT, R.id.left_button);
+        linkRepeatingRemoteButton(KeypressKeyValues.LEFT, R.id.left_button);
         linkButton(KeypressKeyValues.SELECT, R.id.ok_button);
-        linkRepeatingButton(KeypressKeyValues.RIGHT, R.id.right_button);
+        linkRepeatingRemoteButton(KeypressKeyValues.RIGHT, R.id.right_button);
 
         linkButton(KeypressKeyValues.INTANT_REPLAY, R.id.instant_replay_button);
-        linkRepeatingButton(KeypressKeyValues.DOWN, R.id.down_button);
+        linkRepeatingRemoteButton(KeypressKeyValues.DOWN, R.id.down_button);
         linkButton(KeypressKeyValues.INFO, R.id.info_button);
 
         linkButton(KeypressKeyValues.REV, R.id.rev_button);
         linkButton(KeypressKeyValues.PLAY, R.id.play_button);
         linkButton(KeypressKeyValues.FWD, R.id.fwd_button);
 
-        ImageButton volumeButton = getView().findViewById(R.id.volume_button);
-        volumeButton.setOnClickListener(view -> {
-            DialogFragment fragment = VolumeDialogFragment.newInstance(RemoteFragment.this);
-            fragment.show(getFragmentManager(), "volume_dialog");
-        });
+        linkButton(KeypressKeyValues.VOLUME_MUTE, R.id.mute_button);
+        linkButton(KeypressKeyValues.VOLUME_DOWN, R.id.volume_down_button);
+        linkButton(KeypressKeyValues.VOLUME_UP, R.id.volume_up_button);
 
         ImageButton keyboardButton = getView().findViewById(R.id.keyboard_button);
         keyboardButton.setOnClickListener(view -> {
@@ -108,10 +105,23 @@ public class RemoteFragment extends Fragment implements VolumeDialogFragment.Vol
         powerButton.setOnClickListener(view -> {
             obtainPowerMode();
         });
+
+        getView().findViewById(R.id.remote_dpad_controls).bringToFront();
+        updateVolumeControls();
+
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(Constants.UPDATE_DEVICE_BROADCAST);
+        getActivity().registerReceiver(mUpdateReceiver, intentFilter);
     }
 
-    private void linkRepeatingButton(final KeypressKeyValues keypressKeyValue, int id) {
-        RepeatingImageButton button = mRemoteButtonLayout.findViewById(id);
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        getActivity().unregisterReceiver(mUpdateReceiver);
+    }
+
+    private void linkRepeatingRemoteButton(final KeypressKeyValues keypressKeyValue, int id) {
+        RepeatingImageButton button = getView().findViewById(id);
 
         button.setOnClickListener(view -> {
             performKeypress(keypressKeyValue);
@@ -130,6 +140,12 @@ public class RemoteFragment extends Fragment implements VolumeDialogFragment.Vol
 
         button.setOnClickListener(view -> {
             performKeypress(keypressKeyValue);
+
+            if (id == R.id.back_button ||
+                    id == R.id.home_button ||
+                    id == R.id.ok_button) {
+                getContext().sendBroadcast(new Intent(Constants.UPDATE_DEVICE_BROADCAST));
+            }
         });
     }
 
@@ -247,13 +263,24 @@ public class RemoteFragment extends Fragment implements VolumeDialogFragment.Vol
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    @Override
-    public void onVolumeChanged(final KeypressKeyValues keypressKeyValue) {
-        String url = CommandHelper.getDeviceURL(getActivity());
+    private BroadcastReceiver mUpdateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            updateVolumeControls();
+        }
+    };
 
-        KeypressRequest keypressRequest = new KeypressRequest(url, keypressKeyValue.getValue());
-        JakuRequest request = new JakuRequest(keypressRequest, null);
+    private void updateVolumeControls() {
+        try {
+            Device device = PreferenceUtils.getConnectedDevice(getContext());
 
-        performRequest(request, RokuRequestTypes.keypress);
+            if (device.getIsTv() != null) {
+                boolean isTv = Boolean.valueOf(device.getIsTv());
+                getView().findViewById(R.id.volume_controls).setVisibility(isTv ? View.VISIBLE : View.GONE);
+            }
+
+        } catch (Exception ex) {
+            Log.e(TAG, "Error updating remote layout for newly connected device.");
+        }
     }
 }

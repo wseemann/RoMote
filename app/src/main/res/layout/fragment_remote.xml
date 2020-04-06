@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@drawable/remote_bg">
@@ -57,18 +58,65 @@
 
         </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="0dip"
-            android:layout_weight="1" >
+        <ViewFlipper
+            android:id="@+id/remote_dpad_flipper"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="50"
+            android:paddingLeft="30dp"
+            android:paddingTop="10dp"
+            android:paddingRight="30dp">
 
-            <wseemann.media.romote.view.RemoteButtonLayout
-                android:id="@+id/dpad"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center"/>
+            <RelativeLayout
+                android:id="@+id/dpad_section"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
-        </LinearLayout>
+                <FrameLayout
+                    android:id="@+id/remote_dpad_controls"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp">
+
+                    <include layout="@layout/remote_dpad_controls_view" />
+                </FrameLayout>
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_centerInParent="true"
+                    android:adjustViewBounds="true"
+                    android:contentDescription="@null"
+                    android:scaleType="fitCenter"
+                    app:srcCompat="@mipmap/remote_dpad_bg" />
+            </RelativeLayout>
+
+            <RelativeLayout
+                android:id="@+id/gestureArea"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <ImageView
+                    android:id="@+id/remote_dpad_swipe"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_centerInParent="true"
+                    android:adjustViewBounds="true"
+                    android:contentDescription="@null"
+                    android:scaleType="fitCenter"
+                    app:srcCompat="@android:color/transparent" />
+
+               <!-- <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:contentDescription="@null"
+                    android:gravity="center"
+                    android:text="@string/remote_gesture_text"
+                    android:textColor="@android:color/transparent"
+                    android:textSize="@dimen/font_size_15sp" />-->
+            </RelativeLayout>
+        </ViewFlipper>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -139,13 +187,55 @@
                 android:src="@mipmap/remote_keyboard_2" />
 
             <wseemann.media.romote.view.VibratingImageButton
-                android:id="@+id/volume_button"
+                android:id="@+id/remote_audio"
                 android:layout_width="0dip"
                 android:layout_height="fill_parent"
                 android:layout_marginLeft="10dip"
                 android:layout_weight="1"
                 android:background="@drawable/remote_button_bg"
-                android:src="@mipmap/remote_private_listening_available" />
+                android:src="@mipmap/remote_private_listening_available"
+                android:visibility="invisible" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/volume_controls"
+            android:layout_width="match_parent"
+            android:layout_height="52dip"
+            android:layout_marginBottom="10dip"
+            android:layout_marginLeft="20dip"
+            android:layout_marginRight="20dip"
+            android:orientation="horizontal">
+
+            <wseemann.media.romote.view.VibratingImageButton
+                android:id="@+id/mute_button"
+                android:layout_width="0dip"
+                android:layout_height="fill_parent"
+                android:layout_marginRight="10dip"
+                android:layout_weight="1"
+                android:background="@drawable/remote_button_bg"
+                android:src="@mipmap/remote_vol_mute" />
+
+            <wseemann.media.romote.view.VibratingImageButton
+                android:id="@+id/volume_down_button"
+                android:layout_width="0dip"
+                android:layout_height="fill_parent"
+                android:layout_gravity="center"
+                android:layout_marginLeft="10dip"
+                android:layout_marginRight="10dip"
+                android:layout_weight="1"
+                android:background="@drawable/remote_button_bg"
+                android:contentDescription="@string/keyboard"
+                android:src="@mipmap/remote_vol_down" />
+
+            <wseemann.media.romote.view.VibratingImageButton
+                android:id="@+id/volume_up_button"
+                android:layout_width="0dip"
+                android:layout_height="fill_parent"
+                android:layout_marginLeft="10dip"
+                android:layout_weight="1"
+                android:background="@drawable/remote_button_bg"
+                android:src="@mipmap/remote_vol_up" />
 
         </LinearLayout>
 

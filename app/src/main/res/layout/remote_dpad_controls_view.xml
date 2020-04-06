@@ -1,18 +1,88 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:aapt="http://schemas.android.com/aapt" android:orientation="vertical" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_centerInParent="true">
-    <LinearLayout android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
-        <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1"/>
-        <View android:id="@+id/up" android:tag="Up" android:background="@drawable/background_glow_selector" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1"/>
-        <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1"/>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_centerInParent="true"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
+        <wseemann.media.romote.view.RepeatingImageButton
+            android:id="@+id/up_button"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/background_glow_selector"
+            android:tag="Up" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
     </LinearLayout>
-    <LinearLayout android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
-        <View android:id="@+id/left" android:tag="Left" android:background="@drawable/background_glow_selector" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1"/>
-        <View android:id="@+id/ok" android:tag="Select" android:background="@drawable/background_glow_selector" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1"/>
-        <View android:id="@+id/right" android:tag="Right" android:background="@drawable/background_glow_selector" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <wseemann.media.romote.view.RepeatingImageButton
+            android:id="@+id/left_button"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/background_glow_selector"
+            android:tag="Left" />
+
+        <wseemann.media.romote.view.VibratingImageButton
+            android:id="@+id/ok_button"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/background_glow_selector"
+            android:tag="Select" />
+
+        <wseemann.media.romote.view.RepeatingImageButton
+            android:id="@+id/right_button"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/background_glow_selector"
+            android:tag="Right" />
     </LinearLayout>
-    <LinearLayout android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
-        <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1"/>
-        <View android:id="@+id/down" android:tag="Down" android:background="@drawable/background_glow_selector" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1"/>
-        <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:orientation="horizontal">
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
+        <wseemann.media.romote.view.RepeatingImageButton
+            android:id="@+id/down_button"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:background="@drawable/background_glow_selector"
+            android:tag="Down" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
     </LinearLayout>
 </LinearLayout>
