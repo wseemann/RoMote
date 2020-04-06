@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android" xmlns:app="http://schemas.android.com/apk/res-auto" xmlns:aapt="http://schemas.android.com/aapt" android:orientation="vertical" android:layout_width="match_parent" android:layout_height="match_parent" android:layout_centerInParent="true">
+    <LinearLayout android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+        <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1"/>
+        <View android:id="@+id/up" android:tag="Up" android:background="@drawable/background_glow_selector" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1"/>
+        <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1"/>
+    </LinearLayout>
+    <LinearLayout android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+        <View android:id="@+id/left" android:tag="Left" android:background="@drawable/background_glow_selector" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1"/>
+        <View android:id="@+id/ok" android:tag="Select" android:background="@drawable/background_glow_selector" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1"/>
+        <View android:id="@+id/right" android:tag="Right" android:background="@drawable/background_glow_selector" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1"/>
+    </LinearLayout>
+    <LinearLayout android:orientation="horizontal" android:layout_width="match_parent" android:layout_height="0dp" android:layout_weight="1">
+        <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1"/>
+        <View android:id="@+id/down" android:tag="Down" android:background="@drawable/background_glow_selector" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1"/>
+        <View android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1"/>
+    </LinearLayout>
+</LinearLayout>
