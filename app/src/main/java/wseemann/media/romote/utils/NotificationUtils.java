@@ -5,9 +5,8 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.media.session.MediaSession;
 import android.os.Build;
-
-import androidx.core.app.TaskStackBuilder;
 
 import com.jaku.core.KeypressKeyValues;
 
@@ -24,7 +23,12 @@ public class NotificationUtils {
 
     }
 
-    public static Notification buildNotification(Context context, String title, String text, Bitmap bitmap) {
+    public static Notification buildNotification(
+            Context context,
+            String title,
+            String text,
+            Bitmap bitmap,
+            MediaSession.Token token) {
 
         String contentTitle = "Roku";
         String contentText = "";
@@ -37,12 +41,15 @@ public class NotificationUtils {
             contentText = text;
         }
 
-        TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
-        stackBuilder.addNextIntentWithParentStack(new Intent(context, MainActivity.class)
-                .addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
-        PendingIntent contentIntent = stackBuilder.getPendingIntent((int) System.currentTimeMillis(), 0);
+        PendingIntent contentIntent = PendingIntent.getActivity(
+                context,
+                ((int) System.currentTimeMillis()),
+                new Intent(context,MainActivity.class),
+                PendingIntent.FLAG_UPDATE_CURRENT
+        );
 
         Notification.MediaStyle style = new Notification.MediaStyle();
+        style.setMediaSession(token);
 
         Notification.Builder builder = new Notification.Builder(context)
                 .setContentTitle(contentTitle)
@@ -60,9 +67,9 @@ public class NotificationUtils {
             builder.setLargeIcon(bitmap);
         }
 
-        builder.addAction(GenerateActionCompat(context, R.drawable.ic_action_rewind, "Previous", 0, KeypressKeyValues.REV));
-        builder.addAction(GenerateActionCompat(context, R.drawable.ic_action_pause, "Pause", 1, KeypressKeyValues.PLAY));
-        builder.addAction(GenerateActionCompat(context, R.drawable.ic_action_fast_forward, "Next", 2, KeypressKeyValues.FWD));
+        builder.addAction(GenerateActionCompat(context, android.R.drawable.ic_media_rew, "Previous", 0, KeypressKeyValues.REV));
+        builder.addAction(GenerateActionCompat(context, android.R.drawable.ic_media_pause, "Pause", 1, KeypressKeyValues.PLAY));
+        builder.addAction(GenerateActionCompat(context, android.R.drawable.ic_media_ff, "Next", 2, KeypressKeyValues.FWD));
 
         style.setShowActionsInCompactView(0, 1, 2);
         //style.setShowCancelButton(true);

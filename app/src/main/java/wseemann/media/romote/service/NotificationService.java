@@ -11,12 +11,13 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.media.MediaMetadata;
+import android.media.session.MediaSession;
+import android.media.session.PlaybackState;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.support.v4.media.MediaMetadataCompat;
-import android.support.v4.media.session.MediaSessionCompat;
 import android.util.Log;
 
 import com.jaku.core.JakuRequest;
@@ -57,7 +58,7 @@ public class NotificationService extends Service {
 
     private SharedPreferences mPreferences;
 
-    private MediaSessionCompat mediaSession;
+    private MediaSession mediaSession;
 
     private int mServiceStartId;
     private boolean mServiceInUse = true;
@@ -81,6 +82,8 @@ public class NotificationService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        setUpMediaSession();
 
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Constants.UPDATE_DEVICE_BROADCAST);
@@ -107,7 +110,7 @@ public class NotificationService extends Service {
             mDevice = PreferenceUtils.getConnectedDevice(this);
 
             if (enableNotification && mDevice != null) {
-                notification = NotificationUtils.buildNotification(NotificationService.this, null, null, null);
+                notification = NotificationUtils.buildNotification(NotificationService.this, null, null, null, mediaSession.getSessionToken());
 
                 mNM.notify(NOTIFICATION, notification);
                 sendStatusCommand();
@@ -135,6 +138,7 @@ public class NotificationService extends Service {
         mNM.cancel(NOTIFICATION);
 
         mPreferences.unregisterOnSharedPreferenceChangeListener(mPreferencesChangedListener);
+        mediaSession.release();
     }
 
     @Override
@@ -193,7 +197,13 @@ public class NotificationService extends Service {
                     Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
 
                     mDevice = PreferenceUtils.getConnectedDevice(NotificationService.this);
-                    notification = NotificationUtils.buildNotification(NotificationService.this, mDevice.getModelName(), mChannel.getTitle(), bitmap);
+                    updateMediaSessionMetadata(mChannel, bitmap);
+                    notification = NotificationUtils.buildNotification(
+                            NotificationService.this,
+                            mDevice.getModelName(),
+                            mChannel.getTitle(),
+                            bitmap,
+                            mediaSession.getSessionToken());
                     mNM.notify(NOTIFICATION, notification);
                 } catch (Exception ex) {
                 }
@@ -213,7 +223,7 @@ public class NotificationService extends Service {
             boolean enableNotification = mPreferences.getBoolean("notification_checkbox_preference", false);
 
             if (enableNotification) {
-                notification = NotificationUtils.buildNotification(NotificationService.this, null, null, null);
+                notification = NotificationUtils.buildNotification(NotificationService.this, null, null, null, mediaSession.getSessionToken());
 
                 if (enableNotification && mDevice != null) {
                     mNM.notify(NOTIFICATION, notification);
@@ -234,7 +244,7 @@ public class NotificationService extends Service {
                 mPreferences.registerOnSharedPreferenceChangeListener(mPreferencesChangedListener);
 
                 if (notification == null) {
-                    notification = NotificationUtils.buildNotification(NotificationService.this, null, null, null);
+                    notification = NotificationUtils.buildNotification(NotificationService.this, null, null, null, mediaSession.getSessionToken());
                 }
 
                 if (enableNotification && mDevice != null) {
@@ -248,55 +258,26 @@ public class NotificationService extends Service {
     };
 
     private void setUpMediaSession() {
-        mediaSession = new MediaSessionCompat(this, TAG, null, null);
-
-        try {
-            //mediaSession.setFlags(MediaSessionCompat.FLAG_HANDLES_MEDIA_BUTTONS | MediaSessionCompat.FLAG_HANDLES_TRANSPORT_CONTROLS);
-            mediaSession.setActive(true);
-        } catch (NullPointerException ex) {
-        }
+        mediaSession = new MediaSession(this, TAG);
+        mediaSession.setActive(true);
+        mediaSession.setFlags(MediaSession.FLAG_HANDLES_MEDIA_BUTTONS |
+                MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS);
+        mediaSession.setPlaybackState(
+                new PlaybackState.Builder()
+                        .setState(PlaybackState.STATE_PLAYING, 0L, 0F)
+                        .setActions(PlaybackState.ACTION_PAUSE |
+                                PlaybackState.ACTION_PLAY |
+                                PlaybackState.ACTION_REWIND |
+                                PlaybackState.ACTION_FAST_FORWARD)
+                        .build());
+        mediaSession.setMetadata(new MediaMetadata.Builder().build());
     }
 
-    private void updateMediaSessionMetadata() {
-        MediaMetadataCompat.Builder builder = new MediaMetadataCompat.Builder();
-        builder.putString(MediaMetadataCompat.METADATA_KEY_ARTIST, "artist");
-        builder.putString(MediaMetadataCompat.METADATA_KEY_ALBUM, "album");
-        builder.putString(MediaMetadataCompat.METADATA_KEY_TITLE, "Track name");
-        builder.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, 100);
-
-        //getArtwork();
+    private void updateMediaSessionMetadata(final Channel channel, final Bitmap bitmap) {
+        MediaMetadata.Builder builder = new MediaMetadata.Builder();
+        builder.putString(MediaMetadata.METADATA_KEY_TITLE, channel.getTitle());
+        builder.putBitmap(MediaMetadata.METADATA_KEY_ALBUM_ART, bitmap);
 
         mediaSession.setMetadata(builder.build());
-    }
-
-    private void getArtwork(String url) {
-        /*synchronized(this) {
-            // Instantiate the RequestQueue.
-            RequestQueue queue = Volley.newRequestQueue(this);
-
-            // Retrieves an image specified by the URL, displays it in the UI.
-            ImageRequest request = new ImageRequest(url,
-                    new Response.Listener<Bitmap>() {
-                        @Override
-                        public void onResponse(Bitmap bitmap) {
-                            MediaMetadataCompat.Builder builder = new MediaMetadataCompat.Builder();
-                            builder.putString(MediaMetadataCompat.METADATA_KEY_ARTIST, "artist");
-                            builder.putString(MediaMetadataCompat.METADATA_KEY_ALBUM, "album");
-                            builder.putString(MediaMetadataCompat.METADATA_KEY_TITLE, "Track name");
-                            builder.putLong(MediaMetadataCompat.METADATA_KEY_DURATION, 100);
-                            builder.putBitmap(MediaMetadataCompat.METADATA_KEY_ALBUM_ART, bitmap);
-                            mediaSession.setMetadata(builder.build());
-
-                            Log.d(TAG, "Loaded Bitmap for mediaSession");
-                        }
-                    }, 0, 0, null,
-                    new Response.ErrorListener() {
-                        public void onErrorResponse(VolleyError error) {
-                            Log.e(TAG, "Error loading Bitmap for mediaSession metadata");
-                        }
-                    });
-
-            queue.add(request);
-        }*/
     }
 }
