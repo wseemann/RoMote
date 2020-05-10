@@ -14,7 +14,7 @@
         android:layout_alignParentRight="true"
         android:layout_centerVertical="true"
         android:layout_marginRight="12dip"
-        android:src="@drawable/ic_action_overflow"
+        android:src="@drawable/ic_more_vert"
         android:background="@android:color/transparent"/>
 
     <LinearLayout
