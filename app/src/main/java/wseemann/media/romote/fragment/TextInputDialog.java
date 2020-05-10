@@ -160,6 +160,10 @@ public class TextInputDialog extends DialogFragment {
                     if (key.equals("BACKSPACE")) {
                         sendBackspace();
                     } else {
+                        if (key.equals(" ")) {
+                            key = "%20";
+                        }
+
                         sendStringLiteral(key);
                     }
                 }
