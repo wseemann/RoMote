@@ -16,11 +16,10 @@ import android.widget.TextView;
 import androidx.core.graphics.drawable.RoundedBitmapDrawable;
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 
-import com.jaku.model.Device;
-
 import java.util.List;
 
 import wseemann.media.romote.R;
+import wseemann.media.romote.model.Device;
 import wseemann.media.romote.utils.PreferenceUtils;
 
 /**
@@ -88,8 +87,11 @@ public class DeviceAdapter extends ArrayAdapter<Device> {
 
         String deviceName = device.getModelName();
         String friendlyName = device.getUserDeviceName();
+        String customUserDeviceName = device.getCustomUserDeviceName();
 
-        if (friendlyName != null && !friendlyName.isEmpty()) {
+        if (customUserDeviceName != null && !customUserDeviceName.equals("")) {
+            deviceName = customUserDeviceName;
+        } else if (friendlyName != null && !friendlyName.isEmpty()) {
             deviceName = friendlyName + " (" + deviceName + ")";
         }
 

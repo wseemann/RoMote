@@ -2,7 +2,7 @@ package wseemann.media.romote.utils;
 
 import android.content.Context;
 
-import com.jaku.model.Device;
+import wseemann.media.romote.model.Device;
 
 /**
  * Created by wseemann on 6/25/16.

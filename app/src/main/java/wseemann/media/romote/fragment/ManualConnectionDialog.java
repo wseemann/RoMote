@@ -16,6 +16,7 @@ import android.widget.TextView;
 import androidx.fragment.app.DialogFragment;
 
 import wseemann.media.romote.R;
+import wseemann.media.romote.model.Device;
 import wseemann.media.romote.tasks.RequestCallback;
 import wseemann.media.romote.tasks.RequestTask;
 import wseemann.media.romote.utils.CommandHelper;
@@ -24,7 +25,6 @@ import wseemann.media.romote.utils.PreferenceUtils;
 import wseemann.media.romote.utils.RokuRequestTypes;
 
 import com.jaku.core.JakuRequest;
-import com.jaku.model.Device;
 import com.jaku.parser.DeviceParser;
 import com.jaku.request.QueryDeviceInfoRequest;
 

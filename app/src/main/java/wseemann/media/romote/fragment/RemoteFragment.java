@@ -18,13 +18,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
 import com.jaku.core.JakuRequest;
 import com.jaku.core.KeypressKeyValues;
-import com.jaku.model.Device;
 import com.jaku.parser.DeviceParser;
 import com.jaku.request.KeypressRequest;
 import com.jaku.request.QueryDeviceInfoRequest;
@@ -35,6 +35,7 @@ import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import wseemann.media.romote.R;
+import wseemann.media.romote.model.Device;
 import wseemann.media.romote.tasks.RequestCallback;
 import wseemann.media.romote.tasks.RequestTask;
 import wseemann.media.romote.tasks.RxRequestTask;
@@ -108,6 +109,7 @@ public class RemoteFragment extends Fragment {
 
         getView().findViewById(R.id.remote_dpad_controls).bringToFront();
         updateVolumeControls();
+        updateRokuDeviceName();
 
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Constants.UPDATE_DEVICE_BROADCAST);
@@ -267,6 +269,7 @@ public class RemoteFragment extends Fragment {
         @Override
         public void onReceive(Context context, Intent intent) {
             updateVolumeControls();
+            updateRokuDeviceName();
         }
     };
 
@@ -281,6 +284,25 @@ public class RemoteFragment extends Fragment {
 
         } catch (Exception ex) {
             Log.e(TAG, "Error updating remote layout for newly connected device.");
+        }
+    }
+
+    private void updateRokuDeviceName() {
+        try {
+            String deviceName;
+            Device device = PreferenceUtils.getConnectedDevice(getContext());
+
+            TextView rokuDeviceName = getView().findViewById(R.id.roku_device_name);
+            if (device.getCustomUserDeviceName() != null && !device.getCustomUserDeviceName().equals("")) {
+                deviceName = device.getCustomUserDeviceName();
+            } else {
+                deviceName = device.getUserDeviceName();
+            }
+
+            rokuDeviceName.setText(deviceName);
+
+        } catch (Exception ex) {
+            Log.e(TAG, "Error updating roku device name for newly connected device.");
         }
     }
 }

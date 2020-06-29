@@ -7,6 +7,7 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +21,9 @@ import androidx.fragment.app.DialogFragment;
 import com.jaku.core.JakuRequest;
 import com.jaku.core.KeypressKeyValues;
 import com.jaku.request.KeypressRequest;
+
+import java.util.ArrayDeque;
+import java.util.Deque;
 
 import wseemann.media.romote.R;
 import wseemann.media.romote.tasks.RequestCallback;
@@ -208,13 +212,14 @@ public class TextInputDialog extends DialogFragment {
         new RequestTask(request, new RequestCallback() {
             @Override
             public void requestResult(RokuRequestTypes rokuRequestType, RequestTask.Result result) {
-
+                Log.d("sasas", "OK");
             }
 
             @Override
             public void onErrorResponse(RequestTask.Result result) {
-
+                Log.d("sasas", "error");
             }
         }).execute(RokuRequestTypes.keypress);
+        Deque<Integer> stack = new ArrayDeque<Integer>();
     }
 }

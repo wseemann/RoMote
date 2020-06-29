@@ -11,12 +11,12 @@ import android.widget.RemoteViews;
 
 import wseemann.media.romote.R;
 import wseemann.media.romote.activity.MainActivity;
+import wseemann.media.romote.model.Device;
 import wseemann.media.romote.receiver.CommandReceiver;
 import wseemann.media.romote.service.CommandService;
 import wseemann.media.romote.utils.PreferenceUtils;
 
 import com.jaku.core.KeypressKeyValues;
-import com.jaku.model.Device;
 
 public class RokuAppWidgetProvider extends AppWidgetProvider {
 

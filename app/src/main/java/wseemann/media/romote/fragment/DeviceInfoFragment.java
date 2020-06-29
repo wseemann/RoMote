@@ -9,6 +9,7 @@ import java.util.List;
 
 import wseemann.media.romote.R;
 import wseemann.media.romote.adapter.DeviceInfoAdapter;
+import wseemann.media.romote.model.Device;
 import wseemann.media.romote.model.Entry;
 import wseemann.media.romote.tasks.RequestCallback;
 import wseemann.media.romote.tasks.RequestTask;
@@ -17,7 +18,6 @@ import wseemann.media.romote.utils.DBUtils;
 import wseemann.media.romote.utils.RokuRequestTypes;
 
 import com.jaku.core.JakuRequest;
-import com.jaku.model.Device;
 import com.jaku.parser.DeviceParser;
 import com.jaku.request.QueryDeviceInfoRequest;
 

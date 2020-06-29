@@ -5,7 +5,6 @@ import android.util.Log;
 
 import com.jaku.api.DeviceRequests;
 import com.jaku.api.QueryRequests;
-import com.jaku.model.Device;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -13,6 +12,7 @@ import java.util.List;
 import java.util.concurrent.Callable;
 
 import wseemann.media.romote.model.ClientScanResult;
+import wseemann.media.romote.model.Device;
 import wseemann.media.romote.utils.WifiApManager;
 import wseemann.media.romote.utils.DBUtils;
 
@@ -34,7 +34,7 @@ public class AvailableDevicesTask implements Callable {
 
     public List<Device> call() {
         // Retrieve all Devices.
-        List<Device> devices = new ArrayList();
+        List<wseemann.media.romote.model.Device> devices = new ArrayList();
 
         if (filterPairedDevices) {
             devices = DBUtils.getAllDevices(context);
@@ -51,7 +51,11 @@ public class AvailableDevicesTask implements Callable {
                 // Scan the mobile access point for devices
                 rokuDevices.addAll(scanAccessPointForDevices());
             } else {
-                rokuDevices.addAll(DeviceRequests.discoverDevices());
+                List<com.jaku.model.Device> jakuDevices = DeviceRequests.discoverDevices();
+
+                for (com.jaku.model.Device jakuDevice: jakuDevices) {
+                    rokuDevices.add(Device.Companion.fromDevice(jakuDevice));
+                }
             }
 
             for (Device device: rokuDevices) {
@@ -95,7 +99,7 @@ public class AvailableDevicesTask implements Callable {
                             " IP Address:  " + clientScanResult.getIpAddr());
 
                     try {
-                        Device device = QueryRequests.queryDeviceInfo("http://" + clientScanResult.getIpAddr() + ":8060");
+                        Device device = Device.Companion.fromDevice(QueryRequests.queryDeviceInfo("http://" + clientScanResult.getIpAddr() + ":8060"));
                         device.setHost("http://" + clientScanResult.getIpAddr() + ":8060");
                         availableDevices.add(device);
                     } catch (IOException ex) {

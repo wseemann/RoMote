@@ -8,9 +8,8 @@ import android.database.sqlite.SQLiteDatabase;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.jaku.model.Device;
-
 import wseemann.media.romote.database.DeviceDatabase;
+import wseemann.media.romote.model.Device;
 
 /**
  * Created by wseemann on 6/20/16.
@@ -99,7 +98,7 @@ public class DBUtils {
         values.put(DeviceDatabase.HEADPHONES_CONNECTED, device.getHeadphonesConnected());
         values.put(DeviceDatabase.IS_TV, device.getIsTv());
         values.put(DeviceDatabase.IS_STICK, device.getIsStick());
-
+        values.put(DeviceDatabase.CUSTOM_USER_DEVICE_NAME, device.getCustomUserDeviceName());
 
         id = db.insert(DeviceDatabase.DEVICES_TABLE_NAME, null, values);
 
@@ -119,6 +118,9 @@ public class DBUtils {
         values.put(DeviceDatabase.HOST, device.getHost());
         values.put(DeviceDatabase.IS_TV, device.getIsTv());
         values.put(DeviceDatabase.IS_STICK, device.getIsStick());
+        if (device.getCustomUserDeviceName() != null) {
+            values.put(DeviceDatabase.CUSTOM_USER_DEVICE_NAME, device.getCustomUserDeviceName());
+        }
 
         String whereClause = DeviceDatabase.SERIAL_NUMBER + " = ?";
         String [] whereArgs = new String[1];
@@ -211,6 +213,7 @@ public class DBUtils {
         device.setHeadphonesConnected(cursor.getString(cursor.getColumnIndex(DeviceDatabase.HEADPHONES_CONNECTED)));
         device.setIsTv(cursor.getString(cursor.getColumnIndex(DeviceDatabase.IS_TV)));
         device.setIsStick(cursor.getString(cursor.getColumnIndex(DeviceDatabase.IS_STICK)));
+        device.setCustomUserDeviceName(cursor.getString(cursor.getColumnIndex(DeviceDatabase.CUSTOM_USER_DEVICE_NAME)));
 
         return device;
     }

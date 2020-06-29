@@ -9,7 +9,7 @@ import android.database.sqlite.SQLiteOpenHelper;
  */
 public class DeviceDatabase extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
     private static final String DATABASE_NAME = "devices";
     public static final String DEVICES_TABLE_NAME = "devices";
 
@@ -48,6 +48,7 @@ public class DeviceDatabase extends SQLiteOpenHelper {
     public static final String HEADPHONES_CONNECTED = "headphones_connected";
     public static final String IS_TV = "is_tv";
     public static final String IS_STICK = "is_stick";
+    public static final String CUSTOM_USER_DEVICE_NAME = "custom_user_device_name";
 
     private static final String DEVICES_TABLE_CREATE =
             "CREATE TABLE " + DEVICES_TABLE_NAME + " ("
@@ -84,7 +85,8 @@ public class DeviceDatabase extends SQLiteOpenHelper {
                     + SUPPORTS_PRIVATE_LISTENING + " TEXT,"
                     + HEADPHONES_CONNECTED + " TEXT,"
                     + IS_TV + " TEXT,"
-                    + IS_STICK + " TEXT);";
+                    + IS_STICK + " TEXT,"
+                    + CUSTOM_USER_DEVICE_NAME + " TEXT);";
 
     private static final String[] DEVICES_TABLE_ALTER_VERSION_TWO = {
             "ALTER TABLE " + DEVICES_TABLE_NAME + " ADD COLUMN " + SUPPORTS_SUSPEND + " TEXT;",
@@ -95,6 +97,9 @@ public class DeviceDatabase extends SQLiteOpenHelper {
     private static final String[] DEVICES_TABLE_ALTER_VERSION_THREE = {
             "ALTER TABLE " + DEVICES_TABLE_NAME + " ADD COLUMN " + IS_TV + " TEXT;",
             "ALTER TABLE " + DEVICES_TABLE_NAME + " ADD COLUMN " + IS_STICK + " TEXT;"};
+
+    private static final String[] DEVICES_TABLE_ALTER_VERSION_FOUR = {
+            "ALTER TABLE " + DEVICES_TABLE_NAME + " ADD COLUMN " + CUSTOM_USER_DEVICE_NAME + " TEXT;"};
 
     public DeviceDatabase(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -107,13 +112,21 @@ public class DeviceDatabase extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if (newVersion == 2) {
+        if (newVersion <= 2) {
             for (int i = 0; i < DEVICES_TABLE_ALTER_VERSION_TWO.length; i++) {
                 db.execSQL(DEVICES_TABLE_ALTER_VERSION_TWO[i]);
             }
-        } else if (newVersion == 3) {
+        }
+
+        if (newVersion <= 3) {
             for (int i = 0; i < DEVICES_TABLE_ALTER_VERSION_THREE.length; i++) {
                 db.execSQL(DEVICES_TABLE_ALTER_VERSION_THREE[i]);
+            }
+        }
+
+        if (newVersion <= 4) {
+            for (int i = 0; i < DEVICES_TABLE_ALTER_VERSION_FOUR.length; i++) {
+                db.execSQL(DEVICES_TABLE_ALTER_VERSION_FOUR[i]);
             }
         }
     }

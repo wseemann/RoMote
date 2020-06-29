@@ -4,11 +4,10 @@ import android.content.Context;
 import android.content.Intent;
 import android.util.Log;
 
-import com.jaku.model.Device;
-
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import wseemann.media.romote.model.Device;
 import wseemann.media.romote.utils.Constants;
 import wseemann.media.romote.utils.DBUtils;
 import wseemann.media.romote.utils.PreferenceUtils;

@@ -40,9 +40,9 @@ import wseemann.media.romote.adapter.DeviceAdapter;
 import wseemann.media.romote.adapter.SeparatedListAdapter;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.jaku.model.Device;
 
 import wseemann.media.romote.R;
+import wseemann.media.romote.model.Device;
 import wseemann.media.romote.tasks.AvailableDevicesTask;
 import wseemann.media.romote.tasks.UpdatePairedDeviceTask;
 import wseemann.media.romote.utils.Constants;
@@ -277,6 +277,16 @@ public class MainFragment extends ListFragment {
                 Device device = (Device) v.getTag();
 
                 switch (item.getItemId()) {
+                    case R.id.action_rename:
+                        EditDeviceNameDialog fragment = EditDeviceNameDialog.getInstance(device.getCustomUserDeviceName(), device.getSerialNumber());
+                        fragment.setListener(() -> {
+                            mAvailableDeviceAdapter.clear();
+                            mAdapter.notifyDataSetChanged();
+                            loadPairedDevices();
+                            getContext().sendBroadcast(new Intent(Constants.UPDATE_DEVICE_BROADCAST));
+                        });
+                        fragment.show(MainFragment.this.getFragmentManager(), EditDeviceNameDialog.class.getName());
+                        return true;
                     case R.id.action_info:
                         Intent intent = new Intent(getActivity(), DeviceInfoActivity.class);
                         intent.putExtra("serial_number", device.getSerialNumber());

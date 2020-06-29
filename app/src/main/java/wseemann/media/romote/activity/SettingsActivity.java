@@ -15,12 +15,12 @@ import androidx.appcompat.widget.Toolbar;
 
 import com.jaku.core.JakuRequest;
 import com.jaku.core.KeypressKeyValues;
-import com.jaku.model.Device;
 import com.jaku.request.KeypressRequest;
 
 import java.util.List;
 
 import wseemann.media.romote.R;
+import wseemann.media.romote.model.Device;
 import wseemann.media.romote.tasks.RequestCallback;
 import wseemann.media.romote.tasks.RequestTask;
 import wseemann.media.romote.utils.CommandHelper;

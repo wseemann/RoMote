@@ -2,11 +2,10 @@ package wseemann.media.romote.tasks;
 
 import android.content.Context;
 
-import com.jaku.model.Device;
-
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import wseemann.media.romote.model.Device;
 import wseemann.media.romote.utils.DBUtils;
 
 public class PairedDevicesTask implements Callable {

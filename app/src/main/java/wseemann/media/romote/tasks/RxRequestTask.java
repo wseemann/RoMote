@@ -6,7 +6,6 @@ import android.util.Log;
 import com.jaku.core.JakuRequest;
 import com.jaku.core.JakuResponse;
 import com.jaku.model.Channel;
-import com.jaku.model.Device;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -14,6 +13,7 @@ import java.net.UnknownHostException;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import wseemann.media.romote.model.Device;
 import wseemann.media.romote.utils.DBUtils;
 import wseemann.media.romote.utils.PreferenceUtils;
 import wseemann.media.romote.utils.RokuRequestTypes;

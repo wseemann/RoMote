@@ -30,11 +30,11 @@ import io.reactivex.schedulers.Schedulers;
 import wseemann.media.romote.R;
 import wseemann.media.romote.activity.MainActivity;
 import wseemann.media.romote.activity.ManualConnectionActivity;
+
+import wseemann.media.romote.model.Device;
 import wseemann.media.romote.tasks.AvailableDevicesTask;
 import wseemann.media.romote.utils.DBUtils;
 import wseemann.media.romote.utils.PreferenceUtils;
-
-import com.jaku.model.Device;
 
 /**
  * Created by wseemann on 6/20/16.

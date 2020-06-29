@@ -30,9 +30,9 @@ import java.util.List;
 import java.util.Random;
 
 import com.jaku.model.Channel;
-import com.jaku.model.Device;
 
 import wseemann.media.romote.R;
+import wseemann.media.romote.model.Device;
 import wseemann.media.romote.tasks.RequestCallback;
 import wseemann.media.romote.tasks.RequestTask;
 import wseemann.media.romote.utils.CommandHelper;

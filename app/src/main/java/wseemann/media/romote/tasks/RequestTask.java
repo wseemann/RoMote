@@ -5,11 +5,11 @@ import android.os.AsyncTask;
 import com.jaku.core.JakuRequest;
 import com.jaku.core.JakuResponse;
 import com.jaku.model.Channel;
-import com.jaku.model.Device;
 
 import java.io.ByteArrayOutputStream;
 import java.util.List;
 
+import wseemann.media.romote.model.Device;
 import wseemann.media.romote.utils.RokuRequestTypes;
 
 /**
