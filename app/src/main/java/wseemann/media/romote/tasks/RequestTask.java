@@ -67,7 +67,7 @@ public class RequestTask extends AsyncTask<RokuRequestTypes, Void, RequestTask.R
                     result = new Result(channels);
                 } else if (requestType.equals(RokuRequestTypes.query_device_info)) {
                     JakuResponse response = request.send();
-                    Device device = (Device) response.getResponseData();
+                    Device device = Device.Companion.fromDevice((com.jaku.model.Device) response.getResponseData());
                     result = new Result(device);
                 } else if (requestType.equals(RokuRequestTypes.query_icon)) {
                     JakuResponse response = request.send();

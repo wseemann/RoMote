@@ -18,11 +18,10 @@
     <EditText
         android:id="@+id/ip_address_text"
         android:layout_width="match_parent"
-        android:layout_height="35dip"
+        android:layout_height="wrap_content"
         android:layout_marginLeft="10dip"
         android:layout_marginRight="10dip"
-        android:text="192.168.1."
-        android:background="@android:color/white"/>
+        android:text="192.168.1."/>
 
     <Button
         android:id="@+id/connect_button"
