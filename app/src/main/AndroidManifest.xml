@@ -107,6 +107,8 @@
         <receiver android:name="wseemann.media.romote.receiver.CommandReceiver"
            android:exported="false"/>
 
+        <receiver android:name="wseemann.media.romote.service.CommandService$NetworkStateReceiver"
+                  android:exported="true" android:enabled="false"/>
     </application>
 
 </manifest>
