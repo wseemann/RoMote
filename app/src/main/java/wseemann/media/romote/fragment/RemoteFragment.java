@@ -4,11 +4,19 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
+import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.os.RemoteException;
 import android.speech.RecognizerIntent;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -21,6 +29,7 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
 import com.jaku.core.JakuRequest;
@@ -35,6 +44,7 @@ import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import wseemann.media.romote.R;
+import wseemann.media.romote.audio.IRemoteAudioInterface;
 import wseemann.media.romote.model.Device;
 import wseemann.media.romote.tasks.RequestCallback;
 import wseemann.media.romote.tasks.RequestTask;
@@ -44,6 +54,7 @@ import wseemann.media.romote.utils.Constants;
 import wseemann.media.romote.utils.PreferenceUtils;
 import wseemann.media.romote.utils.RokuRequestTypes;
 import wseemann.media.romote.view.RepeatingImageButton;
+import wseemann.media.romote.view.VibratingImageButton;
 
 /**
  * Created by wseemann on 6/19/16.
@@ -51,6 +62,12 @@ import wseemann.media.romote.view.RepeatingImageButton;
 public class RemoteFragment extends Fragment {
 
     private static final String TAG = "RemoteFragment";
+
+    private boolean remoteAudioStarted = false;
+
+    /** The primary interface we will be calling on the service.  */
+    private IRemoteAudioInterface mService = null;
+    private Boolean isBound = false;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -64,6 +81,7 @@ public class RemoteFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_remote, container, false);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -102,6 +120,20 @@ public class RemoteFragment extends Fragment {
             fragment.show(RemoteFragment.this.getFragmentManager(), TextInputDialog.class.getName());
         });
 
+        VibratingImageButton remoteAudioButton = getView().findViewById(R.id.remote_audio);
+        remoteAudioButton.setOnClickListener(view -> {
+            if (isBound) {
+                try {
+                    mService.toggleRemoteAudio();
+                } catch (RemoteException ex) {
+                    ex.printStackTrace();
+                }
+            } else {
+                bindToRemoteAudio();
+            }
+            updatePrivateListening();
+        });
+
         ImageButton powerButton = getView().findViewById(R.id.power_button);
         powerButton.setOnClickListener(view -> {
             obtainPowerMode();
@@ -110,10 +142,17 @@ public class RemoteFragment extends Fragment {
         getView().findViewById(R.id.remote_dpad_controls).bringToFront();
         updateVolumeControls();
         updateRokuDeviceName();
+        updatePrivateListening();
 
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Constants.UPDATE_DEVICE_BROADCAST);
         getActivity().registerReceiver(mUpdateReceiver, intentFilter);
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        updatePrivateListening();
     }
 
     @Override
@@ -270,6 +309,7 @@ public class RemoteFragment extends Fragment {
         public void onReceive(Context context, Intent intent) {
             updateVolumeControls();
             updateRokuDeviceName();
+            updatePrivateListening();
         }
     };
 
@@ -305,4 +345,130 @@ public class RemoteFragment extends Fragment {
             Log.e(TAG, "Error updating roku device name for newly connected device.");
         }
     }
+
+    public void updatePrivateListening() {
+        VibratingImageButton remoteAudioButton = getView().findViewById(R.id.remote_audio);
+
+        boolean supportsRemoteAudio = false;
+
+        try {
+            Device device = PreferenceUtils.getConnectedDevice(getContext());
+
+            if (device.getSupportsPrivateListening() != null) {
+                supportsRemoteAudio = Boolean.valueOf(device.getSupportsPrivateListening());
+            }
+        } catch (Exception ex) {
+            Log.e(TAG, "Error updating remote layout for newly connected device.");
+        }
+
+        if (!supportsRemoteAudio || !privateListeningInstalled()) {
+            remoteAudioButton.setImageResource(R.mipmap.remote_private_listening_unavailable);
+            return;
+        }
+        if (mService != null) {
+            try {
+                if (mService.isRemoteAudioActive()) {
+                    remoteAudioButton.setImageResource(R.mipmap.remote_private_listening_on);
+                } else {
+                    remoteAudioButton.setImageResource(R.mipmap.remote_private_listening_available);
+                }
+            } catch (RemoteException ex) {
+                ex.printStackTrace();
+            }
+        } else {
+            remoteAudioButton.setImageResource(R.mipmap.remote_private_listening_available);
+        }
+    }
+
+    private void bindToRemoteAudio() {
+        Intent intent = new Intent();
+        intent.setComponent(
+                new ComponentName(
+                        "wseemann.media.romote.audio",
+                        "wseemann.media.romote.audio.remoteaudio.RemoteAudio"
+                )
+        );
+
+        if (!privateListeningInstalled()) {
+            showDownloadPrivateListeningDialog();
+        } else {
+            getContext().bindService(intent, remoteAudioConnection, Context.BIND_AUTO_CREATE);
+        }
+    }
+
+    private void showDownloadPrivateListeningDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setMessage(getString(R.string.download_private_listening));
+        builder.setPositiveButton(R.string.install_channel_dialog_button, (dialog, id) -> {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            intent.setData(Uri.parse(Constants.PRIVATE_LISTENING_URL));
+            startActivity(intent);
+        });
+        builder.setNegativeButton(R.string.close, (dialog, id) -> dialog.cancel());
+
+        AlertDialog dialog = builder.create();
+        dialog.show();
+    }
+
+    private boolean privateListeningInstalled() {
+        Intent intent = new Intent();
+        intent.setComponent(
+                new ComponentName(
+                        "wseemann.media.romote.audio",
+                        "wseemann.media.romote.audio.remoteaudio.RemoteAudio"
+                )
+        );
+        List<ResolveInfo> list = getContext().getPackageManager().queryIntentServices(intent,
+                PackageManager.MATCH_DEFAULT_ONLY);
+
+        return list.size() != 0;
+    }
+
+    /**
+     * Class for interacting with the main interface of the service.
+     */
+    private ServiceConnection remoteAudioConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
+            Log.d(TAG, "onServiceConnected");
+            mService = IRemoteAudioInterface.Stub.asInterface(iBinder);
+            isBound = true;
+
+            try {
+                Device device = PreferenceUtils.getConnectedDevice(getContext());
+                mService.setDevice(device.getHost());
+                mService.toggleRemoteAudio();
+                updatePrivateListening();
+            } catch (RemoteException e) {
+                e.printStackTrace();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName componentName) {
+            Log.d(TAG, "onServiceDisconnected");
+            isBound = false;
+            mService = null;
+            updatePrivateListening();
+        }
+
+        @Override
+        public void onBindingDied(ComponentName name) {
+            Log.d(TAG, "onBindingDied");
+            isBound = false;
+            mService = null;
+            updatePrivateListening();
+        }
+
+        @Override
+        public void onNullBinding(ComponentName name) {
+            Log.d(TAG, "onNullBinding");
+            isBound = false;
+            mService = null;
+            updatePrivateListening();
+        }
+    };
 }

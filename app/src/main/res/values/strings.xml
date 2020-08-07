@@ -76,4 +76,7 @@
     <string name="power_dialog_title">Power Off</string>
     <string name="power_dialog_message">Are you sure you want to turn off the device?</string>
 
+    <string name="download_private_listening">Private listening is experimental and support may be discontinued at
+        any time. In order to enable private listening please download and install the companion plugin.</string>
+    <string name="download">Download</string>
 </resources>

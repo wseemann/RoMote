@@ -207,8 +207,7 @@
                 android:layout_marginLeft="10dip"
                 android:layout_weight="1"
                 android:background="@drawable/remote_button_bg"
-                android:src="@mipmap/remote_private_listening_available"
-                android:visibility="invisible" />
+                android:src="@mipmap/remote_private_listening_available" />
 
         </LinearLayout>
 
