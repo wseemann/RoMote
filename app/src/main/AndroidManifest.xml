@@ -8,6 +8,10 @@
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
     <uses-permission android:name="android.permission.VIBRATE" />
 
+    <queries>
+        <package android:name="wseemann.media.romote.audio" />
+    </queries>
+
     <application
         android:name="wseemann.media.romote.RomoteApplication"
         android:usesCleartextTraffic="true"
