@@ -31,7 +31,8 @@
             android:windowSoftInputMode="stateAlwaysHidden|adjustPan"
             android:screenOrientation="portrait"
             android:configChanges="orientation|keyboardHidden"
-            android:launchMode="singleTask">
+            android:launchMode="singleTask"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
                 <category android:name="android.intent.category.LAUNCHER"/>
@@ -88,7 +89,8 @@
         <activity android:name="wseemann.media.romote.activity.AppWidgetConfigure"
             android:theme="@style/AppTheme"
             android:screenOrientation="portrait"
-            android:configChanges="orientation|keyboardHidden">
+            android:configChanges="orientation|keyboardHidden"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
             </intent-filter>
@@ -102,7 +104,8 @@
             android:configChanges="orientation|keyboardHidden"/>
 
         <receiver android:name="wseemann.media.romote.widget.RokuAppWidgetProvider"
-            android:label="@string/title_romote_widget">
+            android:label="@string/title_romote_widget"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
