@@ -1,13 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
     package="wseemann.media.romote">
-
-    <uses-sdk
-        android:minSdkVersion="21"
-        android:targetSdkVersion="31"
-        android:maxSdkVersion="31"
-        tools:ignore="GradleOverrides" />
 
     <uses-permission android:name="wseemann.media.romote.audio.REMOTE_AUDIO"/>
     <uses-permission android:name="android.permission.INTERNET"/>

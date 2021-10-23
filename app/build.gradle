@@ -16,8 +16,8 @@ android {
         applicationId "wseemann.media.romote"
         minSdkVersion 21
         targetSdkVersion 31
-        versionCode 22
-        versionName "1.0.22"
+        versionCode 23
+        versionName "1.0.23"
     }
     buildTypes {
         getByName("release") {
