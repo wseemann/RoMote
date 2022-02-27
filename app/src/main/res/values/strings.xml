@@ -64,6 +64,8 @@
     <string name="find_remote_title_preference"> Find Remote</string>
     <string name="find_remote_summary_preference">Locate a missing remote</string>
 
+    <string name="open_source_licenses_title_preference">Open Source Licenses</string>
+
     <string name="donate_title_preference"> Donate</string>
     <string name="donate_summary_preference">Support RoMote development</string>
 

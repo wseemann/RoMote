@@ -45,7 +45,7 @@ public class NotificationUtils {
                 context,
                 ((int) System.currentTimeMillis()),
                 new Intent(context,MainActivity.class),
-                PendingIntent.FLAG_UPDATE_CURRENT
+                PendingIntent.FLAG_IMMUTABLE
         );
 
         Notification.MediaStyle style = new Notification.MediaStyle();
@@ -82,7 +82,7 @@ public class NotificationUtils {
     private static Notification.Action GenerateActionCompat(Context context, int icon, String title, int requestCode, KeypressKeyValues keypressKeyValue) {
         Intent intent = new Intent(context, CommandService.class);
         intent.putExtra("keypress", keypressKeyValue);
-        PendingIntent pendingIntent = PendingIntent.getService(context, requestCode, intent, 0);
+        PendingIntent pendingIntent = PendingIntent.getService(context, requestCode, intent, PendingIntent.FLAG_IMMUTABLE);
 
         return new Notification.Action.Builder(icon, title, pendingIntent).build();
     }

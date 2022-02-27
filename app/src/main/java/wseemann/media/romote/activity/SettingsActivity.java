@@ -3,7 +3,6 @@ package wseemann.media.romote.activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceFragment;
 import android.util.Log;
@@ -13,6 +12,7 @@ import android.widget.LinearLayout;
 
 import androidx.appcompat.widget.Toolbar;
 
+import com.google.android.gms.oss.licenses.OssLicensesMenuActivity;
 import com.jaku.core.JakuRequest;
 import com.jaku.core.KeypressKeyValues;
 import com.jaku.request.KeypressRequest;
@@ -60,23 +60,24 @@ public class SettingsActivity extends PreferenceActivity {
         }
 
         findPreference("find_remote").setOnPreferenceClickListener(
-                new Preference.OnPreferenceClickListener() {
-                    @Override
-                    public boolean onPreferenceClick(Preference preference) {
-                        performKeypress(KeypressKeyValues.FIND_REMOTE);
-                        return true;
-                    }
+                preference -> {
+                    performKeypress(KeypressKeyValues.FIND_REMOTE);
+                    return true;
+                });
+
+        findPreference("open_source_licenses").setOnPreferenceClickListener(
+                preference -> {
+                    // When the user selects an option to see the licenses:
+                    startActivity(new Intent(SettingsActivity.this, OssLicensesMenuActivity.class));
+                    return true;
                 });
 
         findPreference("donate").setOnPreferenceClickListener(
-                new Preference.OnPreferenceClickListener() {
-                    @Override
-                    public boolean onPreferenceClick(Preference preference) {
-                        Intent intent = new Intent(Intent.ACTION_VIEW);
-                        intent.setData(Uri.parse(Constants.PAYPAL_DONATION_LINK));
-                        startActivity(intent);
-                        return true;
-                    }
+                preference -> {
+                    Intent intent = new Intent(Intent.ACTION_VIEW);
+                    intent.setData(Uri.parse(Constants.PAYPAL_DONATION_LINK));
+                    startActivity(intent);
+                    return true;
                 });
     }
 
@@ -104,7 +105,7 @@ public class SettingsActivity extends PreferenceActivity {
             Device device = PreferenceUtils.getConnectedDevice(this);
 
             if (device.getSupportsFindRemote() != null) {
-                return Boolean.valueOf(device.getSupportsFindRemote());
+                return Boolean.parseBoolean(device.getSupportsFindRemote());
             }
         } catch(Exception ex) {
             ex.printStackTrace();

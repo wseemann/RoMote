@@ -29,6 +29,11 @@
         </Preference>
 
         <Preference
+            android:key="open_source_licenses"
+            android:title="@string/open_source_licenses_title_preference">
+        </Preference>
+
+        <Preference
             android:key="donate"
             android:title="@string/donate_title_preference"
             android:summary="@string/donate_summary_preference">
