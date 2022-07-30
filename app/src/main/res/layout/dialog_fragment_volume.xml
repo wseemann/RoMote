@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:padding="10dip">
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/mute_volume_button"
         android:layout_width="0dip"
         android:layout_height="35dip"
@@ -14,7 +15,8 @@
         android:text="Mute"
         android:textColor="@android:color/white"
         android:textAppearance="@android:style/TextAppearance.Medium"
-        android:background="@drawable/buttonshape"/>
+        android:background="@drawable/buttonshape"
+        app:backgroundTint="#a865f3"/>
 
     <wseemann.media.romote.view.RepeatingImageButton
         android:id="@+id/decrease_volume_button"
@@ -27,7 +29,8 @@
         android:text="-"
         android:textColor="@android:color/white"
         android:textAppearance="@android:style/TextAppearance.Medium"
-        android:background="@drawable/buttonshape"/>
+        android:background="@drawable/buttonshape"
+        app:backgroundTint="#a865f3"/>
 
     <wseemann.media.romote.view.RepeatingImageButton
         android:id="@+id/increase_volume_button"
@@ -38,6 +41,7 @@
         android:text="+"
         android:textColor="@android:color/white"
         android:textAppearance="@android:style/TextAppearance.Medium"
-        android:background="@drawable/buttonshape"/>
+        android:background="@drawable/buttonshape"
+        app:backgroundTint="#a865f3"/>
 
 </LinearLayout>

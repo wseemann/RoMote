@@ -25,13 +25,15 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 
+import com.google.android.material.button.MaterialButton;
+
 import wseemann.media.romote.utils.ViewUtils;
 
 /**
  * A button that will repeatedly call a 'listener' method
  * as long as the button is pressed.
  */
-public class RepeatingImageButton extends Button {
+public class RepeatingImageButton extends MaterialButton {
 
     private static final int VIBRATE_DURATION_MS = 100;
 

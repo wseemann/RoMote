@@ -12,10 +12,10 @@ import android.widget.LinearLayout;
 
 import androidx.appcompat.widget.Toolbar;
 
-import com.google.android.gms.oss.licenses.OssLicensesMenuActivity;
 import com.jaku.core.JakuRequest;
 import com.jaku.core.KeypressKeyValues;
 import com.jaku.request.KeypressRequest;
+import com.mikepenz.aboutlibraries.LibsBuilder;
 
 import java.util.List;
 
@@ -68,7 +68,10 @@ public class SettingsActivity extends PreferenceActivity {
         findPreference("open_source_licenses").setOnPreferenceClickListener(
                 preference -> {
                     // When the user selects an option to see the licenses:
-                    startActivity(new Intent(SettingsActivity.this, OssLicensesMenuActivity.class));
+                    new LibsBuilder()
+                            .withActivityTitle(getString(R.string.open_source_licenses_title_preference))
+                            .withSearchEnabled(true)
+                            .start(this);
                     return true;
                 });
 
