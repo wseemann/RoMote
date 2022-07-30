@@ -3,8 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:background="@color/purple">
+    android:orientation="vertical">
 
     <TextView
         android:layout_width="match_parent"
@@ -12,7 +11,6 @@
         android:layout_marginTop="10dip"
         android:layout_marginBottom="10dip"
         android:gravity="center"
-        android:textColor="@android:color/white"
         android:textAppearance="@android:style/TextAppearance.Medium"
         android:text="@string/connect_help"/>
 
