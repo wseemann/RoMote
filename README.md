@@ -9,7 +9,6 @@ Open source Roku remote. Turn your Android Device into a control center for your
 Privacy
 -------
 
-```
 RoMote does not collect or share any user data.
 
 
