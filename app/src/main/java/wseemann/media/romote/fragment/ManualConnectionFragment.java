@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +16,7 @@ import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 
+import dagger.hilt.android.AndroidEntryPoint;
 import wseemann.media.romote.R;
 import wseemann.media.romote.model.Device;
 import wseemann.media.romote.tasks.RequestCallback;
@@ -29,10 +29,19 @@ import com.jaku.core.JakuRequest;
 import com.jaku.parser.DeviceParser;
 import com.jaku.request.QueryDeviceInfoRequest;
 
+import javax.inject.Inject;
+
 /**
  * Created by wseemann on 6/26/16.
  */
+@AndroidEntryPoint
 public class ManualConnectionFragment extends Fragment {
+
+    @Inject
+    protected SharedPreferences sharedPreferences;
+
+    @Inject
+    protected PreferenceUtils preferenceUtils;
 
     private EditText mIpAddressText;
     private Button mConnectButton;
@@ -104,11 +113,9 @@ public class ManualConnectionFragment extends Fragment {
         device.setHost(mHost);
 
         DBUtils.insertDevice(getActivity(), device);
-        PreferenceUtils.setConnectedDevice(getActivity(), device.getSerialNumber());
+        preferenceUtils.setConnectedDevice(device.getSerialNumber());
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-
-        SharedPreferences.Editor editor = prefs.edit();
+        SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean("first_use", false);
         editor.commit();
 

@@ -10,7 +10,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
-import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -30,6 +29,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import java.util.ArrayList;
 import java.util.List;
 
+import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -40,6 +40,8 @@ import wseemann.media.romote.adapter.DeviceAdapter;
 import wseemann.media.romote.adapter.SeparatedListAdapter;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import javax.inject.Inject;
 
 import wseemann.media.romote.R;
 import wseemann.media.romote.model.Device;
@@ -53,7 +55,14 @@ import wseemann.media.romote.widget.RokuAppWidgetProvider;
 /**
  * Created by wseemann on 6/19/16.
  */
+@AndroidEntryPoint
 public class MainFragment extends ListFragment {
+
+    @Inject
+    protected SharedPreferences sharedPreferences;
+
+    @Inject
+    protected PreferenceUtils preferenceUtils;
 
     private TextView mSelectDeviceText;
     private RelativeLayout mProgressLayout;
@@ -133,11 +142,9 @@ public class MainFragment extends ListFragment {
                 Device device = (Device) parent.getItemAtPosition(position);
 
                 DBUtils.insertDevice(getActivity(), device);
-                PreferenceUtils.setConnectedDevice(getActivity(), device.getSerialNumber());
+                preferenceUtils.setConnectedDevice(device.getSerialNumber());
 
-                SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-
-                SharedPreferences.Editor editor = prefs.edit();
+                SharedPreferences.Editor editor = sharedPreferences.edit();
                 editor.putBoolean("first_use", false);
                 editor.commit();
 
@@ -176,8 +183,8 @@ public class MainFragment extends ListFragment {
         });
 
         mAdapter = new SeparatedListAdapter(getActivity());
-        mPairedDeviceAdapter = new DeviceAdapter(getActivity(), new ArrayList<Device>(), mHandler);
-        mAvailableDeviceAdapter = new DeviceAdapter(getActivity(), new ArrayList<Device>(), mHandler);
+        mPairedDeviceAdapter = new DeviceAdapter(getActivity(), new ArrayList<>(), mHandler, preferenceUtils);
+        mAvailableDeviceAdapter = new DeviceAdapter(getActivity(), new ArrayList<>(), mHandler, preferenceUtils);
 
         mAdapter.addSection("Paired devices", mPairedDeviceAdapter);
         mAdapter.addSection("Available devices", mAvailableDeviceAdapter);
@@ -294,7 +301,7 @@ public class MainFragment extends ListFragment {
                         startActivity(intent);
                         return true;
                     case R.id.action_unpair:
-                        PreferenceUtils.setConnectedDevice(getActivity(), "");
+                        preferenceUtils.setConnectedDevice("");
                         DBUtils.removeDevice(getActivity(), device.getSerialNumber());
                         refreshList(false);
                         return true;
@@ -329,7 +336,7 @@ public class MainFragment extends ListFragment {
     }
 
     private void updatePairedDevice() {
-        Observable.fromCallable(new UpdatePairedDeviceTask(getContext()))
+        Observable.fromCallable(new UpdatePairedDeviceTask(getContext(), preferenceUtils))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe();

@@ -6,15 +6,16 @@ import android.appwidget.AppWidgetProvider;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.util.Log;
 import android.widget.RemoteViews;
 
 import wseemann.media.romote.R;
 import wseemann.media.romote.activity.MainActivity;
+import wseemann.media.romote.di.CommonModule;
 import wseemann.media.romote.model.Device;
 import wseemann.media.romote.receiver.CommandReceiver;
 import wseemann.media.romote.service.CommandService;
-import wseemann.media.romote.utils.PreferenceUtils;
 
 import com.jaku.core.KeypressKeyValues;
 
@@ -48,7 +49,7 @@ public class RokuAppWidgetProvider extends AppWidgetProvider {
         Device device = null;
 
         try {
-            device = PreferenceUtils.getConnectedDevice(context);
+            device = CommonModule.PreferenceUtilsSingleton.preferenceUtils.getConnectedDevice();
         } catch (Exception ex) {
             return;
         }
@@ -147,8 +148,16 @@ public class RokuAppWidgetProvider extends AppWidgetProvider {
         Intent intent = new Intent();
         intent.putExtra("keypress", keypressKeyValue);
         intent.setComponent(serviceName);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(context,
-                requestCode /* no requestCode */, intent, 0 /* no flags */);
+        PendingIntent pendingIntent;
+
+        if (Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.S) {
+            pendingIntent = PendingIntent.getBroadcast(context,
+                    requestCode /* no requestCode */, intent, PendingIntent.FLAG_IMMUTABLE /* no flags */);
+        } else {
+            pendingIntent = PendingIntent.getBroadcast(context,
+                    requestCode /* no requestCode */, intent, 0 /* no flags */);
+        }
+
         views.setOnClickPendingIntent(id, pendingIntent);
     }
 }

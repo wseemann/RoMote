@@ -22,11 +22,18 @@ public class RxRequestTask implements Callable {
     private static final String TAG = "RxRequestTask";
 
     private Context context;
+    private PreferenceUtils preferenceUtils;
     private JakuRequest request;
     private RokuRequestTypes rokuRequestType;
 
-    public RxRequestTask(final Context context, final JakuRequest request, final RokuRequestTypes rokuRequestType) {
+    public RxRequestTask(
+            final Context context,
+            final PreferenceUtils preferenceUtils,
+            final JakuRequest request,
+            final RokuRequestTypes rokuRequestType
+    ) {
         this.context = context;
+        this.preferenceUtils = preferenceUtils;
         this.request = request;
         this.rokuRequestType = rokuRequestType;
     }
@@ -79,7 +86,7 @@ public class RxRequestTask implements Callable {
         List<Device> devices = availableDevicesTask.call();
 
         try {
-            Device connectedDevice = PreferenceUtils.getConnectedDevice(context);
+            Device connectedDevice = preferenceUtils.getConnectedDevice();
 
             for (Device device: devices) {
                 if (device.getSerialNumber().equals(connectedDevice.getSerialNumber())) {

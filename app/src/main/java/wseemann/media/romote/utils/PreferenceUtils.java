@@ -2,7 +2,6 @@ package wseemann.media.romote.utils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 
 import wseemann.media.romote.model.Device;
 
@@ -11,23 +10,27 @@ import wseemann.media.romote.model.Device;
  */
 public class PreferenceUtils {
 
-    private PreferenceUtils() {
+    private final Context context;
+    private final SharedPreferences sharedPreferences;
 
+    public PreferenceUtils(
+            Context context,
+            SharedPreferences sharedPreferences
+    ) {
+        this.context = context;
+        this.sharedPreferences = sharedPreferences;
     }
 
-    public static void setConnectedDevice(Context context, String serialNumber) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-
-        SharedPreferences.Editor editor = prefs.edit();
+    public void setConnectedDevice(String serialNumber) {
+        SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putString("serial_number", serialNumber);
         editor.commit();
     }
 
-    public static Device getConnectedDevice(Context context) throws Exception {
+    public Device getConnectedDevice() throws Exception {
         Device device;
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        String serialNumber = prefs.getString("serial_number", null);
+        String serialNumber = sharedPreferences.getString("serial_number", null);
 
         device = DBUtils.getDevice(context, serialNumber);
 
@@ -38,8 +41,7 @@ public class PreferenceUtils {
         return device;
     }
 
-    public static boolean shouldProvideHapticFeedback(Context context) {
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(context);
-        return prefs.getBoolean("haptic_feedback_preference", false);
+    public boolean shouldProvideHapticFeedback() {
+        return sharedPreferences.getBoolean("haptic_feedback_preference", false);
     }
 }

@@ -3,19 +3,13 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
-
     <color name="grid_state_pressed">#1Affffff</color>
     <color name="grid_state_focused">#80000000</color>
-
     <color name="purple">#65318f</color>
-
+    <color name="purple_accent">#843abc</color>
     <color name="almost_black">#ff2f2e2d</color>
-
     <color name="semi_transparent">#66000000</color>
-
     <color name="light_button">#22000000</color>
-
     <color name="gunmetal">#2C3539</color>
-
     <color name="dark_grey_button">#2a2530</color>
 </resources>

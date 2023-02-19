@@ -3,7 +3,6 @@ package wseemann.media.romote.fragment;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.SharedPreferences;
-import android.preference.PreferenceManager;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -15,6 +14,7 @@ import android.widget.TextView;
 
 import androidx.fragment.app.DialogFragment;
 
+import dagger.hilt.android.AndroidEntryPoint;
 import wseemann.media.romote.R;
 import wseemann.media.romote.model.Device;
 import wseemann.media.romote.tasks.RequestCallback;
@@ -28,10 +28,22 @@ import com.jaku.core.JakuRequest;
 import com.jaku.parser.DeviceParser;
 import com.jaku.request.QueryDeviceInfoRequest;
 
+import javax.inject.Inject;
+
 /**
  * Created by wseemann on 6/20/16.
  */
+@AndroidEntryPoint
 public class ManualConnectionDialog extends DialogFragment {
+
+    @Inject
+    protected SharedPreferences sharedPreferences;
+
+    @Inject
+    protected CommandHelper commandHelper;
+
+    @Inject
+    protected PreferenceUtils preferenceUtils;
 
     private EditText mIpAddressText;
     private Button mConnectButton;
@@ -65,7 +77,7 @@ public class ManualConnectionDialog extends DialogFragment {
 
                 mErrorText.setVisibility(View.GONE);
                 mProgressLayout.setVisibility(View.VISIBLE);
-                sendCommand(CommandHelper.getDeviceInfoURL(ManualConnectionDialog.this.getContext(), mHost));
+                sendCommand(commandHelper.getDeviceInfoURL(mHost));
             }
         });
 
@@ -114,11 +126,9 @@ public class ManualConnectionDialog extends DialogFragment {
         device.setHost(mHost);
 
         DBUtils.insertDevice(getActivity(), device);
-        PreferenceUtils.setConnectedDevice(getActivity(), device.getSerialNumber());
+        preferenceUtils.setConnectedDevice(device.getSerialNumber());
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-
-        SharedPreferences.Editor editor = prefs.edit();
+        SharedPreferences.Editor editor = sharedPreferences.edit();
         editor.putBoolean("first_use", false);
         editor.commit();
 

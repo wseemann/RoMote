@@ -1,7 +1,5 @@
 package wseemann.media.romote.tasks;
 
-import android.content.Context;
-
 import com.jaku.api.QueryRequests;
 import com.jaku.model.Channel;
 
@@ -13,10 +11,11 @@ import java.util.concurrent.Callable;
 import wseemann.media.romote.utils.CommandHelper;
 
 public class ChannelTask implements Callable {
-    private Context context;
 
-    public ChannelTask(final Context context) {
-        this.context = context;
+    private CommandHelper commandHelper;
+
+    public ChannelTask(final CommandHelper commandHelper) {
+        this.commandHelper = commandHelper;
     }
 
     public List<Channel> call() {
@@ -24,7 +23,7 @@ public class ChannelTask implements Callable {
         List<Channel> channels;
 
         try {
-            channels = QueryRequests.queryAppsRequest(CommandHelper.getDeviceURL(context));
+            channels = QueryRequests.queryAppsRequest(commandHelper.getDeviceURL());
         } catch (IOException ex) {
             ex.printStackTrace();
             channels = new ArrayList<>();

@@ -1,13 +1,11 @@
 package wseemann.media.romote.activity;
 
-import android.app.DialogFragment;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.IBinder;
-import android.preference.PreferenceManager;
 
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -15,6 +13,8 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.splashscreen.SplashScreen;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
@@ -24,6 +24,9 @@ import com.google.android.material.tabs.TabLayout;
 import com.jaku.core.JakuRequest;
 import com.jaku.request.SearchRequest;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
 import wseemann.media.romote.R;
 import wseemann.media.romote.fragment.ChannelFragment;
 import wseemann.media.romote.fragment.InstallChannelDialog;
@@ -37,39 +40,32 @@ import wseemann.media.romote.tasks.RequestTask;
 import wseemann.media.romote.utils.CommandHelper;
 import wseemann.media.romote.utils.RokuRequestTypes;
 
+@AndroidEntryPoint
 public class MainActivity extends ConnectivityActivity implements
         InstallChannelDialog.InstallChannelListener, SearchDialog.SearchDialogListener {
 
+    @Inject
+    protected SharedPreferences sharedPreferences;
+
+    @Inject
+    protected CommandHelper commandHelper;
+
     private StoreFragment mStoreFragment;
 
-    /**
-     * The {@link android.support.v4.view.PagerAdapter} that will provide
-     * fragments for each of the sections. We use a
-     * {@link FragmentPagerAdapter} derivative, which will keep every
-     * loaded fragment in memory. If this becomes too memory intensive, it
-     * may be best to switch to a
-     * {@link android.support.v4.app.FragmentStatePagerAdapter}.
-     */
     private SectionsPagerAdapter mSectionsPagerAdapter;
-
-    /**
-     * The {@link ViewPager} that will host the section contents.
-     */
     private ViewPager mViewPager;
 
-    private NotificationService mService;
     boolean mBound = false;
 
     private ChannelFragment mChannelFragment;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        SplashScreen.installSplashScreen(this);
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
-
-        if (prefs.getBoolean("first_use", true)) {
+        if (sharedPreferences.getBoolean("first_use", true)) {
             startActivity(new Intent(this, ConfigureDeviceActivity.class));
             finish();
         }
@@ -80,7 +76,7 @@ public class MainActivity extends ConnectivityActivity implements
             String channelCode = intent.getData().getPath().replace("/install/", "");
 
             InstallChannelDialog fragment = InstallChannelDialog.getInstance(this, channelCode);
-            fragment.show(getFragmentManager(), InstallChannelDialog.class.getName());
+            fragment.show(getSupportFragmentManager(), InstallChannelDialog.class.getName());
         }
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -102,6 +98,10 @@ public class MainActivity extends ConnectivityActivity implements
                 }
             }
         });
+
+        if (!commandHelper.getDeviceURL().equals("")) {
+            mViewPager.setCurrentItem(1);
+        }
 
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
@@ -250,8 +250,6 @@ public class MainActivity extends ConnectivityActivity implements
         public void onServiceConnected(ComponentName className,
                                        IBinder service) {
             // We've bound to LocalService, cast the IBinder and get LocalService instance
-            NotificationService.LocalBinder binder = (NotificationService.LocalBinder) service;
-            mService = binder.getService();
             mBound = true;
         }
 
@@ -277,7 +275,7 @@ public class MainActivity extends ConnectivityActivity implements
     }
 
     private void performSearch(String searchText) {
-        String url = CommandHelper.getDeviceURL(this);
+        String url = commandHelper.getDeviceURL();
 
         SearchRequest searchRequest = new SearchRequest(url, searchText, null, null, null, null, null, null, null, null, null);
         JakuRequest request = new JakuRequest(searchRequest, null);

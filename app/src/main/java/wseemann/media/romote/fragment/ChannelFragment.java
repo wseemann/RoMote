@@ -18,7 +18,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
@@ -30,6 +29,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import java.util.ArrayList;
 import java.util.List;
 
+import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -40,16 +40,18 @@ import wseemann.media.romote.adapter.ChannelAdapter;
 import wseemann.media.romote.tasks.ChannelTask;
 import wseemann.media.romote.tasks.RequestCallback;
 import wseemann.media.romote.tasks.RequestTask;
-import wseemann.media.romote.util.ImageCache;
-import wseemann.media.romote.util.ImageFetcher;
 import wseemann.media.romote.util.Utils;
 import wseemann.media.romote.utils.CommandHelper;
 import wseemann.media.romote.utils.Constants;
 import wseemann.media.romote.utils.RokuRequestTypes;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.RequestManager;
 import com.jaku.core.JakuRequest;
 import com.jaku.model.Channel;
 import com.jaku.request.LaunchAppRequest;
+
+import javax.inject.Inject;
 
 /**
  * The main fragment that powers the ImageGridActivity screen. Fairly straight forward GridView
@@ -58,19 +60,23 @@ import com.jaku.request.LaunchAppRequest;
  * cache is retained over configuration changes like orientation change so the images are populated
  * quickly if, for example, the user rotates the device.
  */
+@AndroidEntryPoint
 public class ChannelFragment extends Fragment {
 
     private static final String TAG = "ImageGridFragment";
-    private static final String IMAGE_CACHE_DIR = "thumbs";
+
+    @Inject
+    protected CommandHelper commandHelper;
 
     private int mImageThumbSize;
     private int mImageThumbSpacing;
     private ChannelAdapter mAdapter;
-    private ImageFetcher mImageFetcher;
 
     private SwipeRefreshLayout mSwiperefresh;
 
     private CompositeDisposable bin = new CompositeDisposable();
+
+    private RequestManager requestManager;
 
     @SuppressLint("HandlerLeak")
     private Handler mHandler = new Handler() {
@@ -90,20 +96,12 @@ public class ChannelFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
+        requestManager = Glide.with(this);
+
         mImageThumbSize = getResources().getDimensionPixelSize(R.dimen.image_thumbnail_size);
         mImageThumbSpacing = getResources().getDimensionPixelSize(R.dimen.image_thumbnail_spacing);
 
-        ImageCache.ImageCacheParams cacheParams =
-                new ImageCache.ImageCacheParams(getActivity(), IMAGE_CACHE_DIR);
-
-        cacheParams.setMemCacheSizePercent(0.25f); // Set memory cache to 25% of app memory
-
-        // The ImageFetcher takes care of loading images into our ImageView children asynchronously
-        mImageFetcher = new ImageFetcher(getActivity(), mImageThumbSize);
-        mImageFetcher.setLoadingImage(R.drawable.empty_photo);
-        mImageFetcher.addImageCache(getActivity().getSupportFragmentManager(), cacheParams);
-
-        mAdapter = new ChannelAdapter(getActivity(), mImageFetcher, new ArrayList<Channel>(), mHandler);
+        mAdapter = new ChannelAdapter(getActivity(), requestManager, new ArrayList<Channel>(), mHandler, commandHelper);
 
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Constants.UPDATE_DEVICE_BROADCAST);
@@ -140,25 +138,6 @@ public class ChannelFragment extends Fragment {
 
                 performLaunch(channel.getId());
                 getContext().sendBroadcast(new Intent(Constants.UPDATE_DEVICE_BROADCAST));
-            }
-        });
-        mGridView.setOnScrollListener(new AbsListView.OnScrollListener() {
-            @Override
-            public void onScrollStateChanged(AbsListView absListView, int scrollState) {
-                // Pause fetcher to ensure smoother scrolling when flinging
-                if (scrollState == AbsListView.OnScrollListener.SCROLL_STATE_FLING) {
-                    // Before Honeycomb pause image loading on scroll to help with performance
-                    if (!Utils.hasHoneycomb()) {
-                        mImageFetcher.setPauseWork(true);
-                    }
-                } else {
-                    mImageFetcher.setPauseWork(false);
-                }
-            }
-
-            @Override
-            public void onScroll(AbsListView absListView, int firstVisibleItem,
-                                 int visibleItemCount, int totalItemCount) {
             }
         });
 
@@ -206,21 +185,7 @@ public class ChannelFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        mImageFetcher.setExitTasksEarly(false);
         mAdapter.notifyDataSetChanged();
-    }
-
-    @Override
-    public void onPause() {
-        super.onPause();
-        mImageFetcher.setPauseWork(false);
-        mImageFetcher.setExitTasksEarly(true);
-        mImageFetcher.flushCache();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
     }
 
     @Override
@@ -228,8 +193,6 @@ public class ChannelFragment extends Fragment {
         super.onDestroy();
 
         bin.dispose();
-
-        mImageFetcher.closeCache();
 
         getActivity().unregisterReceiver(mUpdateReceiver);
     }
@@ -254,7 +217,7 @@ public class ChannelFragment extends Fragment {
     }
 
     private void loadChannels() {
-        bin.add(Observable.fromCallable(new ChannelTask(getContext()))
+        bin.add(Observable.fromCallable(new ChannelTask(commandHelper))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(channels -> onLoadFinished((List<Channel>) channels)));
@@ -327,7 +290,7 @@ public class ChannelFragment extends Fragment {
     };
 
     private void performLaunch(String appId) {
-        String url = CommandHelper.getDeviceURL(getActivity());
+        String url = commandHelper.getDeviceURL();
 
         LaunchAppRequest launchAppIdRequest = new LaunchAppRequest(url, appId);
         JakuRequest request = new JakuRequest(launchAppIdRequest, null);

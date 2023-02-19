@@ -25,6 +25,9 @@ import com.jaku.request.KeypressRequest;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
 import wseemann.media.romote.R;
 import wseemann.media.romote.tasks.RequestCallback;
 import wseemann.media.romote.tasks.RequestTask;
@@ -34,7 +37,11 @@ import wseemann.media.romote.utils.RokuRequestTypes;
 /**
  * Created by wseemann on 6/20/16.
  */
+@AndroidEntryPoint
 public class TextInputDialog extends DialogFragment {
+
+    @Inject
+    protected CommandHelper commandHelper;
 
     private String mOldText = "";
     private EditText mTextBox;
@@ -185,7 +192,7 @@ public class TextInputDialog extends DialogFragment {
     }
 
     private void sendBackspace() {
-        String url = CommandHelper.getDeviceURL(getActivity());
+        String url = commandHelper.getDeviceURL();
 
         KeypressRequest keypressRequest = new KeypressRequest(url, KeypressKeyValues.BACKSPACE.getValue());
         JakuRequest request = new JakuRequest(keypressRequest, null);
@@ -204,7 +211,7 @@ public class TextInputDialog extends DialogFragment {
     }
 
     private void sendStringLiteral(String stringLiteral) {
-        String url = CommandHelper.getDeviceURL(getActivity());
+        String url = commandHelper.getDeviceURL();
 
         KeypressRequest keypressRequest = new KeypressRequest(url, KeypressKeyValues.LIT_.getValue() + stringLiteral);
         JakuRequest request = new JakuRequest(keypressRequest, null);

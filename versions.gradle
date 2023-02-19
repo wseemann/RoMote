@@ -1,0 +1,22 @@
+def versions = [:]
+versions.about_libraries_plugin = "10.4.0"
+versions.androidx_appcompat = "1.6.1"
+versions.androidx_constraintlayout = "2.1.4"
+versions.androidx_legacy = "1.0.0"
+versions.androidx_preference = "1.2.0"
+versions.androidx_splashscreen = "1.0.0"
+versions.android_material = "1.8.0"
+versions.glide = "4.14.2"
+versions.hilt = "2.44"
+versions.hilt_x = "1.0.0"
+versions.jdom = "2.0.6"
+versions.picasso = "2.5.2"
+versions.rxjava_android = "2.1.1"
+versions.rxjava = "2.2.20"
+versions.junit = "4.13.2"
+
+versions.buildToolsVersion = "30.0.3"
+versions.minSdkVersion = 21
+versions.compileSdkVersion = 33
+versions.targetSdkVersion = 33
+ext.versions = versions

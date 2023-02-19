@@ -2,6 +2,7 @@ package wseemann.media.romote.adapter;
 
 import android.app.Activity;
 import android.content.Context;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
 import android.view.LayoutInflater;
@@ -15,8 +16,9 @@ import android.widget.TextView;
 import java.util.List;
 
 import wseemann.media.romote.R;
+
+import com.bumptech.glide.RequestManager;
 import com.jaku.model.Channel;
-import wseemann.media.romote.util.ImageFetcher;
 import wseemann.media.romote.utils.CommandHelper;
 
 /**
@@ -26,23 +28,25 @@ import wseemann.media.romote.utils.CommandHelper;
  */
 public class ChannelAdapter extends ArrayAdapter<Channel> {
 
-    private final Context mContext;
-    private ImageFetcher mImageFetcher;
+    private Context context;
+    private RequestManager requestManager;
     private List<Channel> mChannels;
     private Handler mHandler;
+    private CommandHelper commandHelper;
 
     private int mItemHeight = 0;
     private int mNumColumns = 0;
     private FrameLayout.LayoutParams mImageViewLayoutParams;
 
-    public ChannelAdapter(Context context, ImageFetcher imageFetcher, List<Channel> channels, Handler handler) {
+    public ChannelAdapter(Context context, RequestManager requestManager, List<Channel> channels, Handler handler, CommandHelper commandHelper) {
         super(context, R.layout.empty_device_list, channels);
-        mContext = context;
-        mImageFetcher = imageFetcher;
+        this.context = context;
+        this.requestManager = requestManager;
         mChannels = channels;
         mImageViewLayoutParams = new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
         mHandler = handler;
+        this.commandHelper = commandHelper;
     }
 
     @Override
@@ -67,7 +71,7 @@ public class ChannelAdapter extends ArrayAdapter<Channel> {
         // Now handle the main ImageView thumbnails
         ViewHolder holder = null;
         LayoutInflater mInflater = (LayoutInflater)
-                mContext.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
+                context.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
         if (convertView == null) { // if it's not recycled, instantiate and initialize
             convertView = mInflater.inflate(R.layout.list_item_grid, null);
             holder = new ViewHolder();
@@ -102,7 +106,11 @@ public class ChannelAdapter extends ArrayAdapter<Channel> {
 
         // Finally load the image asynchronously into the ImageView, this also takes care of
         // setting a placeholder image while the background thread runs
-        mImageFetcher.loadImage(CommandHelper.getIconURL(mContext, channel.getId()), holder.mImageView);
+        //mImageFetcher.loadImage(CommandHelper.getIconURL(context, channel.getId()), holder.mImageView);
+
+        requestManager.load(Uri.parse(commandHelper.getIconURL(channel.getId())))
+                .into(holder.mImageView);
+
         return convertView;
     }
 
@@ -119,7 +127,6 @@ public class ChannelAdapter extends ArrayAdapter<Channel> {
         mItemHeight = height;
         mImageViewLayoutParams =
                 new FrameLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, mItemHeight);
-        mImageFetcher.setImageSize(height);
         notifyDataSetChanged();
     }
 

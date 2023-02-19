@@ -29,11 +29,13 @@ public class DeviceAdapter extends ArrayAdapter<Device> {
 
     private Context mContext;
     private Handler mHandler;
+    private PreferenceUtils preferenceUtils;
 
-    public DeviceAdapter(Context context, List<Device> objects, Handler handler) {
+    public DeviceAdapter(Context context, List<Device> objects, Handler handler, PreferenceUtils preferenceUtils) {
         super(context, R.layout.device, objects);
         mContext = context;
         mHandler = handler;
+        this.preferenceUtils = preferenceUtils;
     }
 
     private class ViewHolder {
@@ -67,7 +69,7 @@ public class DeviceAdapter extends ArrayAdapter<Device> {
         Device connectedDevice = null;
 
         try {
-            connectedDevice = PreferenceUtils.getConnectedDevice(mContext);
+            connectedDevice = preferenceUtils.getConnectedDevice();
         } catch (Exception ex) {
         }
 

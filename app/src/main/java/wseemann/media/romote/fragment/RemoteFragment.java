@@ -40,6 +40,9 @@ import com.jaku.request.QueryDeviceInfoRequest;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
@@ -59,9 +62,16 @@ import wseemann.media.romote.view.VibratingImageButton;
 /**
  * Created by wseemann on 6/19/16.
  */
+@AndroidEntryPoint
 public class RemoteFragment extends Fragment {
 
     private static final String TAG = "RemoteFragment";
+
+    @Inject
+    protected CommandHelper commandHelper;
+
+    @Inject
+    protected PreferenceUtils preferenceUtils;
 
     private boolean remoteAudioStarted = false;
 
@@ -191,14 +201,14 @@ public class RemoteFragment extends Fragment {
     }
 
     private void performRequest(final JakuRequest request, final RokuRequestTypes rokuRequestType) {
-        Observable.fromCallable(new RxRequestTask(getContext().getApplicationContext(), request, rokuRequestType))
+        Observable.fromCallable(new RxRequestTask(getContext().getApplicationContext(), preferenceUtils, request, rokuRequestType))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(result -> { });
     }
 
     private void obtainPowerMode() {
-        String url = CommandHelper.getDeviceURL(getActivity());
+        String url = commandHelper.getDeviceURL();
 
         QueryDeviceInfoRequest queryActiveAppRequest = new QueryDeviceInfoRequest(url);
         JakuRequest request = new JakuRequest(queryActiveAppRequest, new DeviceParser());
@@ -252,7 +262,7 @@ public class RemoteFragment extends Fragment {
 
         }*/
 
-        String url = CommandHelper.getDeviceURL(getActivity());
+        String url = commandHelper.getDeviceURL();
 
         KeypressRequest keypressRequest = new KeypressRequest(url, keypressKeyValue.getValue());
         JakuRequest request = new JakuRequest(keypressRequest, null);
@@ -315,7 +325,7 @@ public class RemoteFragment extends Fragment {
 
     private void updateVolumeControls() {
         try {
-            Device device = PreferenceUtils.getConnectedDevice(getContext());
+            Device device = preferenceUtils.getConnectedDevice();
 
             if (device.getIsTv() != null) {
                 boolean isTv = Boolean.valueOf(device.getIsTv());
@@ -330,7 +340,7 @@ public class RemoteFragment extends Fragment {
     private void updateRokuDeviceName() {
         try {
             String deviceName;
-            Device device = PreferenceUtils.getConnectedDevice(getContext());
+            Device device = preferenceUtils.getConnectedDevice();
 
             TextView rokuDeviceName = getView().findViewById(R.id.roku_device_name);
             if (device.getCustomUserDeviceName() != null && !device.getCustomUserDeviceName().equals("")) {
@@ -352,7 +362,7 @@ public class RemoteFragment extends Fragment {
         boolean supportsRemoteAudio = false;
 
         try {
-            Device device = PreferenceUtils.getConnectedDevice(getContext());
+            Device device = preferenceUtils.getConnectedDevice();
 
             if (device.getSupportsPrivateListening() != null) {
                 supportsRemoteAudio = Boolean.valueOf(device.getSupportsPrivateListening());
@@ -436,7 +446,7 @@ public class RemoteFragment extends Fragment {
             isBound = true;
 
             try {
-                Device device = PreferenceUtils.getConnectedDevice(getContext());
+                Device device = preferenceUtils.getConnectedDevice();
                 mService.setDevice(device.getHost());
                 mService.toggleRemoteAudio();
                 updatePrivateListening();

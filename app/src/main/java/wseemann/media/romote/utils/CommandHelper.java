@@ -1,7 +1,5 @@
 package wseemann.media.romote.utils;
 
-import android.content.Context;
-
 import wseemann.media.romote.model.Device;
 
 /**
@@ -9,15 +7,17 @@ import wseemann.media.romote.model.Device;
  */
 public class CommandHelper {
 
-    private CommandHelper() {
+    private PreferenceUtils preferenceUtils;
 
+    public CommandHelper(PreferenceUtils preferenceUtils) {
+        this.preferenceUtils = preferenceUtils;
     }
 
-    public static String getDeviceURL(Context context) {
+    public String getDeviceURL() {
         String url = "";
 
         try {
-            Device device = PreferenceUtils.getConnectedDevice(context);
+            Device device = preferenceUtils.getConnectedDevice();
 
             url = device.getHost();
         } catch (Exception ex) {
@@ -26,11 +26,11 @@ public class CommandHelper {
         return url;
     }
 
-    public static String getIconURL(Context context, String channelId) {
+    public String getIconURL(String channelId) {
         String url = "";
 
         try {
-            Device device = PreferenceUtils.getConnectedDevice(context);
+            Device device = preferenceUtils.getConnectedDevice();
 
             url = device.getHost() + "/query/icon/" + channelId;
         } catch (Exception ex) {
@@ -39,17 +39,17 @@ public class CommandHelper {
         return url;
     }
 
-    public static String getDeviceInfoURL(Context context, String host) {
+    public String getDeviceInfoURL(String host) {
         String url = host;
 
         return url;
     }
 
-    public static String getConnectedDeviceInfoURL(Context context, String host) {
+    public String getConnectedDeviceInfoURL(String host) {
         String url = "";
 
         try {
-            Device device = PreferenceUtils.getConnectedDevice(context);
+            Device device = preferenceUtils.getConnectedDevice();
 
             url = device.getHost();
         } catch (Exception ex) {

@@ -1,6 +1,8 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 apply plugin: 'com.mikepenz.aboutlibraries.plugin'
+apply plugin: 'dagger.hilt.android.plugin'
 
 android {
     signingConfigs {
@@ -15,8 +17,8 @@ android {
 
     defaultConfig {
         applicationId "wseemann.media.romote"
-        minSdkVersion 21
-        targetSdkVersion 33
+        minSdkVersion versions.get("minSdkVersion")
+        targetSdkVersion versions.get("targetSdkVersion")
         versionCode 25
         versionName "1.0.25"
     }
@@ -37,15 +39,20 @@ android {
 }
 
 dependencies {
-    implementation 'androidx.appcompat:appcompat:1.4.2'
-    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'com.google.android.material:material:1.6.1'
-    implementation 'com.mikepenz:aboutlibraries:10.3.1'
-    implementation 'com.squareup.picasso:picasso:2.5.2'
-    implementation 'org.jdom:jdom2:2.0.6'
-    implementation 'io.reactivex.rxjava2:rxandroid:2.1.1'
-    implementation 'io.reactivex.rxjava2:rxjava:2.2.20'
     implementation fileTree(dir: 'src/main/libs', include: ['*.aar', '*.jar'], exclude: [])
-    testImplementation 'junit:junit:4.13.2'
+    implementation deps.about_libraries_plugin
+    implementation deps.androidx_appcompat
+    implementation deps.androidx_legacy
+    implementation deps.androidx_constraintlayout
+    implementation deps.androidx_preference
+    implementation deps.androidx_splashscreen
+    implementation deps.android_material
+    implementation deps.glide
+    implementation deps.hilt_android
+    kapt deps.hilt_compiler
+    implementation deps.jdom
+    implementation deps.rxjava_android
+    implementation deps.rxjava
+
+    testImplementation deps.junit
 }

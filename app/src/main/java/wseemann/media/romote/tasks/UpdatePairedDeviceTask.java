@@ -16,9 +16,14 @@ public class UpdatePairedDeviceTask implements Callable {
     private static final String TAG = "UpdatePairedDevicesTask";
 
     private Context context;
+    private PreferenceUtils preferenceUtils;
 
-    public UpdatePairedDeviceTask(final Context context) {
+    public UpdatePairedDeviceTask(
+            final Context context,
+            final PreferenceUtils preferenceUtils
+    ) {
         this.context = context;
+        this.preferenceUtils = preferenceUtils;
     }
 
     public class Result {
@@ -37,7 +42,7 @@ public class UpdatePairedDeviceTask implements Callable {
         List<Device> devices = availableDevicesTask.call();
 
         try {
-            Device connectedDevice = PreferenceUtils.getConnectedDevice(context);
+            Device connectedDevice = preferenceUtils.getConnectedDevice();
 
             if (connectedDevice == null) {
                 return false;

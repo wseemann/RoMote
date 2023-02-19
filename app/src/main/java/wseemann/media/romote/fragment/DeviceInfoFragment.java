@@ -7,6 +7,7 @@ import androidx.fragment.app.ListFragment;
 import java.util.ArrayList;
 import java.util.List;
 
+import dagger.hilt.android.AndroidEntryPoint;
 import wseemann.media.romote.R;
 import wseemann.media.romote.adapter.DeviceInfoAdapter;
 import wseemann.media.romote.model.Device;
@@ -21,12 +22,16 @@ import com.jaku.core.JakuRequest;
 import com.jaku.parser.DeviceParser;
 import com.jaku.request.QueryDeviceInfoRequest;
 
+import javax.inject.Inject;
+
 /**
  * Created by wseemann on 6/19/16.
  */
+@AndroidEntryPoint
 public class DeviceInfoFragment extends ListFragment {
 
-    private static final String TAG = DeviceInfoFragment.class.getName();
+    @Inject
+    protected CommandHelper commandHelper;
 
     private DeviceInfoAdapter mAdapter;
 
@@ -71,9 +76,9 @@ public class DeviceInfoFragment extends ListFragment {
         setListShown(false);
 
         if (host == null) {
-            sendCommand(CommandHelper.getConnectedDeviceInfoURL(getActivity(), device.getHost()));
+            sendCommand(commandHelper.getConnectedDeviceInfoURL(device.getHost()));
         } else {
-            sendCommand(CommandHelper.getDeviceInfoURL(getActivity(), host));
+            sendCommand(commandHelper.getDeviceInfoURL(host));
         }
     }
 

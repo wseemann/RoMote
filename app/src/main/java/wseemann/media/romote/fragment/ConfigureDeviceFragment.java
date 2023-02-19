@@ -10,7 +10,6 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -23,6 +22,9 @@ import androidx.fragment.app.Fragment;
 
 import java.util.List;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
@@ -39,7 +41,14 @@ import wseemann.media.romote.utils.PreferenceUtils;
 /**
  * Created by wseemann on 6/20/16.
  */
+@AndroidEntryPoint
 public class ConfigureDeviceFragment extends Fragment {
+
+    @Inject
+    protected SharedPreferences sharedPreferences;
+
+    @Inject
+    protected PreferenceUtils preferenceUtils;
 
     private TextView mWirelessNextworkTextview;
     private TextView mSelectDeviceText;
@@ -234,11 +243,9 @@ public class ConfigureDeviceFragment extends Fragment {
             Device device = (Device) v.getTag();
 
             DBUtils.insertDevice(ConfigureDeviceFragment.this.getActivity(), device);
-            PreferenceUtils.setConnectedDevice(ConfigureDeviceFragment.this.getActivity(), device.getSerialNumber());
+            preferenceUtils.setConnectedDevice(device.getSerialNumber());
 
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ConfigureDeviceFragment.this.getActivity());
-
-            SharedPreferences.Editor editor = prefs.edit();
+            SharedPreferences.Editor editor = sharedPreferences.edit();
             editor.putBoolean("first_use", false);
             editor.commit();
 

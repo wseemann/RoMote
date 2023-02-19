@@ -9,6 +9,9 @@ import com.jaku.core.JakuRequest;
 import com.jaku.core.KeypressKeyValues;
 import com.jaku.request.KeypressRequest;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
 import wseemann.media.romote.tasks.RequestCallback;
 import wseemann.media.romote.tasks.RequestTask;
 import wseemann.media.romote.utils.CommandHelper;
@@ -17,15 +20,15 @@ import wseemann.media.romote.utils.RokuRequestTypes;
 /**
  * Created by wseemann on 4/14/18.
  */
-
 public class CommandReceiver extends BroadcastReceiver {
 
-    private static final String TAG = CommandReceiver.class.getName();
+    @Inject
+    protected CommandHelper commandHelper;
 
     @Override
     public void onReceive(Context context, Intent intent) {
         if (intent != null) {
-            String url = CommandHelper.getDeviceURL(context);
+            String url = commandHelper.getDeviceURL();
             KeypressKeyValues keypressKeyValues = (KeypressKeyValues) intent.getSerializableExtra("keypress");
 
             new CommandServiceAsyncTask(url, keypressKeyValues).execute();

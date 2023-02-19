@@ -17,7 +17,6 @@ import android.media.session.PlaybackState;
 import android.os.Binder;
 import android.os.Build;
 import android.os.IBinder;
-import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.jaku.core.JakuRequest;
@@ -31,6 +30,9 @@ import java.util.Random;
 
 import com.jaku.model.Channel;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
 import wseemann.media.romote.R;
 import wseemann.media.romote.model.Device;
 import wseemann.media.romote.tasks.RequestCallback;
@@ -44,9 +46,19 @@ import wseemann.media.romote.utils.RokuRequestTypes;
 /**
  * Created by wseemann on 6/19/16.
  */
+@AndroidEntryPoint
 public class NotificationService extends Service {
 
     public static final String TAG = NotificationService.class.getName();
+
+    @Inject
+    protected SharedPreferences sharedPreferences;
+
+    @Inject
+    protected CommandHelper commandHelper;
+
+    @Inject
+    protected PreferenceUtils preferenceUtils;
 
     public static final int NOTIFICATION = 100;
 
@@ -55,8 +67,6 @@ public class NotificationService extends Service {
 
     private Channel mChannel;
     private Device mDevice;
-
-    private SharedPreferences mPreferences;
 
     private MediaSession mediaSession;
 
@@ -101,13 +111,12 @@ public class NotificationService extends Service {
 
         //startForeground(NotificationService.NOTIFICATION, notification);
 
-        mPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        boolean enableNotification = mPreferences.getBoolean("notification_checkbox_preference", false);
+        boolean enableNotification = sharedPreferences.getBoolean("notification_checkbox_preference", false);
 
-        mPreferences.registerOnSharedPreferenceChangeListener(mPreferencesChangedListener);
+        sharedPreferences.registerOnSharedPreferenceChangeListener(mPreferencesChangedListener);
 
         try {
-            mDevice = PreferenceUtils.getConnectedDevice(this);
+            mDevice = preferenceUtils.getConnectedDevice();
 
             if (enableNotification && mDevice != null) {
                 notification = NotificationUtils.buildNotification(NotificationService.this, null, null, null, mediaSession.getSessionToken());
@@ -137,7 +146,7 @@ public class NotificationService extends Service {
         // Cancel the persistent notification.
         mNM.cancel(NOTIFICATION);
 
-        mPreferences.unregisterOnSharedPreferenceChangeListener(mPreferencesChangedListener);
+        sharedPreferences.unregisterOnSharedPreferenceChangeListener(mPreferencesChangedListener);
         mediaSession.release();
     }
 
@@ -159,7 +168,7 @@ public class NotificationService extends Service {
     }
 
     private void sendStatusCommand() {
-        String url = CommandHelper.getDeviceURL(this);
+        String url = commandHelper.getDeviceURL();
 
         QueryActiveAppRequest queryActiveAppRequest = new QueryActiveAppRequest(url);
         JakuRequest request = new JakuRequest(queryActiveAppRequest, new AppsParser());
@@ -183,7 +192,7 @@ public class NotificationService extends Service {
     }
 
     private void getAppIcon(String appId) {
-        String url = CommandHelper.getDeviceURL(this);
+        String url = commandHelper.getDeviceURL();
 
         QueryIconRequest queryIconRequest = new QueryIconRequest(url, appId);
         JakuRequest request = new JakuRequest(queryIconRequest, new IconParser());
@@ -196,7 +205,7 @@ public class NotificationService extends Service {
 
                     Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
 
-                    mDevice = PreferenceUtils.getConnectedDevice(NotificationService.this);
+                    mDevice = preferenceUtils.getConnectedDevice();
                     updateMediaSessionMetadata(mChannel, bitmap);
                     notification = NotificationUtils.buildNotification(
                             NotificationService.this,
@@ -219,8 +228,7 @@ public class NotificationService extends Service {
     private BroadcastReceiver mUpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            mPreferences = PreferenceManager.getDefaultSharedPreferences(NotificationService.this);
-            boolean enableNotification = mPreferences.getBoolean("notification_checkbox_preference", false);
+            boolean enableNotification = sharedPreferences.getBoolean("notification_checkbox_preference", false);
 
             if (enableNotification) {
                 notification = NotificationUtils.buildNotification(NotificationService.this, null, null, null, mediaSession.getSessionToken());
@@ -238,10 +246,9 @@ public class NotificationService extends Service {
     private SharedPreferences.OnSharedPreferenceChangeListener mPreferencesChangedListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
         public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
             if (key.equals("notification_checkbox_preference")) {
-                mPreferences = PreferenceManager.getDefaultSharedPreferences(NotificationService.this);
-                boolean enableNotification = mPreferences.getBoolean("notification_checkbox_preference", false);
+                boolean enableNotification = sharedPreferences.getBoolean("notification_checkbox_preference", false);
 
-                mPreferences.registerOnSharedPreferenceChangeListener(mPreferencesChangedListener);
+                sharedPreferences.registerOnSharedPreferenceChangeListener(mPreferencesChangedListener);
 
                 if (notification == null) {
                     notification = NotificationUtils.buildNotification(NotificationService.this, null, null, null, mediaSession.getSessionToken());

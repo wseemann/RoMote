@@ -3,22 +3,31 @@ package wseemann.media.romote.fragment;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
-import android.app.DialogFragment;
 import android.content.DialogInterface;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 
-import com.squareup.picasso.Picasso;
+import androidx.fragment.app.DialogFragment;
 
+import com.bumptech.glide.Glide;
+
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
 import wseemann.media.romote.R;
 import wseemann.media.romote.utils.CommandHelper;
 
 /**
  * Created by wseemann on 6/20/16.
  */
+@AndroidEntryPoint
 public class InstallChannelDialog extends DialogFragment {
+
+    @Inject
+    protected CommandHelper commandHelper;
 
     private String mChannelCode;
 
@@ -58,8 +67,8 @@ public class InstallChannelDialog extends DialogFragment {
         View view = inflater.inflate(R.layout.fragment_install_channel, null);
         ImageView imageView = (ImageView) view.findViewById(android.R.id.icon);
 
-        Picasso.with(getActivity())
-                .load(CommandHelper.getIconURL(getActivity(), mChannelCode))
+        Glide.with(this)
+                .load(Uri.parse(commandHelper.getIconURL(mChannelCode)))
                 .into(imageView);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());

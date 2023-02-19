@@ -8,6 +8,9 @@ import com.jaku.core.JakuRequest;
 import com.jaku.core.KeypressKeyValues;
 import com.jaku.request.KeypressRequest;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
 import wseemann.media.romote.tasks.RequestCallback;
 import wseemann.media.romote.tasks.RequestTask;
 import wseemann.media.romote.utils.CommandHelper;
@@ -16,9 +19,13 @@ import wseemann.media.romote.utils.RokuRequestTypes;
 /**
  * Created by wseemann on 6/19/16.
  */
+@AndroidEntryPoint
 public class CommandService extends IntentService {
 
     private static final String TAG = CommandService.class.getName();
+
+    @Inject
+    protected CommandHelper commandHelper;
 
     public CommandService() {
         super(CommandService.class.getName());
@@ -42,7 +49,7 @@ public class CommandService extends IntentService {
     }
 
     private void performKeypress(KeypressKeyValues keypressKeyValue) {
-        String url = CommandHelper.getDeviceURL(CommandService.this);
+        String url = commandHelper.getDeviceURL();
 
         KeypressRequest keypressRequest = new KeypressRequest(url, keypressKeyValue.getValue());
         JakuRequest request = new JakuRequest(keypressRequest, null);
