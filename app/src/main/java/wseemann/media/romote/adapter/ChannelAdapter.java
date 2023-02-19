@@ -4,14 +4,12 @@ import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
 import android.os.Handler;
-import android.os.Message;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import java.util.List;
 
@@ -62,8 +60,6 @@ public class ChannelAdapter extends ArrayAdapter<Channel> {
 
     private class ViewHolder {
         ImageView mImageView;
-        TextView mText1;
-        ImageView mImageButton;
     }
 
     @Override
@@ -76,11 +72,8 @@ public class ChannelAdapter extends ArrayAdapter<Channel> {
             convertView = mInflater.inflate(R.layout.list_item_grid, null);
             holder = new ViewHolder();
             holder.mImageView = (ImageView) convertView.findViewById(android.R.id.icon);
-            holder.mText1 = (TextView) convertView.findViewById(android.R.id.text1);
-            //imageView = new RecyclingImageView(mContext);
             holder.mImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
             holder.mImageView.setLayoutParams(mImageViewLayoutParams);
-            holder.mImageButton = (ImageView) convertView.findViewById(R.id.overflow_button);
             convertView.setTag(holder);
         } else { // Otherwise re-use the converted view
             holder = (ViewHolder) convertView.getTag();
@@ -93,21 +86,8 @@ public class ChannelAdapter extends ArrayAdapter<Channel> {
 
         final Channel channel = getItem(position);
 
-        holder.mText1.setText(channel.getTitle());
-        holder.mImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Message message = mHandler.obtainMessage();
-                v.setTag(channel);
-                message.obj = v;
-                mHandler.sendMessage(message);
-            }
-        });
-
         // Finally load the image asynchronously into the ImageView, this also takes care of
         // setting a placeholder image while the background thread runs
-        //mImageFetcher.loadImage(CommandHelper.getIconURL(context, channel.getId()), holder.mImageView);
-
         requestManager.load(Uri.parse(commandHelper.getIconURL(channel.getId())))
                 .into(holder.mImageView);
 

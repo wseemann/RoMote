@@ -7,6 +7,7 @@
     <color name="grid_state_focused">#80000000</color>
     <color name="purple">#65318f</color>
     <color name="purple_accent">#843abc</color>
+    <color name="purple_accent_two">#8F318A</color>
     <color name="almost_black">#ff2f2e2d</color>
     <color name="semi_transparent">#66000000</color>
     <color name="light_button">#22000000</color>
