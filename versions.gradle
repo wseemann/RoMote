@@ -1,5 +1,5 @@
 def versions = [:]
-versions.about_libraries_plugin = "10.4.0"
+versions.about_libraries_plugin = "10.5.2"
 versions.androidx_appcompat = "1.6.1"
 versions.androidx_constraintlayout = "2.1.4"
 versions.androidx_legacy = "1.0.0"
