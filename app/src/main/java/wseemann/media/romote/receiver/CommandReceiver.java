@@ -5,17 +5,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.AsyncTask;
 
-import com.jaku.core.JakuRequest;
-import com.jaku.core.KeypressKeyValues;
-import com.jaku.request.KeypressRequest;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.wseemann.ecp.api.ResponseCallback;
+import com.wseemann.ecp.core.KeyPressKeyValues;
+import com.wseemann.ecp.request.KeyPressRequest;
 
 import javax.inject.Inject;
 
-import dagger.hilt.android.AndroidEntryPoint;
-import wseemann.media.romote.tasks.RequestCallback;
-import wseemann.media.romote.tasks.RequestTask;
 import wseemann.media.romote.utils.CommandHelper;
-import wseemann.media.romote.utils.RokuRequestTypes;
 
 /**
  * Created by wseemann on 4/14/18.
@@ -29,7 +28,7 @@ public class CommandReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         if (intent != null) {
             String url = commandHelper.getDeviceURL();
-            KeypressKeyValues keypressKeyValues = (KeypressKeyValues) intent.getSerializableExtra("keypress");
+            KeyPressKeyValues keypressKeyValues = (KeyPressKeyValues) intent.getSerializableExtra("keypress");
 
             new CommandServiceAsyncTask(url, keypressKeyValues).execute();
         }
@@ -37,10 +36,10 @@ public class CommandReceiver extends BroadcastReceiver {
 
     private static class CommandServiceAsyncTask extends AsyncTask<Void, Void, Void> {
 
-        private String url;
-        private KeypressKeyValues keypressKeyValues;
+        private final String url;
+        private final KeyPressKeyValues keypressKeyValues;
 
-        private CommandServiceAsyncTask(String url, KeypressKeyValues keypressKeyValues) {
+        private CommandServiceAsyncTask(String url, KeyPressKeyValues keypressKeyValues) {
             this.url = url;
             this.keypressKeyValues = keypressKeyValues;
         }
@@ -51,21 +50,19 @@ public class CommandReceiver extends BroadcastReceiver {
             return null;
         }
 
-        private void performKeypress(KeypressKeyValues keypressKeyValue) {
-            KeypressRequest keypressRequest = new KeypressRequest(url, keypressKeyValue.getValue());
-            JakuRequest request = new JakuRequest(keypressRequest, null);
-
-            new RequestTask(request, new RequestCallback() {
+        private void performKeypress(KeyPressKeyValues keypressKeyValue) {
+            KeyPressRequest keypressRequest = new KeyPressRequest(url, keypressKeyValue.getValue());
+            keypressRequest.sendAsync(new ResponseCallback<Void>() {
                 @Override
-                public void requestResult(RokuRequestTypes rokuRequestType, RequestTask.Result result) {
+                public void onSuccess(@Nullable Void unused) {
 
                 }
 
                 @Override
-                public void onErrorResponse(RequestTask.Result result) {
+                public void onError(@NonNull Exception e) {
 
                 }
-            }).execute(RokuRequestTypes.keypress);
+            });
         }
     }
 }

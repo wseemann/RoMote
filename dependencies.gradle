@@ -13,6 +13,7 @@ deps.hilt_work = "androidx.hilt:hilt-work:${versions.hilt_x}"
 deps.hilt_compiler_x = "androidx.hilt:hilt-compiler:${versions.hilt_x}"
 deps.jdom = "org.jdom:jdom2:${versions.jdom}"
 deps.picasso = "com.squareup.picasso:picasso:${versions.picasso}"
+deps.roku_ecp_wrapper_kotlin = "com.github.wseemann:roku-ecp-wrapper-kotlin:${versions.roku_ecp_wrapper_kotlin}"
 deps.rxjava_android = "io.reactivex.rxjava2:rxandroid:${versions.rxjava_android}"
 deps.rxjava = "io.reactivex.rxjava2:rxjava:${versions.rxjava}"
 

@@ -1,7 +1,7 @@
 package wseemann.media.romote.tasks;
 
-import com.jaku.api.QueryRequests;
-import com.jaku.model.Channel;
+import com.wseemann.ecp.api.QueryRequests;
+import com.wseemann.ecp.model.Channel;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -12,7 +12,7 @@ import wseemann.media.romote.utils.CommandHelper;
 
 public class ChannelTask implements Callable {
 
-    private CommandHelper commandHelper;
+    private final CommandHelper commandHelper;
 
     public ChannelTask(final CommandHelper commandHelper) {
         this.commandHelper = commandHelper;

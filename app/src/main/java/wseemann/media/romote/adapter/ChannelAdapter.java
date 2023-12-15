@@ -11,12 +11,13 @@ import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
-import java.util.List;
-
 import wseemann.media.romote.R;
 
 import com.bumptech.glide.RequestManager;
-import com.jaku.model.Channel;
+import com.wseemann.ecp.model.Channel;
+
+import java.util.List;
+
 import wseemann.media.romote.utils.CommandHelper;
 
 /**

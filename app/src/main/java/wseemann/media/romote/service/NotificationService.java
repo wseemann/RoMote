@@ -19,29 +19,26 @@ import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
 
-import com.jaku.core.JakuRequest;
-import com.jaku.parser.AppsParser;
-import com.jaku.parser.IconParser;
-import com.jaku.request.QueryActiveAppRequest;
-import com.jaku.request.QueryIconRequest;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.wseemann.ecp.api.ResponseCallback;
+import com.wseemann.ecp.model.Channel;
+import com.wseemann.ecp.request.QueryActiveAppRequest;
+import com.wseemann.ecp.request.QueryIconRequest;
 
 import java.util.List;
 import java.util.Random;
-
-import com.jaku.model.Channel;
 
 import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
 import wseemann.media.romote.R;
 import wseemann.media.romote.model.Device;
-import wseemann.media.romote.tasks.RequestCallback;
-import wseemann.media.romote.tasks.RequestTask;
 import wseemann.media.romote.utils.CommandHelper;
 import wseemann.media.romote.utils.Constants;
 import wseemann.media.romote.utils.NotificationUtils;
 import wseemann.media.romote.utils.PreferenceUtils;
-import wseemann.media.romote.utils.RokuRequestTypes;
 
 /**
  * Created by wseemann on 6/19/16.
@@ -171,13 +168,9 @@ public class NotificationService extends Service {
         String url = commandHelper.getDeviceURL();
 
         QueryActiveAppRequest queryActiveAppRequest = new QueryActiveAppRequest(url);
-        JakuRequest request = new JakuRequest(queryActiveAppRequest, new AppsParser());
-
-        new RequestTask(request, new RequestCallback() {
+        queryActiveAppRequest.sendAsync(new ResponseCallback<List<Channel>>() {
             @Override
-            public void requestResult(RokuRequestTypes rokuRequestType, RequestTask.Result result) {
-                List<Channel> channels = (List<Channel>) result.mResultValue;
-
+            public void onSuccess(@Nullable List<Channel> channels) {
                 if (channels.size() > 0) {
                     mChannel = channels.get(0);
                     getAppIcon(mChannel.getId());
@@ -185,25 +178,21 @@ public class NotificationService extends Service {
             }
 
             @Override
-            public void onErrorResponse(RequestTask.Result result) {
+            public void onError(@NonNull Exception e) {
                 Log.d(TAG, "That didn't work!");
             }
-        }).execute(RokuRequestTypes.query_active_app);
+        });
     }
 
     private void getAppIcon(String appId) {
         String url = commandHelper.getDeviceURL();
 
         QueryIconRequest queryIconRequest = new QueryIconRequest(url, appId);
-        JakuRequest request = new JakuRequest(queryIconRequest, new IconParser());
-
-        new RequestTask(request, new RequestCallback() {
+        queryIconRequest.sendAsync(new ResponseCallback<byte[]>() {
             @Override
-            public void requestResult(RokuRequestTypes rokuRequestType, RequestTask.Result result) {
+            public void onSuccess(@Nullable byte[] bytes) {
                 try {
-                    byte [] data = (byte []) result.mResultValue;
-
-                    Bitmap bitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+                    Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
 
                     mDevice = preferenceUtils.getConnectedDevice();
                     updateMediaSessionMetadata(mChannel, bitmap);
@@ -219,13 +208,13 @@ public class NotificationService extends Service {
             }
 
             @Override
-            public void onErrorResponse(RequestTask.Result result) {
+            public void onError(@NonNull Exception e) {
                 Log.d(TAG, "That didn't work!");
             }
-        }).execute(RokuRequestTypes.query_icon);
+        });
     }
 
-    private BroadcastReceiver mUpdateReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver mUpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             boolean enableNotification = sharedPreferences.getBoolean("notification_checkbox_preference", false);

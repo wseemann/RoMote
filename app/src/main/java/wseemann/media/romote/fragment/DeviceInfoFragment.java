@@ -2,7 +2,12 @@ package wseemann.media.romote.fragment;
 
 import android.os.Bundle;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.ListFragment;
+
+import com.wseemann.ecp.api.ResponseCallback;
+import com.wseemann.ecp.request.QueryDeviceInfoRequest;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,15 +17,8 @@ import wseemann.media.romote.R;
 import wseemann.media.romote.adapter.DeviceInfoAdapter;
 import wseemann.media.romote.model.Device;
 import wseemann.media.romote.model.Entry;
-import wseemann.media.romote.tasks.RequestCallback;
-import wseemann.media.romote.tasks.RequestTask;
 import wseemann.media.romote.utils.CommandHelper;
 import wseemann.media.romote.utils.DBUtils;
-import wseemann.media.romote.utils.RokuRequestTypes;
-
-import com.jaku.core.JakuRequest;
-import com.jaku.parser.DeviceParser;
-import com.jaku.request.QueryDeviceInfoRequest;
 
 import javax.inject.Inject;
 
@@ -86,14 +84,10 @@ public class DeviceInfoFragment extends ListFragment {
         String url = command;
 
         QueryDeviceInfoRequest queryActiveAppRequest = new QueryDeviceInfoRequest(url);
-        JakuRequest request = new JakuRequest(queryActiveAppRequest, new DeviceParser());
-
-        new RequestTask(request, new RequestCallback() {
+        queryActiveAppRequest.sendAsync(new ResponseCallback<com.wseemann.ecp.model.Device>() {
             @Override
-            public void requestResult(RokuRequestTypes rokuRequestType, RequestTask.Result result) {
-                Device device = (Device) result.mResultValue;
-
-                List<Entry> entries = parseDevice(device);
+            public void onSuccess(@Nullable com.wseemann.ecp.model.Device device) {
+                List<Entry> entries = parseDevice(Device.Companion.fromDevice(device));
 
                 mAdapter.addAll(entries);
                 mAdapter.notifyDataSetChanged();
@@ -101,10 +95,10 @@ public class DeviceInfoFragment extends ListFragment {
             }
 
             @Override
-            public void onErrorResponse(RequestTask.Result result) {
+            public void onError(@NonNull Exception e) {
                 DeviceInfoFragment.this.setListShown(true);
             }
-        }).execute(RokuRequestTypes.query_device_info);
+        });
     }
 
     private List<Entry> parseDevice(Device device) {

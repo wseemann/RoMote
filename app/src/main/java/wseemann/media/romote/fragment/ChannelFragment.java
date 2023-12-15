@@ -21,6 +21,8 @@ import android.view.ViewTreeObserver;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.fragment.app.Fragment;
 import androidx.loader.content.Loader;
@@ -38,18 +40,15 @@ import wseemann.media.romote.BuildConfig;
 import wseemann.media.romote.R;
 import wseemann.media.romote.adapter.ChannelAdapter;
 import wseemann.media.romote.tasks.ChannelTask;
-import wseemann.media.romote.tasks.RequestCallback;
-import wseemann.media.romote.tasks.RequestTask;
 import wseemann.media.romote.util.Utils;
 import wseemann.media.romote.utils.CommandHelper;
 import wseemann.media.romote.utils.Constants;
-import wseemann.media.romote.utils.RokuRequestTypes;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
-import com.jaku.core.JakuRequest;
-import com.jaku.model.Channel;
-import com.jaku.request.LaunchAppRequest;
+import com.wseemann.ecp.api.ResponseCallback;
+import com.wseemann.ecp.model.Channel;
+import com.wseemann.ecp.request.LaunchAppRequest;
 
 import javax.inject.Inject;
 
@@ -101,7 +100,7 @@ public class ChannelFragment extends Fragment {
         mImageThumbSize = getResources().getDimensionPixelSize(R.dimen.image_thumbnail_size);
         mImageThumbSpacing = getResources().getDimensionPixelSize(R.dimen.image_thumbnail_spacing);
 
-        mAdapter = new ChannelAdapter(getActivity(), requestManager, new ArrayList<Channel>(), mHandler, commandHelper);
+        mAdapter = new ChannelAdapter(getActivity(), requestManager, new ArrayList<>(), mHandler, commandHelper);
 
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Constants.UPDATE_DEVICE_BROADCAST);
@@ -293,19 +292,17 @@ public class ChannelFragment extends Fragment {
         String url = commandHelper.getDeviceURL();
 
         LaunchAppRequest launchAppIdRequest = new LaunchAppRequest(url, appId);
-        JakuRequest request = new JakuRequest(launchAppIdRequest, null);
-
-        new RequestTask(request, new RequestCallback() {
+        launchAppIdRequest.sendAsync(new ResponseCallback<Void>() {
             @Override
-            public void requestResult(RokuRequestTypes rokuRequestType, RequestTask.Result result) {
+            public void onSuccess(@Nullable Void unused) {
 
             }
 
             @Override
-            public void onErrorResponse(RequestTask.Result result) {
+            public void onError(@NonNull Exception e) {
 
             }
-        }).execute(RokuRequestTypes.launch);
+        });
     }
 
     public void refresh() {

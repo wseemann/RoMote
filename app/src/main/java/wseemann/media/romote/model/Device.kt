@@ -1,14 +1,12 @@
 package wseemann.media.romote.model
 
-import com.jaku.model.Device
-
-class Device : Device() {
+class Device : com.wseemann.ecp.model.Device() {
 
     private var customUserDeviceName: String? = null
 
     companion object {
-        fun fromDevice(jakuDevice: Device): wseemann.media.romote.model.Device {
-            val device = wseemann.media.romote.model.Device()
+        fun fromDevice(jakuDevice: com.wseemann.ecp.model.Device): Device {
+            val device = Device()
 
             device.host = jakuDevice.host
             device.udn = jakuDevice.udn

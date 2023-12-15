@@ -4,17 +4,17 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.util.Log;
 
-import com.jaku.core.JakuRequest;
-import com.jaku.core.KeypressKeyValues;
-import com.jaku.request.KeypressRequest;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.wseemann.ecp.api.ResponseCallback;
+import com.wseemann.ecp.core.KeyPressKeyValues;
+import com.wseemann.ecp.request.KeyPressRequest;
 
 import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
-import wseemann.media.romote.tasks.RequestCallback;
-import wseemann.media.romote.tasks.RequestTask;
 import wseemann.media.romote.utils.CommandHelper;
-import wseemann.media.romote.utils.RokuRequestTypes;
 
 /**
  * Created by wseemann on 6/19/16.
@@ -43,27 +43,25 @@ public class CommandService extends IntentService {
         if (intent != null) {
             //if (intent.getAction() != null) {
                 //Log.d(TAG, "onHandleIntent: " + intent.getAction());
-                performKeypress((KeypressKeyValues) intent.getSerializableExtra("keypress"));
+                performKeypress((KeyPressKeyValues) intent.getSerializableExtra("keypress"));
             //}
         }
     }
 
-    private void performKeypress(KeypressKeyValues keypressKeyValue) {
+    private void performKeypress(KeyPressKeyValues keypressKeyValue) {
         String url = commandHelper.getDeviceURL();
 
-        KeypressRequest keypressRequest = new KeypressRequest(url, keypressKeyValue.getValue());
-        JakuRequest request = new JakuRequest(keypressRequest, null);
-
-        new RequestTask(request, new RequestCallback() {
+        KeyPressRequest keypressRequest = new KeyPressRequest(url, keypressKeyValue.getValue());
+        keypressRequest.sendAsync(new ResponseCallback<Void>() {
             @Override
-            public void requestResult(RokuRequestTypes rokuRequestType, RequestTask.Result result) {
+            public void onSuccess(@Nullable Void unused) {
 
             }
 
             @Override
-            public void onErrorResponse(RequestTask.Result result) {
+            public void onError(@NonNull Exception e) {
 
             }
-        }).execute(RokuRequestTypes.keypress);
+        });
     }
 }

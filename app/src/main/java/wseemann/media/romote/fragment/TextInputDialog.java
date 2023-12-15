@@ -3,36 +3,29 @@ package wseemann.media.romote.fragment;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
-import com.jaku.core.JakuRequest;
-import com.jaku.core.KeypressKeyValues;
-import com.jaku.request.KeypressRequest;
-
-import java.util.ArrayDeque;
-import java.util.Deque;
+import com.wseemann.ecp.api.ResponseCallback;
+import com.wseemann.ecp.core.KeyPressKeyValues;
+import com.wseemann.ecp.request.KeyPressRequest;
 
 import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
 import wseemann.media.romote.R;
-import wseemann.media.romote.tasks.RequestCallback;
-import wseemann.media.romote.tasks.RequestTask;
 import wseemann.media.romote.utils.CommandHelper;
-import wseemann.media.romote.utils.RokuRequestTypes;
 
 /**
  * Created by wseemann on 6/20/16.
@@ -63,11 +56,7 @@ public class TextInputDialog extends DialogFragment {
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(view);
-        builder.setNegativeButton(R.string.close, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                dismiss();
-            }
-        });
+        builder.setNegativeButton(R.string.close, (dialog, id) -> dismiss());
 
         return builder.create();
     }
@@ -98,19 +87,16 @@ public class TextInputDialog extends DialogFragment {
     }
 
     private void setupTextBox() {
-        mTextBox.setOnEditorActionListener(new EditText.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
-                    if (event.getKeyCode() == 67 &&
-                            event.getAction() == KeyEvent.ACTION_DOWN) { //&&
-                        //textbox.length() == 0) {
-                        sendBackspace();
-                        return true;
-                    }
+        mTextBox.setOnEditorActionListener((v, actionId, event) -> {
+            if (actionId == EditorInfo.IME_ACTION_DONE) {
+                if (event.getKeyCode() == 67 &&
+                        event.getAction() == KeyEvent.ACTION_DOWN) { //&&
+                    //textbox.length() == 0) {
+                    sendBackspace();
+                    return true;
                 }
-                return false;
             }
+            return false;
         });
         mTextBox.setOnKeyListener(new View.OnKeyListener() {
             @Override
@@ -194,39 +180,34 @@ public class TextInputDialog extends DialogFragment {
     private void sendBackspace() {
         String url = commandHelper.getDeviceURL();
 
-        KeypressRequest keypressRequest = new KeypressRequest(url, KeypressKeyValues.BACKSPACE.getValue());
-        JakuRequest request = new JakuRequest(keypressRequest, null);
-
-        new RequestTask(request, new RequestCallback() {
+        KeyPressRequest keyPressRequest = new KeyPressRequest(url, KeyPressKeyValues.BACKSPACE.getValue());
+        keyPressRequest.sendAsync(new ResponseCallback<Void>() {
             @Override
-            public void requestResult(RokuRequestTypes rokuRequestType, RequestTask.Result result) {
+            public void onSuccess(@Nullable Void unused) {
 
             }
 
             @Override
-            public void onErrorResponse(RequestTask.Result result) {
+            public void onError(@NonNull Exception e) {
 
             }
-        }).execute(RokuRequestTypes.keypress);
+        });
     }
 
     private void sendStringLiteral(String stringLiteral) {
         String url = commandHelper.getDeviceURL();
 
-        KeypressRequest keypressRequest = new KeypressRequest(url, KeypressKeyValues.LIT_.getValue() + stringLiteral);
-        JakuRequest request = new JakuRequest(keypressRequest, null);
-
-        new RequestTask(request, new RequestCallback() {
+        KeyPressRequest keypressRequest = new KeyPressRequest(url, KeyPressKeyValues.LIT_.getValue() + stringLiteral);
+        keypressRequest.sendAsync(new ResponseCallback<Void>() {
             @Override
-            public void requestResult(RokuRequestTypes rokuRequestType, RequestTask.Result result) {
-                Log.d("sasas", "OK");
+            public void onSuccess(@Nullable Void unused) {
+
             }
 
             @Override
-            public void onErrorResponse(RequestTask.Result result) {
-                Log.d("sasas", "error");
+            public void onError(@NonNull Exception e) {
+
             }
-        }).execute(RokuRequestTypes.keypress);
-        Deque<Integer> stack = new ArrayDeque<Integer>();
+        });
     }
 }

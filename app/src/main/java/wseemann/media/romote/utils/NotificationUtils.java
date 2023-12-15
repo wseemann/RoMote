@@ -8,7 +8,7 @@ import android.graphics.Bitmap;
 import android.media.session.MediaSession;
 import android.os.Build;
 
-import com.jaku.core.KeypressKeyValues;
+import com.wseemann.ecp.core.KeyPressKeyValues;
 
 import wseemann.media.romote.R;
 import wseemann.media.romote.activity.MainActivity;
@@ -67,9 +67,9 @@ public class NotificationUtils {
             builder.setLargeIcon(bitmap);
         }
 
-        builder.addAction(GenerateActionCompat(context, android.R.drawable.ic_media_rew, "Previous", 0, KeypressKeyValues.REV));
-        builder.addAction(GenerateActionCompat(context, android.R.drawable.ic_media_pause, "Pause", 1, KeypressKeyValues.PLAY));
-        builder.addAction(GenerateActionCompat(context, android.R.drawable.ic_media_ff, "Next", 2, KeypressKeyValues.FWD));
+        builder.addAction(GenerateActionCompat(context, android.R.drawable.ic_media_rew, "Previous", 0, KeyPressKeyValues.REV));
+        builder.addAction(GenerateActionCompat(context, android.R.drawable.ic_media_pause, "Pause", 1, KeyPressKeyValues.PLAY));
+        builder.addAction(GenerateActionCompat(context, android.R.drawable.ic_media_ff, "Next", 2, KeyPressKeyValues.FWD));
 
         style.setShowActionsInCompactView(0, 1, 2);
         //style.setShowCancelButton(true);
@@ -79,7 +79,7 @@ public class NotificationUtils {
         return builder.build();
     }
 
-    private static Notification.Action GenerateActionCompat(Context context, int icon, String title, int requestCode, KeypressKeyValues keypressKeyValue) {
+    private static Notification.Action GenerateActionCompat(Context context, int icon, String title, int requestCode, KeyPressKeyValues keypressKeyValue) {
         Intent intent = new Intent(context, CommandService.class);
         intent.putExtra("keypress", keypressKeyValue);
         PendingIntent pendingIntent = PendingIntent.getService(context, requestCode, intent, PendingIntent.FLAG_IMMUTABLE);

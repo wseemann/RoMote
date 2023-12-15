@@ -10,14 +10,14 @@ import android.os.Build;
 import android.util.Log;
 import android.widget.RemoteViews;
 
+import com.wseemann.ecp.core.KeyPressKeyValues;
+
 import wseemann.media.romote.R;
 import wseemann.media.romote.activity.MainActivity;
 import wseemann.media.romote.di.CommonModule;
 import wseemann.media.romote.model.Device;
 import wseemann.media.romote.receiver.CommandReceiver;
 import wseemann.media.romote.service.CommandService;
-
-import com.jaku.core.KeypressKeyValues;
 
 public class RokuAppWidgetProvider extends AppWidgetProvider {
 
@@ -62,7 +62,7 @@ public class RokuAppWidgetProvider extends AppWidgetProvider {
 
         Intent intent = new Intent(context, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(context,
-                0 /* no requestCode */, intent, 0 /* no flags */);
+                0 /* no requestCode */, intent, PendingIntent.FLAG_IMMUTABLE /* no flags */);
         views.setOnClickPendingIntent(R.id.info_layout, pendingIntent);
 
         pushUpdate(context, appWidgetIds, views);
@@ -108,7 +108,7 @@ public class RokuAppWidgetProvider extends AppWidgetProvider {
 
         Intent intent = new Intent(service, MainActivity.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(service,
-                0 /* no requestCode */, intent, 0 /* no flags */);
+                0 /* no requestCode */, intent, PendingIntent.FLAG_IMMUTABLE /* no flags */);
         views.setOnClickPendingIntent(R.id.info_layout, pendingIntent);
 
         pushUpdate(service, appWidgetIds, views);
@@ -124,24 +124,24 @@ public class RokuAppWidgetProvider extends AppWidgetProvider {
     private void linkButtons(Context context, RemoteViews views, boolean playerActive) {
         Log.d(TAG, "linkButtons called");
 
-        linkButton(context, views, KeypressKeyValues.BACK, R.id.back_button, 0);
-        linkButton(context, views, KeypressKeyValues.UP, R.id.up_button, 1);
-        linkButton(context, views, KeypressKeyValues.HOME, R.id.home_button, 2);
+        linkButton(context, views, KeyPressKeyValues.BACK, R.id.back_button, 0);
+        linkButton(context, views, KeyPressKeyValues.UP, R.id.up_button, 1);
+        linkButton(context, views, KeyPressKeyValues.HOME, R.id.home_button, 2);
 
-        linkButton(context, views, KeypressKeyValues.LEFT, R.id.left_button, 3);
-        linkButton(context, views, KeypressKeyValues.SELECT, R.id.ok_button, 4);
-        linkButton(context, views, KeypressKeyValues.RIGHT, R.id.right_button, 5);
+        linkButton(context, views, KeyPressKeyValues.LEFT, R.id.left_button, 3);
+        linkButton(context, views, KeyPressKeyValues.SELECT, R.id.ok_button, 4);
+        linkButton(context, views, KeyPressKeyValues.RIGHT, R.id.right_button, 5);
 
-        linkButton(context, views, KeypressKeyValues.INTANT_REPLAY, R.id.instant_replay_button, 6);
-        linkButton(context, views, KeypressKeyValues.DOWN, R.id.down_button, 7);
-        linkButton(context, views, KeypressKeyValues.INFO, R.id.info_button, 8);
+        linkButton(context, views, KeyPressKeyValues.INTANT_REPLAY, R.id.instant_replay_button, 6);
+        linkButton(context, views, KeyPressKeyValues.DOWN, R.id.down_button, 7);
+        linkButton(context, views, KeyPressKeyValues.INFO, R.id.info_button, 8);
 
-        linkButton(context, views, KeypressKeyValues.REV, R.id.rev_button, 9);
-        linkButton(context, views, KeypressKeyValues.PLAY, R.id.play_button, 10);
-        linkButton(context, views, KeypressKeyValues.FWD, R.id.fwd_button, 11);
+        linkButton(context, views, KeyPressKeyValues.REV, R.id.rev_button, 9);
+        linkButton(context, views, KeyPressKeyValues.PLAY, R.id.play_button, 10);
+        linkButton(context, views, KeyPressKeyValues.FWD, R.id.fwd_button, 11);
     }
 
-    private void linkButton(Context context, RemoteViews views, KeypressKeyValues keypressKeyValue, int id, int requestCode) {
+    private void linkButton(Context context, RemoteViews views, KeyPressKeyValues keypressKeyValue, int id, int requestCode) {
         // Connect up various buttons and touch events
         final ComponentName serviceName = new ComponentName(context, CommandReceiver.class);
 
@@ -155,7 +155,7 @@ public class RokuAppWidgetProvider extends AppWidgetProvider {
                     requestCode /* no requestCode */, intent, PendingIntent.FLAG_IMMUTABLE /* no flags */);
         } else {
             pendingIntent = PendingIntent.getBroadcast(context,
-                    requestCode /* no requestCode */, intent, 0 /* no flags */);
+                    requestCode /* no requestCode */, intent, PendingIntent.FLAG_IMMUTABLE /* no flags */);
         }
 
         views.setOnClickPendingIntent(id, pendingIntent);

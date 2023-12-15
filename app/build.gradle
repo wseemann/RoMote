@@ -36,6 +36,9 @@ android {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
     }
+    packagingOptions {
+        exclude("META-INF/DEPENDENCIES")
+    }
 }
 
 dependencies {
@@ -51,6 +54,7 @@ dependencies {
     implementation deps.hilt_android
     kapt deps.hilt_compiler
     implementation deps.jdom
+    implementation deps.roku_ecp_wrapper_kotlin
     implementation deps.rxjava_android
     implementation deps.rxjava
 

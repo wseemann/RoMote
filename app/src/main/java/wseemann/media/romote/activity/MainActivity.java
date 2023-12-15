@@ -12,6 +12,8 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import androidx.core.splashscreen.SplashScreen;
 import androidx.fragment.app.DialogFragment;
@@ -21,8 +23,8 @@ import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
-import com.jaku.core.JakuRequest;
-import com.jaku.request.SearchRequest;
+import com.wseemann.ecp.api.ResponseCallback;
+import com.wseemann.ecp.request.SearchRequest;
 
 import javax.inject.Inject;
 
@@ -35,10 +37,7 @@ import wseemann.media.romote.fragment.RemoteFragment;
 import wseemann.media.romote.fragment.SearchDialog;
 import wseemann.media.romote.fragment.StoreFragment;
 import wseemann.media.romote.service.NotificationService;
-import wseemann.media.romote.tasks.RequestCallback;
-import wseemann.media.romote.tasks.RequestTask;
 import wseemann.media.romote.utils.CommandHelper;
-import wseemann.media.romote.utils.RokuRequestTypes;
 
 @AndroidEntryPoint
 public class MainActivity extends ConnectivityActivity implements
@@ -278,18 +277,16 @@ public class MainActivity extends ConnectivityActivity implements
         String url = commandHelper.getDeviceURL();
 
         SearchRequest searchRequest = new SearchRequest(url, searchText, null, null, null, null, null, null, null, null, null);
-        JakuRequest request = new JakuRequest(searchRequest, null);
-
-        new RequestTask(request, new RequestCallback() {
+        searchRequest.sendAsync(new ResponseCallback<Void>() {
             @Override
-            public void requestResult(RokuRequestTypes rokuRequestType, RequestTask.Result result) {
+            public void onSuccess(@Nullable Void unused) {
 
             }
 
             @Override
-            public void onErrorResponse(RequestTask.Result result) {
+            public void onError(@NonNull Exception e) {
 
             }
-        }).execute(RokuRequestTypes.search);
+        });
     }
 }

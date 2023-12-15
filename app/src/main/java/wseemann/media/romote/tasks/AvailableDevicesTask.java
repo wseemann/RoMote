@@ -3,8 +3,9 @@ package wseemann.media.romote.tasks;
 import android.content.Context;
 import android.util.Log;
 
-import com.jaku.api.DeviceRequests;
-import com.jaku.api.QueryRequests;
+import com.wseemann.ecp.api.DeviceRequests;
+import com.wseemann.ecp.api.QueryRequests;
+import com.wseemann.ecp.api.RokuDevice;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -20,8 +21,8 @@ public class AvailableDevicesTask implements Callable {
 
     private static final String TAG = AvailableDevicesTask.class.getName();
 
-    private Context context;
-    private boolean filterPairedDevices;
+    private final Context context;
+    private final boolean filterPairedDevices;
 
     public AvailableDevicesTask(final Context context) {
         this(context, true);
@@ -51,10 +52,8 @@ public class AvailableDevicesTask implements Callable {
                 // Scan the mobile access point for devices
                 rokuDevices.addAll(scanAccessPointForDevices());
             } else {
-                List<com.jaku.model.Device> jakuDevices = DeviceRequests.discoverDevices();
-
-                for (com.jaku.model.Device jakuDevice: jakuDevices) {
-                    rokuDevices.add(Device.Companion.fromDevice(jakuDevice));
+                for (RokuDevice rokuDevice: DeviceRequests.discoverDevices()) {
+                    rokuDevices.add(Device.Companion.fromDevice(rokuDevice.queryDeviceInfo()));
                 }
             }
 

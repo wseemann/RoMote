@@ -29,33 +29,26 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
-import com.jaku.core.JakuRequest;
-import com.jaku.core.KeypressKeyValues;
-import com.jaku.parser.DeviceParser;
-import com.jaku.request.KeypressRequest;
-import com.jaku.request.QueryDeviceInfoRequest;
+import com.wseemann.ecp.api.ResponseCallback;
+import com.wseemann.ecp.core.KeyPressKeyValues;
+import com.wseemann.ecp.request.KeyPressRequest;
+import com.wseemann.ecp.request.QueryDeviceInfoRequest;
 
 import java.util.List;
 
 import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
-import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
 import wseemann.media.romote.R;
 import wseemann.media.romote.audio.IRemoteAudioInterface;
 import wseemann.media.romote.model.Device;
-import wseemann.media.romote.tasks.RequestCallback;
-import wseemann.media.romote.tasks.RequestTask;
-import wseemann.media.romote.tasks.RxRequestTask;
 import wseemann.media.romote.utils.CommandHelper;
 import wseemann.media.romote.utils.Constants;
 import wseemann.media.romote.utils.PreferenceUtils;
-import wseemann.media.romote.utils.RokuRequestTypes;
 import wseemann.media.romote.view.RepeatingImageButton;
 import wseemann.media.romote.view.VibratingImageButton;
 
@@ -104,25 +97,25 @@ public class RemoteFragment extends Fragment {
         });
         mVoiceSearcButton.requestFocus();*/
 
-        linkButton(KeypressKeyValues.BACK, R.id.back_button);
-        linkRepeatingRemoteButton(KeypressKeyValues.UP, R.id.up_button);
-        linkButton(KeypressKeyValues.HOME, R.id.home_button);
+        linkButton(KeyPressKeyValues.BACK, R.id.back_button);
+        linkRepeatingRemoteButton(KeyPressKeyValues.UP, R.id.up_button);
+        linkButton(KeyPressKeyValues.HOME, R.id.home_button);
 
-        linkRepeatingRemoteButton(KeypressKeyValues.LEFT, R.id.left_button);
-        linkButton(KeypressKeyValues.SELECT, R.id.ok_button);
-        linkRepeatingRemoteButton(KeypressKeyValues.RIGHT, R.id.right_button);
+        linkRepeatingRemoteButton(KeyPressKeyValues.LEFT, R.id.left_button);
+        linkButton(KeyPressKeyValues.SELECT, R.id.ok_button);
+        linkRepeatingRemoteButton(KeyPressKeyValues.RIGHT, R.id.right_button);
 
-        linkButton(KeypressKeyValues.INTANT_REPLAY, R.id.instant_replay_button);
-        linkRepeatingRemoteButton(KeypressKeyValues.DOWN, R.id.down_button);
-        linkButton(KeypressKeyValues.INFO, R.id.info_button);
+        linkButton(KeyPressKeyValues.INTANT_REPLAY, R.id.instant_replay_button);
+        linkRepeatingRemoteButton(KeyPressKeyValues.DOWN, R.id.down_button);
+        linkButton(KeyPressKeyValues.INFO, R.id.info_button);
 
-        linkButton(KeypressKeyValues.REV, R.id.rev_button);
-        linkButton(KeypressKeyValues.PLAY, R.id.play_button);
-        linkButton(KeypressKeyValues.FWD, R.id.fwd_button);
+        linkButton(KeyPressKeyValues.REV, R.id.rev_button);
+        linkButton(KeyPressKeyValues.PLAY, R.id.play_button);
+        linkButton(KeyPressKeyValues.FWD, R.id.fwd_button);
 
-        linkButton(KeypressKeyValues.VOLUME_MUTE, R.id.mute_button);
-        linkButton(KeypressKeyValues.VOLUME_DOWN, R.id.volume_down_button);
-        linkButton(KeypressKeyValues.VOLUME_UP, R.id.volume_up_button);
+        linkButton(KeyPressKeyValues.VOLUME_MUTE, R.id.mute_button);
+        linkButton(KeyPressKeyValues.VOLUME_DOWN, R.id.volume_down_button);
+        linkButton(KeyPressKeyValues.VOLUME_UP, R.id.volume_up_button);
 
         ImageButton keyboardButton = getView().findViewById(R.id.keyboard_button);
         keyboardButton.setOnClickListener(view -> {
@@ -171,7 +164,7 @@ public class RemoteFragment extends Fragment {
         getActivity().unregisterReceiver(mUpdateReceiver);
     }
 
-    private void linkRepeatingRemoteButton(final KeypressKeyValues keypressKeyValue, int id) {
+    private void linkRepeatingRemoteButton(final KeyPressKeyValues keypressKeyValue, int id) {
         RepeatingImageButton button = getView().findViewById(id);
 
         button.setOnClickListener(view -> {
@@ -186,7 +179,7 @@ public class RemoteFragment extends Fragment {
         }, 400);
     }
 
-    private void linkButton(final KeypressKeyValues keypressKeyValue, int id) {
+    private void linkButton(final KeyPressKeyValues keypressKeyValue, int id) {
         ImageButton button = getView().findViewById(id);
 
         button.setOnClickListener(view -> {
@@ -200,33 +193,38 @@ public class RemoteFragment extends Fragment {
         });
     }
 
-    private void performRequest(final JakuRequest request, final RokuRequestTypes rokuRequestType) {
-        Observable.fromCallable(new RxRequestTask(getContext().getApplicationContext(), preferenceUtils, request, rokuRequestType))
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(result -> { });
+    private void performRequest(final KeyPressRequest request) {
+        request.sendAsync(new ResponseCallback<Void>() {
+            @Override
+            public void onSuccess(@Nullable Void unused) {
+
+            }
+
+            @Override
+            public void onError(@NonNull Exception e) {
+
+            }
+        });
     }
 
     private void obtainPowerMode() {
         String url = commandHelper.getDeviceURL();
 
         QueryDeviceInfoRequest queryActiveAppRequest = new QueryDeviceInfoRequest(url);
-        JakuRequest request = new JakuRequest(queryActiveAppRequest, new DeviceParser());
-
-        new RequestTask(request, new RequestCallback() {
+        queryActiveAppRequest.sendAsync(new ResponseCallback<com.wseemann.ecp.model.Device>() {
             @Override
-            public void requestResult(RokuRequestTypes rokuRequestType, RequestTask.Result result) {
-                performPowerAction((Device) result.mResultValue);
+            public void onSuccess(@Nullable com.wseemann.ecp.model.Device device) {
+                performPowerAction(device);
             }
 
             @Override
-            public void onErrorResponse(RequestTask.Result result) {
-                Log.d("TAG", result.mException.getMessage());
+            public void onError(@NonNull Exception e) {
+                Log.d("TAG", e.getMessage());
             }
-        }).execute(RokuRequestTypes.query_device_info);
+        });
     }
 
-    private void performPowerAction(final Device device) {
+    private void performPowerAction(final com.wseemann.ecp.model.Device device) {
         if (device == null) {
             return;
         }
@@ -242,32 +240,22 @@ public class RemoteFragment extends Fragment {
             });
             builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int whichButton) {
-                    performKeypress(KeypressKeyValues.POWER_OFF);
+                    performKeypress(KeyPressKeyValues.POWER_OFF);
                 }
             });
 
             Dialog dialog = builder.create();
             dialog.show();
         } else {
-            performKeypress(KeypressKeyValues.POWER_ON);
+            performKeypress(KeyPressKeyValues.POWER_ON);
         }
     }
 
-    private void performKeypress(KeypressKeyValues keypressKeyValue) {
-        /*try {
-            Device device = PreferenceUtils.getConnectedDevice(getContext());
-            device.setHost("http://1234");
-            DBUtils.updateDevice(getContext(), device);
-        } catch (Exception ex) {
-
-        }*/
-
+    private void performKeypress(KeyPressKeyValues keypressKeyValue) {
         String url = commandHelper.getDeviceURL();
 
-        KeypressRequest keypressRequest = new KeypressRequest(url, keypressKeyValue.getValue());
-        JakuRequest request = new JakuRequest(keypressRequest, null);
-
-        performRequest(request, RokuRequestTypes.keypress);
+        KeyPressRequest keyPressRequest = new KeyPressRequest(url, keypressKeyValue.getValue());
+        performRequest(keyPressRequest);
     }
 
     @Override

@@ -10,22 +10,19 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.preference.PreferenceFragmentCompat;
 
-import com.jaku.core.JakuRequest;
-import com.jaku.core.KeypressKeyValues;
-import com.jaku.request.KeypressRequest;
 import com.mikepenz.aboutlibraries.LibsBuilder;
+import com.wseemann.ecp.api.ResponseCallback;
+import com.wseemann.ecp.core.KeyPressKeyValues;
+import com.wseemann.ecp.request.KeyPressRequest;
 
 import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
 import wseemann.media.romote.R;
 import wseemann.media.romote.model.Device;
-import wseemann.media.romote.tasks.RequestCallback;
-import wseemann.media.romote.tasks.RequestTask;
 import wseemann.media.romote.utils.CommandHelper;
 import wseemann.media.romote.utils.Constants;
 import wseemann.media.romote.utils.PreferenceUtils;
-import wseemann.media.romote.utils.RokuRequestTypes;
 
 @AndroidEntryPoint
 public class SettingsFragment extends PreferenceFragmentCompat
@@ -52,7 +49,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
         findPreference("find_remote").setOnPreferenceClickListener(
                 preference -> {
-                    performKeypress(KeypressKeyValues.FIND_REMOTE);
+                    performKeypress(KeyPressKeyValues.FIND_REMOTE);
                     return true;
                 });
 
@@ -92,23 +89,21 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
     }
 
-    private void performKeypress(KeypressKeyValues keypressKeyValue) {
+    private void performKeypress(KeyPressKeyValues keyPressKeyValue) {
         String url = commandHelper.getDeviceURL();
 
-        KeypressRequest keypressRequest = new KeypressRequest(url, keypressKeyValue.getValue());
-        JakuRequest request = new JakuRequest(keypressRequest, null);
-
-        new RequestTask(request, new RequestCallback() {
+        KeyPressRequest keypressRequest = new KeyPressRequest(url, keyPressKeyValue.getValue());
+        keypressRequest.sendAsync(new ResponseCallback<Void>() {
             @Override
-            public void requestResult(RokuRequestTypes rokuRequestType, RequestTask.Result result) {
+            public void onSuccess(@Nullable Void unused) {
 
             }
 
             @Override
-            public void onErrorResponse(RequestTask.Result result) {
+            public void onError(@NonNull Exception e) {
 
             }
-        }).execute(RokuRequestTypes.keypress);
+        });
     }
 
     private boolean deviceSupportsFindRemote() {

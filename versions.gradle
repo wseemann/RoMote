@@ -11,12 +11,13 @@ versions.hilt = "2.44"
 versions.hilt_x = "1.0.0"
 versions.jdom = "2.0.6"
 versions.picasso = "2.5.2"
+versions.roku_ecp_wrapper_kotlin = "1.1.0"
 versions.rxjava_android = "2.1.1"
 versions.rxjava = "2.2.20"
 versions.junit = "4.13.2"
 
 versions.buildToolsVersion = "30.0.3"
-versions.minSdkVersion = 21
+versions.minSdkVersion = 26
 versions.compileSdkVersion = 33
 versions.targetSdkVersion = 33
 ext.versions = versions

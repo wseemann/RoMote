@@ -14,20 +14,18 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+
+import com.wseemann.ecp.api.ResponseCallback;
+import com.wseemann.ecp.request.QueryDeviceInfoRequest;
 
 import dagger.hilt.android.AndroidEntryPoint;
 import wseemann.media.romote.R;
 import wseemann.media.romote.model.Device;
-import wseemann.media.romote.tasks.RequestCallback;
-import wseemann.media.romote.tasks.RequestTask;
 import wseemann.media.romote.utils.DBUtils;
 import wseemann.media.romote.utils.PreferenceUtils;
-import wseemann.media.romote.utils.RokuRequestTypes;
-
-import com.jaku.core.JakuRequest;
-import com.jaku.parser.DeviceParser;
-import com.jaku.request.QueryDeviceInfoRequest;
 
 import javax.inject.Inject;
 
@@ -89,24 +87,19 @@ public class ManualConnectionFragment extends Fragment {
         String url = command;
 
         QueryDeviceInfoRequest queryActiveAppRequest = new QueryDeviceInfoRequest(url);
-        JakuRequest request = new JakuRequest(queryActiveAppRequest, new DeviceParser());
-
-        new RequestTask(request, new RequestCallback() {
+        queryActiveAppRequest.sendAsync(new ResponseCallback<com.wseemann.ecp.model.Device>() {
             @Override
-            public void requestResult(RokuRequestTypes rokuRequestType, RequestTask.Result result) {
-                Device device = (Device) result.mResultValue;
-
+            public void onSuccess(@Nullable com.wseemann.ecp.model.Device device) {
                 mProgressLayout.setVisibility(View.GONE);
-
-                storeDevice(device);
+                storeDevice(Device.Companion.fromDevice(device));
             }
 
             @Override
-            public void onErrorResponse(RequestTask.Result result) {
+            public void onError(@NonNull Exception e) {
                 mProgressLayout.setVisibility(View.GONE);
                 mErrorText.setVisibility(View.VISIBLE);
             }
-        }).execute(RokuRequestTypes.query_device_info);
+        });
     }
 
     private void storeDevice(Device device) {
