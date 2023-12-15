@@ -22,6 +22,7 @@ import com.wseemann.ecp.request.QueryDeviceInfoRequest;
 
 import dagger.hilt.android.AndroidEntryPoint;
 import wseemann.media.romote.R;
+import wseemann.media.romote.tasks.ResponseCallbackWrapper;
 import wseemann.media.romote.utils.CommandHelper;
 import wseemann.media.romote.utils.DBUtils;
 import wseemann.media.romote.utils.PreferenceUtils;
@@ -97,7 +98,7 @@ public class ManualConnectionDialog extends DialogFragment {
         String url = command;
 
         QueryDeviceInfoRequest queryActiveAppRequest = new QueryDeviceInfoRequest(url);
-        queryActiveAppRequest.sendAsync(new ResponseCallback<com.wseemann.ecp.model.Device>() {
+        queryActiveAppRequest.sendAsync(new ResponseCallbackWrapper<>(new ResponseCallback<com.wseemann.ecp.model.Device>() {
             @Override
             public void onSuccess(@Nullable com.wseemann.ecp.model.Device device) {
                 mProgressLayout.setVisibility(View.GONE);
@@ -109,7 +110,7 @@ public class ManualConnectionDialog extends DialogFragment {
                 mProgressLayout.setVisibility(View.GONE);
                 mErrorText.setVisibility(View.VISIBLE);
             }
-        });
+        }));
     }
 
     private void storeDevice(com.wseemann.ecp.model.Device device) {

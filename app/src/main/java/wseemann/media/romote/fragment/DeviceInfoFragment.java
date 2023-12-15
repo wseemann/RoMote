@@ -17,6 +17,7 @@ import wseemann.media.romote.R;
 import wseemann.media.romote.adapter.DeviceInfoAdapter;
 import wseemann.media.romote.model.Device;
 import wseemann.media.romote.model.Entry;
+import wseemann.media.romote.tasks.ResponseCallbackWrapper;
 import wseemann.media.romote.utils.CommandHelper;
 import wseemann.media.romote.utils.DBUtils;
 
@@ -84,7 +85,7 @@ public class DeviceInfoFragment extends ListFragment {
         String url = command;
 
         QueryDeviceInfoRequest queryActiveAppRequest = new QueryDeviceInfoRequest(url);
-        queryActiveAppRequest.sendAsync(new ResponseCallback<com.wseemann.ecp.model.Device>() {
+        queryActiveAppRequest.sendAsync(new ResponseCallbackWrapper<>(new ResponseCallback<com.wseemann.ecp.model.Device>() {
             @Override
             public void onSuccess(@Nullable com.wseemann.ecp.model.Device device) {
                 List<Entry> entries = parseDevice(Device.Companion.fromDevice(device));
@@ -98,7 +99,7 @@ public class DeviceInfoFragment extends ListFragment {
             public void onError(@NonNull Exception e) {
                 DeviceInfoFragment.this.setListShown(true);
             }
-        });
+        }));
     }
 
     private List<Entry> parseDevice(Device device) {

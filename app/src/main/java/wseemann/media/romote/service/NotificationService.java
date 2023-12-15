@@ -35,6 +35,7 @@ import javax.inject.Inject;
 import dagger.hilt.android.AndroidEntryPoint;
 import wseemann.media.romote.R;
 import wseemann.media.romote.model.Device;
+import wseemann.media.romote.tasks.ResponseCallbackWrapper;
 import wseemann.media.romote.utils.CommandHelper;
 import wseemann.media.romote.utils.Constants;
 import wseemann.media.romote.utils.NotificationUtils;
@@ -168,7 +169,7 @@ public class NotificationService extends Service {
         String url = commandHelper.getDeviceURL();
 
         QueryActiveAppRequest queryActiveAppRequest = new QueryActiveAppRequest(url);
-        queryActiveAppRequest.sendAsync(new ResponseCallback<List<Channel>>() {
+        queryActiveAppRequest.sendAsync(new ResponseCallbackWrapper<>(new ResponseCallback<List<Channel>>() {
             @Override
             public void onSuccess(@Nullable List<Channel> channels) {
                 if (channels.size() > 0) {
@@ -181,14 +182,14 @@ public class NotificationService extends Service {
             public void onError(@NonNull Exception e) {
                 Log.d(TAG, "That didn't work!");
             }
-        });
+        }));
     }
 
     private void getAppIcon(String appId) {
         String url = commandHelper.getDeviceURL();
 
         QueryIconRequest queryIconRequest = new QueryIconRequest(url, appId);
-        queryIconRequest.sendAsync(new ResponseCallback<byte[]>() {
+        queryIconRequest.sendAsync(new ResponseCallbackWrapper<>(new ResponseCallback<byte[]>() {
             @Override
             public void onSuccess(@Nullable byte[] bytes) {
                 try {
@@ -211,7 +212,7 @@ public class NotificationService extends Service {
             public void onError(@NonNull Exception e) {
                 Log.d(TAG, "That didn't work!");
             }
-        });
+        }));
     }
 
     private final BroadcastReceiver mUpdateReceiver = new BroadcastReceiver() {

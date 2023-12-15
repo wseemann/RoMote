@@ -46,6 +46,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 import wseemann.media.romote.R;
 import wseemann.media.romote.audio.IRemoteAudioInterface;
 import wseemann.media.romote.model.Device;
+import wseemann.media.romote.tasks.ResponseCallbackWrapper;
 import wseemann.media.romote.utils.CommandHelper;
 import wseemann.media.romote.utils.Constants;
 import wseemann.media.romote.utils.PreferenceUtils;
@@ -211,7 +212,7 @@ public class RemoteFragment extends Fragment {
         String url = commandHelper.getDeviceURL();
 
         QueryDeviceInfoRequest queryActiveAppRequest = new QueryDeviceInfoRequest(url);
-        queryActiveAppRequest.sendAsync(new ResponseCallback<com.wseemann.ecp.model.Device>() {
+        queryActiveAppRequest.sendAsync(new ResponseCallbackWrapper<>(new ResponseCallback<com.wseemann.ecp.model.Device>() {
             @Override
             public void onSuccess(@Nullable com.wseemann.ecp.model.Device device) {
                 performPowerAction(device);
@@ -221,7 +222,7 @@ public class RemoteFragment extends Fragment {
             public void onError(@NonNull Exception e) {
                 Log.d("TAG", e.getMessage());
             }
-        });
+        }));
     }
 
     private void performPowerAction(final com.wseemann.ecp.model.Device device) {
