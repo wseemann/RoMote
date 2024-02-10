@@ -1,6 +1,5 @@
 package wseemann.media.romote.fragment;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -16,21 +15,6 @@ import wseemann.media.romote.R;
  * Created by wseemann on 6/19/16.
  */
 public class ConnectivityDialog extends DialogFragment {
-
-    private static ConnectivityFragmentListener mListener;
-
-    public static ConnectivityDialog getInstance(Activity activity) {
-        /*try {
-            // Instantiate the ConnectivityFragmentListener so we can send events with it
-            mListener = (ConnectivityFragmentListener) activity;
-        } catch (ClassCastException e) {
-            // The activity doesn't implement the interface, throw exception
-            throw new ClassCastException(activity.toString()
-                    + " must implement ConnectivityFragmentListener");
-        }*/
-
-        return new ConnectivityDialog();
-    }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -56,9 +40,5 @@ public class ConnectivityDialog extends DialogFragment {
         });
 
         return builder.create();
-    }
-
-    public interface ConnectivityFragmentListener {
-        public void onDialogCancelled();
     }
 }

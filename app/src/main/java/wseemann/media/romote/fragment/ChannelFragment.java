@@ -101,7 +101,7 @@ public class ChannelFragment extends Fragment {
         mImageThumbSize = getResources().getDimensionPixelSize(R.dimen.image_thumbnail_size);
         mImageThumbSpacing = getResources().getDimensionPixelSize(R.dimen.image_thumbnail_spacing);
 
-        mAdapter = new ChannelAdapter(getActivity(), requestManager, new ArrayList<>(), mHandler, commandHelper);
+        mAdapter = new ChannelAdapter(getActivity(), requestManager, new ArrayList<>(), commandHelper);
 
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Constants.UPDATE_DEVICE_BROADCAST);
@@ -131,14 +131,11 @@ public class ChannelFragment extends Fragment {
         //mGridView.setEmptyView(emptyView);
 
         mGridView.setAdapter(mAdapter);
-        mGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Channel channel = (Channel) parent.getItemAtPosition(position);
+        mGridView.setOnItemClickListener((parent, view, position, id) -> {
+            Channel channel = (Channel) parent.getItemAtPosition(position);
 
-                performLaunch(channel.getId());
-                getContext().sendBroadcast(new Intent(Constants.UPDATE_DEVICE_BROADCAST));
-            }
+            performLaunch(channel.getId());
+            getContext().sendBroadcast(new Intent(Constants.UPDATE_DEVICE_BROADCAST));
         });
 
         // This listener is used to get the final width of the GridView and then calculate the

@@ -17,7 +17,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 import com.wseemann.ecp.api.ResponseCallback;
-import com.wseemann.ecp.model.Device;
 import com.wseemann.ecp.request.QueryDeviceInfoRequest;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -45,7 +44,6 @@ public class ManualConnectionDialog extends DialogFragment {
     protected PreferenceUtils preferenceUtils;
 
     private EditText mIpAddressText;
-    private Button mConnectButton;
     private LinearLayout mProgressLayout;
     private TextView mErrorText;
 

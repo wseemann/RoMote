@@ -174,12 +174,7 @@ public class RemoteFragment extends Fragment {
             performKeypress(keypressKeyValue);
         });
 
-        button.setRepeatListener(new RepeatingImageButton.RepeatListener() {
-            @Override
-            public void onRepeat(View v, long duration, int repeatcount) {
-                performKeypress(keypressKeyValue);
-            }
-        }, 400);
+        button.setRepeatListener((v, duration, repeatcount) -> performKeypress(keypressKeyValue), 400);
     }
 
     private void linkButton(final KeyPressKeyValues keypressKeyValue, int id) {
@@ -197,7 +192,7 @@ public class RemoteFragment extends Fragment {
     }
 
     private void performRequest(final KeyPressRequest request) {
-        request.sendAsync(new ResponseCallback<Void>() {
+        request.sendAsync(new ResponseCallback<>() {
             @Override
             public void onSuccess(@Nullable Void unused) {
 

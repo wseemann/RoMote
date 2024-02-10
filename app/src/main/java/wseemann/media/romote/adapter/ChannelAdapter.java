@@ -3,7 +3,6 @@ package wseemann.media.romote.adapter;
 import android.app.Activity;
 import android.content.Context;
 import android.net.Uri;
-import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,24 +26,22 @@ import wseemann.media.romote.utils.CommandHelper;
  */
 public class ChannelAdapter extends ArrayAdapter<Channel> {
 
-    private Context context;
-    private RequestManager requestManager;
-    private List<Channel> mChannels;
-    private Handler mHandler;
-    private CommandHelper commandHelper;
+    private final Context context;
+    private final RequestManager requestManager;
+    private final List<Channel> mChannels;
+    private final CommandHelper commandHelper;
 
     private int mItemHeight = 0;
     private int mNumColumns = 0;
     private FrameLayout.LayoutParams mImageViewLayoutParams;
 
-    public ChannelAdapter(Context context, RequestManager requestManager, List<Channel> channels, Handler handler, CommandHelper commandHelper) {
+    public ChannelAdapter(Context context, RequestManager requestManager, List<Channel> channels, CommandHelper commandHelper) {
         super(context, R.layout.empty_device_list, channels);
         this.context = context;
         this.requestManager = requestManager;
         mChannels = channels;
         mImageViewLayoutParams = new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        mHandler = handler;
         this.commandHelper = commandHelper;
     }
 

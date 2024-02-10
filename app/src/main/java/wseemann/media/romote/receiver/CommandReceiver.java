@@ -3,7 +3,6 @@ package wseemann.media.romote.receiver;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.os.AsyncTask;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -14,11 +13,13 @@ import com.wseemann.ecp.request.KeyPressRequest;
 
 import javax.inject.Inject;
 
+import dagger.hilt.android.AndroidEntryPoint;
 import wseemann.media.romote.utils.CommandHelper;
 
 /**
  * Created by wseemann on 4/14/18.
  */
+@AndroidEntryPoint
 public class CommandReceiver extends BroadcastReceiver {
 
     @Inject
@@ -29,30 +30,8 @@ public class CommandReceiver extends BroadcastReceiver {
         if (intent != null) {
             String url = commandHelper.getDeviceURL();
             KeyPressKeyValues keypressKeyValues = (KeyPressKeyValues) intent.getSerializableExtra("keypress");
-
-            new CommandServiceAsyncTask(url, keypressKeyValues).execute();
-        }
-    }
-
-    private static class CommandServiceAsyncTask extends AsyncTask<Void, Void, Void> {
-
-        private final String url;
-        private final KeyPressKeyValues keypressKeyValues;
-
-        private CommandServiceAsyncTask(String url, KeyPressKeyValues keypressKeyValues) {
-            this.url = url;
-            this.keypressKeyValues = keypressKeyValues;
-        }
-
-        @Override
-        public Void doInBackground(Void... params) {
-            performKeypress(keypressKeyValues);
-            return null;
-        }
-
-        private void performKeypress(KeyPressKeyValues keypressKeyValue) {
-            KeyPressRequest keypressRequest = new KeyPressRequest(url, keypressKeyValue.getValue());
-            keypressRequest.sendAsync(new ResponseCallback<Void>() {
+            KeyPressRequest keypressRequest = new KeyPressRequest(url, keypressKeyValues.getValue());
+            keypressRequest.sendAsync(new ResponseCallback<>() {
                 @Override
                 public void onSuccess(@Nullable Void unused) {
 

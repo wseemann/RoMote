@@ -15,8 +15,8 @@ import wseemann.media.romote.utils.PreferenceUtils;
 public class UpdatePairedDeviceTask implements Callable {
     private static final String TAG = "UpdatePairedDevicesTask";
 
-    private Context context;
-    private PreferenceUtils preferenceUtils;
+    private final Context context;
+    private final PreferenceUtils preferenceUtils;
 
     public UpdatePairedDeviceTask(
             final Context context,

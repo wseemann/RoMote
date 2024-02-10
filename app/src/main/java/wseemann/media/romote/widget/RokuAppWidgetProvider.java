@@ -12,6 +12,7 @@ import android.widget.RemoteViews;
 
 import com.wseemann.ecp.core.KeyPressKeyValues;
 
+import timber.log.Timber;
 import wseemann.media.romote.R;
 import wseemann.media.romote.activity.MainActivity;
 import wseemann.media.romote.di.CommonModule;
@@ -36,7 +37,7 @@ public class RokuAppWidgetProvider extends AppWidgetProvider {
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
-        Log.d(TAG, "onUpdate called");
+        Timber.d("onUpdate called");
 
         defaultAppWidget(context, appWidgetIds);
     }
@@ -46,7 +47,7 @@ public class RokuAppWidgetProvider extends AppWidgetProvider {
      * and hide actions if service not running.
      */
     private void defaultAppWidget(Context context, int[] appWidgetIds) {
-        Device device = null;
+        Device device;
 
         try {
             device = CommonModule.PreferenceUtilsSingleton.preferenceUtils.getConnectedDevice();

@@ -46,6 +46,7 @@ public class TextInputDialog extends DialogFragment {
         setCancelable(true);
     }
 
+    @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         LayoutInflater inflater = getActivity().getLayoutInflater();
@@ -66,9 +67,6 @@ public class TextInputDialog extends DialogFragment {
         super.onStart();
 
         showSoftKeyboard(mTextBox);
-
-        //InputMethodManager inputMethodManager = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
-        //inputMethodManager.toggleSoftInput(InputMethodManager.SHOW_FORCED, 0);
     }
 
     private void showSoftKeyboard(final View view) {
@@ -76,12 +74,9 @@ public class TextInputDialog extends DialogFragment {
             final InputMethodManager imm = (InputMethodManager)
                     getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
 
-            view.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    view.requestFocus();
-                    imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
-                }
+            view.postDelayed(() -> {
+                view.requestFocus();
+                imm.showSoftInput(view, InputMethodManager.SHOW_IMPLICIT);
             }, 100);
         }
     }

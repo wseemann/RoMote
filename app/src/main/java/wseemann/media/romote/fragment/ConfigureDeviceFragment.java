@@ -82,12 +82,9 @@ public class ConfigureDeviceFragment extends Fragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        mConnectManuallyButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(ConfigureDeviceFragment.this.getActivity(), ManualConnectionActivity.class);
-                startActivityForResult(intent, 0);
-            }
+        mConnectManuallyButton.setOnClickListener(v -> {
+            Intent intent = new Intent(ConfigureDeviceFragment.this.getActivity(), ManualConnectionActivity.class);
+            startActivityForResult(intent, 0);
         });
 
         mHandler = new Handler();

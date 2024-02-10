@@ -13,6 +13,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.core.graphics.drawable.RoundedBitmapDrawable;
 import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 
@@ -27,9 +28,9 @@ import wseemann.media.romote.utils.PreferenceUtils;
  */
 public class DeviceAdapter extends ArrayAdapter<Device> {
 
-    private Context mContext;
-    private Handler mHandler;
-    private PreferenceUtils preferenceUtils;
+    private final Context mContext;
+    private final Handler mHandler;
+    private final PreferenceUtils preferenceUtils;
 
     public DeviceAdapter(Context context, List<Device> objects, Handler handler, PreferenceUtils preferenceUtils) {
         super(context, R.layout.device, objects);
@@ -46,9 +47,10 @@ public class DeviceAdapter extends ArrayAdapter<Device> {
         ImageView mImageButton;
     }
 
+    @NonNull
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        ViewHolder holder = null;
+    public View getView(int position, View convertView, @NonNull ViewGroup parent) {
+        ViewHolder holder;
         LayoutInflater mInflater = (LayoutInflater)
                 mContext.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
         if (convertView == null) {
@@ -106,14 +108,11 @@ public class DeviceAdapter extends ArrayAdapter<Device> {
             holder.mText3.setText(R.string.not_connected);
         }
 
-        holder.mImageButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Message message = mHandler.obtainMessage();
-                v.setTag(device);
-                message.obj = v;
-                mHandler.sendMessage(message);
-            }
+        holder.mImageButton.setOnClickListener(v -> {
+            Message message = mHandler.obtainMessage();
+            v.setTag(device);
+            message.obj = v;
+            mHandler.sendMessage(message);
         });
 
         return convertView;

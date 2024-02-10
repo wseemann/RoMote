@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+
 import java.util.List;
 
 import wseemann.media.romote.model.Entry;
@@ -17,11 +19,8 @@ import wseemann.media.romote.model.Entry;
  */
 public class DeviceInfoAdapter extends ArrayAdapter<Entry> {
 
-    private Context mContext;
-
     public DeviceInfoAdapter(Context context, List<Entry> objects) {
         super(context, android.R.layout.simple_list_item_2, objects);
-        mContext = context;
     }
 
     private class ViewHolder {
@@ -29,11 +28,12 @@ public class DeviceInfoAdapter extends ArrayAdapter<Entry> {
         TextView mText2;
     }
 
+    @NonNull
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        ViewHolder holder = null;
+        ViewHolder holder;
         LayoutInflater mInflater = (LayoutInflater)
-                mContext.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
+                parent.getContext().getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
         if (convertView == null) {
             convertView = mInflater.inflate(android.R.layout.simple_list_item_2, null);
             holder = new ViewHolder();
