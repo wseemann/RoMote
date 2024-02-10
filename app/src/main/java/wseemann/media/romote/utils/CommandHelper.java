@@ -1,5 +1,6 @@
 package wseemann.media.romote.utils;
 
+import timber.log.Timber;
 import wseemann.media.romote.model.Device;
 
 /**
@@ -7,7 +8,7 @@ import wseemann.media.romote.model.Device;
  */
 public class CommandHelper {
 
-    private PreferenceUtils preferenceUtils;
+    private final PreferenceUtils preferenceUtils;
 
     public CommandHelper(PreferenceUtils preferenceUtils) {
         this.preferenceUtils = preferenceUtils;
@@ -21,6 +22,7 @@ public class CommandHelper {
 
             url = device.getHost();
         } catch (Exception ex) {
+            Timber.e(ex, "Failed to retrieve device URL");
         }
 
         return url;
@@ -34,18 +36,17 @@ public class CommandHelper {
 
             url = device.getHost() + "/query/icon/" + channelId;
         } catch (Exception ex) {
+            Timber.e(ex, "Failed to retrieve icon URL for channelId: %s", channelId);
         }
 
         return url;
     }
 
     public String getDeviceInfoURL(String host) {
-        String url = host;
-
-        return url;
+        return host;
     }
 
-    public String getConnectedDeviceInfoURL(String host) {
+    public String getConnectedDeviceInfoURL() {
         String url = "";
 
         try {
@@ -53,6 +54,7 @@ public class CommandHelper {
 
             url = device.getHost();
         } catch (Exception ex) {
+            Timber.e(ex, "Failed to retrieve device info");
         }
 
         return url;

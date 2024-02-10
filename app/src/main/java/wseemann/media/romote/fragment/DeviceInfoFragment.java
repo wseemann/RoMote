@@ -75,7 +75,7 @@ public class DeviceInfoFragment extends ListFragment {
         setListShown(false);
 
         if (host == null) {
-            sendCommand(commandHelper.getConnectedDeviceInfoURL(device.getHost()));
+            sendCommand(commandHelper.getConnectedDeviceInfoURL());
         } else {
             sendCommand(commandHelper.getDeviceInfoURL(host));
         }

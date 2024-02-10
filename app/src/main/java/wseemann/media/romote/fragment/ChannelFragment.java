@@ -24,6 +24,7 @@ import android.widget.GridView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.PopupMenu;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import androidx.loader.content.Loader;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
@@ -104,7 +105,7 @@ public class ChannelFragment extends Fragment {
 
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Constants.UPDATE_DEVICE_BROADCAST);
-        getActivity().registerReceiver(mUpdateReceiver, intentFilter);
+        getActivity().registerReceiver(mUpdateReceiver, intentFilter, ContextCompat.RECEIVER_NOT_EXPORTED);
     }
 
     @Override

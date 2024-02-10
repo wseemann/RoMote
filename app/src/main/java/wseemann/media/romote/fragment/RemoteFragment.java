@@ -31,6 +31,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.wseemann.ecp.api.ResponseCallback;
@@ -43,6 +44,7 @@ import java.util.List;
 import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
+import timber.log.Timber;
 import wseemann.media.romote.R;
 import wseemann.media.romote.audio.IRemoteAudioInterface;
 import wseemann.media.romote.model.Device;
@@ -150,7 +152,7 @@ public class RemoteFragment extends Fragment {
 
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Constants.UPDATE_DEVICE_BROADCAST);
-        getActivity().registerReceiver(mUpdateReceiver, intentFilter);
+        getActivity().registerReceiver(mUpdateReceiver, intentFilter, ContextCompat.RECEIVER_NOT_EXPORTED);
     }
 
     @Override
@@ -391,7 +393,11 @@ public class RemoteFragment extends Fragment {
         if (!privateListeningInstalled()) {
             showDownloadPrivateListeningDialog();
         } else {
-            getContext().bindService(intent, remoteAudioConnection, Context.BIND_AUTO_CREATE);
+            try {
+                getContext().bindService(intent, remoteAudioConnection, Context.BIND_AUTO_CREATE);
+            } catch (SecurityException ex) {
+                Timber.e(ex, "Failed to start private listening service");
+            }
         }
     }
 

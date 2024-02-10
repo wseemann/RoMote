@@ -21,6 +21,7 @@ import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.ContextCompat;
 
 import com.wseemann.ecp.api.ResponseCallback;
 import com.wseemann.ecp.model.Channel;
@@ -95,7 +96,7 @@ public class NotificationService extends Service {
 
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Constants.UPDATE_DEVICE_BROADCAST);
-        registerReceiver(mUpdateReceiver, intentFilter);
+        registerReceiver(mUpdateReceiver, intentFilter, ContextCompat.RECEIVER_NOT_EXPORTED);
 
         mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
