@@ -5,6 +5,8 @@ apply plugin: 'com.mikepenz.aboutlibraries.plugin'
 apply plugin: 'dagger.hilt.android.plugin'
 
 android {
+    namespace = "wseemann.media.romote"
+
     signingConfigs {
         create("releaseConfig") {
             storeFile file('/Users/wseemann/Downloads/keystore')
@@ -20,8 +22,8 @@ android {
         compileSdk versions.get("compileSdkVersion")
         minSdkVersion versions.get("minSdkVersion")
         targetSdkVersion versions.get("targetSdkVersion")
-        versionCode 25
-        versionName "1.0.25"
+        versionCode 26
+        versionName "1.0.26"
     }
     buildTypes {
         getByName("release") {
