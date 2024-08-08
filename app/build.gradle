@@ -42,6 +42,10 @@ android {
     packagingOptions {
         exclude("META-INF/DEPENDENCIES")
     }
+    buildFeatures {
+        buildConfig = true
+        aidl = true
+    }
 }
 
 dependencies {
