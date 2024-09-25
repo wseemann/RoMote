@@ -58,7 +58,7 @@ public class ConfigureDeviceFragment extends Fragment {
 
     private Handler mHandler;
 
-    private CompositeDisposable bin = new CompositeDisposable();
+    private final CompositeDisposable bin = new CompositeDisposable();
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -94,14 +94,11 @@ public class ConfigureDeviceFragment extends Fragment {
     public void onResume() {
         super.onResume();
 
-        mWirelessNextworkTextview.setText(getWirelessNetworkName(getActivity()));
+        mWirelessNextworkTextview.setText(getWirelessNetworkName(requireContext()));
 
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                setListShown(false);
-                loadAvailableDevices();
-            }
+        mHandler.postDelayed(() -> {
+            setListShown(false);
+            loadAvailableDevices();
         }, 1000);
     }
 
@@ -124,7 +121,7 @@ public class ConfigureDeviceFragment extends Fragment {
 
         if (requestCode == 0 && resultCode == Activity.RESULT_OK) {
             startActivity(new Intent(ConfigureDeviceFragment.this.getActivity(), MainActivity.class));
-            ConfigureDeviceFragment.this.getActivity().finish();
+            ConfigureDeviceFragment.this.requireActivity().finish();
         }
     }
 
@@ -162,12 +159,9 @@ public class ConfigureDeviceFragment extends Fragment {
     }
 
     private void onLoadFinished(List<Device> devices) {
-        mHandler.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                setListShown(false);
-                loadAvailableDevices();
-            }
+        mHandler.postDelayed(() -> {
+            setListShown(false);
+            loadAvailableDevices();
         }, 5000);
 
         if (devices.size() == 0) {
@@ -178,7 +172,7 @@ public class ConfigureDeviceFragment extends Fragment {
         // Set the new devices in the adapter.
         for (int i = 0; i < devices.size(); i++) {
             if (!containDevice(devices.get(i))) {
-                RelativeLayout view = (RelativeLayout) getActivity().getLayoutInflater().inflate(R.layout.configure_device_list_item, null, false);
+                RelativeLayout view = (RelativeLayout) requireActivity().getLayoutInflater().inflate(R.layout.configure_device_list_item, null, false);
 
                 TextView text1 = view.findViewById(android.R.id.text1);
                 TextView text2 = view.findViewById(android.R.id.text2);
@@ -234,7 +228,7 @@ public class ConfigureDeviceFragment extends Fragment {
         return found;
     }
 
-    private View.OnClickListener mClickListener = new View.OnClickListener() {
+    private final View.OnClickListener mClickListener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
             Device device = (Device) v.getTag();
@@ -247,7 +241,7 @@ public class ConfigureDeviceFragment extends Fragment {
             editor.commit();
 
             startActivity(new Intent(ConfigureDeviceFragment.this.getActivity(), MainActivity.class));
-            ConfigureDeviceFragment.this.getActivity().finish();
+            ConfigureDeviceFragment.this.requireActivity().finish();
         }
     };
 }

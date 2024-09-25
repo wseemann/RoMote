@@ -19,7 +19,6 @@ public class ConnectivityDialog extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setCancelable(false);
     }
 
@@ -28,14 +27,12 @@ public class ConnectivityDialog extends DialogFragment {
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle(getString(R.string.connectivity_dialog_title));
         builder.setMessage(getString(R.string.connectivity_dialog_message));
-        builder.setNeutralButton(R.string.connectivity_dialog_button, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-                try {
-                    // In some cases, a matching Activity may not exist,so ensure you safeguard against this.
-                    startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
-                } catch (ActivityNotFoundException ex) {
-                    startActivity(new Intent(Settings.ACTION_SETTINGS));
-                }
+        builder.setNeutralButton(R.string.connectivity_dialog_button, (dialog, id) -> {
+            try {
+                // In some cases, a matching Activity may not exist,so ensure you safeguard against this.
+                startActivity(new Intent(Settings.ACTION_WIFI_SETTINGS));
+            } catch (ActivityNotFoundException ex) {
+                startActivity(new Intent(Settings.ACTION_SETTINGS));
             }
         });
 

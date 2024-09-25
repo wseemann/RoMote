@@ -28,7 +28,7 @@ class SearchDialog : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         super.onCreateDialog(savedInstanceState)
 
-        val inflater = activity!!.layoutInflater
+        val inflater = requireActivity().layoutInflater
 
         val view: View = inflater.inflate(R.layout.dialog_fragment_search, null)
         val searchEditText: EditText = view.findViewById(R.id.ip_address_text)
@@ -50,7 +50,7 @@ class SearchDialog : DialogFragment() {
             dismiss()
         }
 
-        var builder: AlertDialog.Builder = AlertDialog.Builder(activity)
+        val builder = AlertDialog.Builder(activity)
         builder.setView(view)
         builder.setTitle(getString(R.string.action_search))
         //builder.setMessage(getString(R.string.search_help))

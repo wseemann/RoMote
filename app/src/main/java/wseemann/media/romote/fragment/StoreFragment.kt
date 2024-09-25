@@ -1,5 +1,6 @@
 package wseemann.media.romote.fragment
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.LayoutInflater
@@ -23,6 +24,7 @@ class StoreFragment : Fragment() {
         return view
     }
 
+    @SuppressLint("SetJavaScriptEnabled")
     override fun onActivityCreated(savedInstanceState: Bundle?) {
         super.onActivityCreated(savedInstanceState)
         mWebView.loadUrl("https://channelstore.roku.com/browse")
@@ -31,7 +33,7 @@ class StoreFragment : Fragment() {
         mWebView.settings.javaScriptCanOpenWindowsAutomatically = true
     }
 
-    fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
+    fun onKeyDown(keyCode: Int): Boolean {
         // Check if the key event was the Back button and if there's history
         if (keyCode == KeyEvent.KEYCODE_BACK && mWebView.canGoBack()) {
             mWebView.goBack()

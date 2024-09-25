@@ -184,7 +184,7 @@ public class MainActivity extends ConnectivityActivity implements
         }
 
         if (mStoreFragment != null) {
-            if (mStoreFragment.onKeyDown(keyCode, event)) {
+            if (mStoreFragment.onKeyDown(keyCode)) {
                 return true;
             }
         }
@@ -277,7 +277,7 @@ public class MainActivity extends ConnectivityActivity implements
         String url = commandHelper.getDeviceURL();
 
         SearchRequest searchRequest = new SearchRequest(url, searchText, null, null, null, null, null, null, null, null, null);
-        searchRequest.sendAsync(new ResponseCallback<Void>() {
+        searchRequest.sendAsync(new ResponseCallback<>() {
             @Override
             public void onSuccess(@Nullable Void unused) {
 

@@ -47,6 +47,7 @@ import wseemann.media.romote.R;
 import wseemann.media.romote.model.Device;
 import wseemann.media.romote.tasks.AvailableDevicesTask;
 import wseemann.media.romote.tasks.UpdatePairedDeviceTask;
+import wseemann.media.romote.utils.BroadcastUtils;
 import wseemann.media.romote.utils.Constants;
 import wseemann.media.romote.utils.DBUtils;
 import wseemann.media.romote.utils.PreferenceUtils;
@@ -136,39 +137,36 @@ public class MainFragment extends ListFragment {
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
-        mList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Device device = (Device) parent.getItemAtPosition(position);
+        mList.setOnItemClickListener((parent, view, position, id) -> {
+            Device device = (Device) parent.getItemAtPosition(position);
 
-                DBUtils.insertDevice(getActivity(), device);
-                preferenceUtils.setConnectedDevice(device.getSerialNumber());
+            DBUtils.insertDevice(getActivity(), device);
+            preferenceUtils.setConnectedDevice(device.getSerialNumber());
 
-                SharedPreferences.Editor editor = sharedPreferences.edit();
-                editor.putBoolean("first_use", false);
-                editor.commit();
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.putBoolean("first_use", false);
+            editor.commit();
 
-                Toast.makeText(getActivity(), "Device " + device.getSerialNumber() + " " + getString(R.string.connected), Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(), "Device " + device.getSerialNumber() + " " + getString(R.string.connected), Toast.LENGTH_SHORT).show();
 
-                MainFragment.this.getActivity().sendBroadcast(new Intent(Constants.UPDATE_DEVICE_BROADCAST));
+            BroadcastUtils.Companion.sendUpdateDeviceBroadcast(requireContext());
 
-                AppWidgetManager widgetManager = AppWidgetManager.getInstance(getActivity());
-                ComponentName widgetComponent = new ComponentName(getActivity(), RokuAppWidgetProvider.class);
-                int[] widgetIds = widgetManager.getAppWidgetIds(widgetComponent);
-                Intent update = new Intent();
-                update.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, widgetIds);
-                update.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
-                getActivity().sendBroadcast(update);
+            AppWidgetManager widgetManager = AppWidgetManager.getInstance(getActivity());
+            ComponentName widgetComponent = new ComponentName(getActivity(), RokuAppWidgetProvider.class);
+            int[] widgetIds = widgetManager.getAppWidgetIds(widgetComponent);
+            Intent update = new Intent();
+            update.putExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS, widgetIds);
+            update.setAction(AppWidgetManager.ACTION_APPWIDGET_UPDATE);
+            getActivity().sendBroadcast(update);
 
-                if (mListener != null) {
-                    mListener.onDeviceSelected();
-                }
-
-                mAvailableDeviceAdapter.clear();
-                mAdapter.notifyDataSetChanged();
-
-                loadPairedDevices();
+            if (mListener != null) {
+                mListener.onDeviceSelected();
             }
+
+            mAvailableDeviceAdapter.clear();
+            mAdapter.notifyDataSetChanged();
+
+            loadPairedDevices();
         });
 
         mFab.setOnClickListener(new View.OnClickListener() {
@@ -290,7 +288,7 @@ public class MainFragment extends ListFragment {
                             mAvailableDeviceAdapter.clear();
                             mAdapter.notifyDataSetChanged();
                             loadPairedDevices();
-                            getContext().sendBroadcast(new Intent(Constants.UPDATE_DEVICE_BROADCAST));
+                            BroadcastUtils.Companion.sendUpdateDeviceBroadcast(requireContext());
                         });
                         fragment.show(MainFragment.this.getFragmentManager(), EditDeviceNameDialog.class.getName());
                         return true;

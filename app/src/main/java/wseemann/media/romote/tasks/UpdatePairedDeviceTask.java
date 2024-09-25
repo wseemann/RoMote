@@ -7,7 +7,9 @@ import android.util.Log;
 import java.util.List;
 import java.util.concurrent.Callable;
 
+import wseemann.media.romote.fragment.MainFragment;
 import wseemann.media.romote.model.Device;
+import wseemann.media.romote.utils.BroadcastUtils;
 import wseemann.media.romote.utils.Constants;
 import wseemann.media.romote.utils.DBUtils;
 import wseemann.media.romote.utils.PreferenceUtils;
@@ -51,7 +53,7 @@ public class UpdatePairedDeviceTask implements Callable {
             for (Device device: devices) {
                 if (device.getSerialNumber().equals(connectedDevice.getSerialNumber())) {
                     DBUtils.updateDevice(context, device);
-                    context.sendBroadcast(new Intent(Constants.UPDATE_DEVICE_BROADCAST));
+                    BroadcastUtils.Companion.sendUpdateDeviceBroadcast(context);
                     break;
                 }
             }

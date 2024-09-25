@@ -49,6 +49,7 @@ import wseemann.media.romote.R;
 import wseemann.media.romote.audio.IRemoteAudioInterface;
 import wseemann.media.romote.model.Device;
 import wseemann.media.romote.tasks.ResponseCallbackWrapper;
+import wseemann.media.romote.utils.BroadcastUtils;
 import wseemann.media.romote.utils.CommandHelper;
 import wseemann.media.romote.utils.Constants;
 import wseemann.media.romote.utils.PreferenceUtils;
@@ -152,7 +153,7 @@ public class RemoteFragment extends Fragment {
 
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Constants.UPDATE_DEVICE_BROADCAST);
-        getActivity().registerReceiver(mUpdateReceiver, intentFilter, ContextCompat.RECEIVER_NOT_EXPORTED);
+        requireActivity().registerReceiver(mUpdateReceiver, intentFilter, ContextCompat.RECEIVER_NOT_EXPORTED);
     }
 
     @Override
@@ -186,7 +187,7 @@ public class RemoteFragment extends Fragment {
             if (id == R.id.back_button ||
                     id == R.id.home_button ||
                     id == R.id.ok_button) {
-                getContext().sendBroadcast(new Intent(Constants.UPDATE_DEVICE_BROADCAST));
+                BroadcastUtils.Companion.sendUpdateDeviceBroadcast(requireContext());
             }
         });
     }

@@ -52,23 +52,23 @@ public class ManualConnectionDialog extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setCancelable(true);
     }
 
+    @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        LayoutInflater inflater = getActivity().getLayoutInflater();
+        LayoutInflater inflater = requireActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.dialog_fragment_manual_connection, null);
-        mIpAddressText = (EditText) view.findViewById(R.id.ip_address_text);
-        Button connectButton = (Button) view.findViewById(R.id.connect_button);
-        mProgressLayout = (LinearLayout) view.findViewById(R.id.progress_layout);
-        mErrorText = (TextView) view.findViewById(R.id.error_text);
+        mIpAddressText = view.findViewById(R.id.ip_address_text);
+        Button connectButton = view.findViewById(R.id.connect_button);
+        mProgressLayout = view.findViewById(R.id.progress_layout);
+        mErrorText = view.findViewById(R.id.error_text);
 
         connectButton.setOnClickListener(v -> {
 
             String ipAddress = mIpAddressText.getText().toString();
-            String mHost = "http://" + ipAddress + ":8060";
+            mHost = "http://" + ipAddress + ":8060";
 
             mErrorText.setVisibility(View.GONE);
             mProgressLayout.setVisibility(View.VISIBLE);
@@ -84,19 +84,14 @@ public class ManualConnectionDialog extends DialogFragment {
             public void onClick(DialogInterface dialog, int id) {
             }
         });
-        builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int id) {
-            }
-        });
+        builder.setNegativeButton(android.R.string.cancel, (dialog, id) -> { });
 
         return builder.create();
     }
 
     private void sendCommand(String command) {
-        String url = command;
-
-        QueryDeviceInfoRequest queryActiveAppRequest = new QueryDeviceInfoRequest(url);
-        queryActiveAppRequest.sendAsync(new ResponseCallbackWrapper<>(new ResponseCallback<com.wseemann.ecp.model.Device>() {
+        QueryDeviceInfoRequest queryActiveAppRequest = new QueryDeviceInfoRequest(command);
+        queryActiveAppRequest.sendAsync(new ResponseCallbackWrapper<>(new ResponseCallback<>() {
             @Override
             public void onSuccess(@Nullable com.wseemann.ecp.model.Device device) {
                 mProgressLayout.setVisibility(View.GONE);

@@ -30,6 +30,11 @@ public class CommandReceiver extends BroadcastReceiver {
         if (intent != null) {
             String url = commandHelper.getDeviceURL();
             KeyPressKeyValues keypressKeyValues = (KeyPressKeyValues) intent.getSerializableExtra("keypress");
+
+            if (keypressKeyValues == null) {
+                return;
+            }
+
             KeyPressRequest keypressRequest = new KeyPressRequest(url, keypressKeyValues.getValue());
             keypressRequest.sendAsync(new ResponseCallback<>() {
                 @Override

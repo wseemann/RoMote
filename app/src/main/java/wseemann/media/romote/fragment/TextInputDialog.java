@@ -49,9 +49,9 @@ public class TextInputDialog extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        LayoutInflater inflater = getActivity().getLayoutInflater();
+        LayoutInflater inflater = requireActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.dialog_fragment_test_input, null);
-        mTextBox = (EditText) view.findViewById(R.id.text_box);
+        mTextBox = view.findViewById(R.id.text_box);
 
         setupTextBox();
 
@@ -72,7 +72,7 @@ public class TextInputDialog extends DialogFragment {
     private void showSoftKeyboard(final View view) {
         if (view.requestFocus()) {
             final InputMethodManager imm = (InputMethodManager)
-                    getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                    requireContext().getSystemService(Context.INPUT_METHOD_SERVICE);
 
             view.postDelayed(() -> {
                 view.requestFocus();

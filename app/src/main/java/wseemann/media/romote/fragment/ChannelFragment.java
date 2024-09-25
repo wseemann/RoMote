@@ -42,6 +42,7 @@ import wseemann.media.romote.R;
 import wseemann.media.romote.adapter.ChannelAdapter;
 import wseemann.media.romote.tasks.ChannelTask;
 import wseemann.media.romote.util.Utils;
+import wseemann.media.romote.utils.BroadcastUtils;
 import wseemann.media.romote.utils.CommandHelper;
 import wseemann.media.romote.utils.Constants;
 
@@ -135,7 +136,7 @@ public class ChannelFragment extends Fragment {
             Channel channel = (Channel) parent.getItemAtPosition(position);
 
             performLaunch(channel.getId());
-            getContext().sendBroadcast(new Intent(Constants.UPDATE_DEVICE_BROADCAST));
+            BroadcastUtils.Companion.sendUpdateDeviceBroadcast(requireContext());
         });
 
         // This listener is used to get the final width of the GridView and then calculate the
