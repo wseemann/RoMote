@@ -22,8 +22,8 @@ android {
         compileSdk versions.get("compileSdkVersion")
         minSdkVersion versions.get("minSdkVersion")
         targetSdkVersion versions.get("targetSdkVersion")
-        versionCode 26
-        versionName "1.0.26"
+        versionCode 27
+        versionName "1.0.27"
     }
     buildTypes {
         getByName("release") {
