@@ -23,6 +23,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -36,7 +37,10 @@ import androidx.fragment.app.Fragment;
 
 import com.wseemann.ecp.api.ResponseCallback;
 import com.wseemann.ecp.core.KeyPressKeyValues;
+import com.wseemann.ecp.core.ECPRequest;
 import com.wseemann.ecp.request.KeyPressRequest;
+import com.wseemann.ecp.request.KeyupRequest;
+import com.wseemann.ecp.request.KeydownRequest;
 import com.wseemann.ecp.request.QueryDeviceInfoRequest;
 
 import java.util.List;
@@ -171,11 +175,18 @@ public class RemoteFragment extends Fragment {
     private void linkRepeatingRemoteButton(final KeyPressKeyValues keypressKeyValue, int id) {
         RepeatingImageButton button = getView().findViewById(id);
 
-        button.setOnClickListener(view -> {
-            performKeypress(keypressKeyValue);
-        });
-
-        button.setRepeatListener((v, duration, repeatcount) -> performKeypress(keypressKeyValue), 400);
+	button.setOnTouchListener((view, event) -> {
+		switch(event.getAction()) {
+		case MotionEvent.ACTION_DOWN:
+		    performKeydown(keypressKeyValue);
+		    break;
+		case MotionEvent.ACTION_UP:
+		case MotionEvent.ACTION_CANCEL:
+		    performKeyup(keypressKeyValue);
+		    break;
+		}
+		return false;
+	    });
     }
 
     private void linkButton(final KeyPressKeyValues keypressKeyValue, int id) {
@@ -192,7 +203,7 @@ public class RemoteFragment extends Fragment {
         });
     }
 
-    private void performRequest(final KeyPressRequest request) {
+    private void performRequest(final ECPRequest<Void> request) {
         request.sendAsync(new ResponseCallback<>() {
             @Override
             public void onSuccess(@Nullable Void unused) {
@@ -255,6 +266,20 @@ public class RemoteFragment extends Fragment {
 
         KeyPressRequest keyPressRequest = new KeyPressRequest(url, keypressKeyValue.getValue());
         performRequest(keyPressRequest);
+    }
+
+    private void performKeydown(KeyPressKeyValues keypressKeyValue) {
+        String url = commandHelper.getDeviceURL();
+
+        KeydownRequest keydownRequest = new KeydownRequest(url, keypressKeyValue.getValue());
+        performRequest(keydownRequest);
+    }
+
+    private void performKeyup(KeyPressKeyValues keypressKeyValue) {
+        String url = commandHelper.getDeviceURL();
+
+        KeyupRequest keyupRequest = new KeyupRequest(url, keypressKeyValue.getValue());
+        performRequest(keyupRequest);
     }
 
     @Override
