@@ -225,6 +225,7 @@
                         android:layout_marginRight="10dp">
 
                         <include layout="@layout/remote_dpad_controls_view" />
+
                     </FrameLayout>
 
                     <ImageView
@@ -235,6 +236,7 @@
                         android:contentDescription="@null"
                         android:scaleType="fitCenter"
                             app:srcCompat="@mipmap/remote_dpad_bg" />
+
                 </RelativeLayout>
 
                 <RelativeLayout
@@ -260,7 +262,9 @@
                      android:text="@string/remote_gesture_text"
                      android:textColor="@android:color/transparent"
                      android:textSize="@dimen/font_size_15sp" />-->
+
                 </RelativeLayout>
+
             </ViewFlipper>
 
             <LinearLayout
