@@ -186,12 +186,12 @@ public class RemoteFragment extends Fragment {
         button.setOnTouchListener((view, event) -> {
                 switch(event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
-                    performKeydown(keypressKeyValue);
                     if (id == R.id.back_button ||
                         id == R.id.home_button ||
                         id == R.id.ok_button) {
                         BroadcastUtils.Companion.sendUpdateDeviceBroadcast(requireContext());
                     }
+                    performKeydown(keypressKeyValue);
                     break;
                 case MotionEvent.ACTION_UP:
                 case MotionEvent.ACTION_CANCEL:
