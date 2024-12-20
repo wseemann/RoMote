@@ -57,7 +57,6 @@ import wseemann.media.romote.utils.BroadcastUtils;
 import wseemann.media.romote.utils.CommandHelper;
 import wseemann.media.romote.utils.Constants;
 import wseemann.media.romote.utils.PreferenceUtils;
-import wseemann.media.romote.view.RepeatingImageButton;
 import wseemann.media.romote.view.VibratingImageButton;
 
 /**
@@ -105,25 +104,25 @@ public class RemoteFragment extends Fragment {
         });
         mVoiceSearcButton.requestFocus();*/
 
-        linkRepeatingRemoteButton(KeyPressKeyValues.BACK, R.id.back_button);
-        linkRepeatingRemoteButton(KeyPressKeyValues.UP, R.id.up_button);
-        linkRepeatingRemoteButton(KeyPressKeyValues.HOME, R.id.home_button);
+        linkButton(KeyPressKeyValues.BACK, R.id.back_button);
+        linkButton(KeyPressKeyValues.UP, R.id.up_button);
+        linkButton(KeyPressKeyValues.HOME, R.id.home_button);
 
-        linkRepeatingRemoteButton(KeyPressKeyValues.LEFT, R.id.left_button);
-        linkRepeatingRemoteButton(KeyPressKeyValues.SELECT, R.id.ok_button);
-        linkRepeatingRemoteButton(KeyPressKeyValues.RIGHT, R.id.right_button);
+        linkButton(KeyPressKeyValues.LEFT, R.id.left_button);
+        linkButton(KeyPressKeyValues.SELECT, R.id.ok_button);
+        linkButton(KeyPressKeyValues.RIGHT, R.id.right_button);
 
-        linkRepeatingRemoteButton(KeyPressKeyValues.INTANT_REPLAY, R.id.instant_replay_button);
-        linkRepeatingRemoteButton(KeyPressKeyValues.DOWN, R.id.down_button);
-        linkRepeatingRemoteButton(KeyPressKeyValues.INFO, R.id.info_button);
+        linkButton(KeyPressKeyValues.INTANT_REPLAY, R.id.instant_replay_button);
+        linkButton(KeyPressKeyValues.DOWN, R.id.down_button);
+        linkButton(KeyPressKeyValues.INFO, R.id.info_button);
 
-        linkRepeatingRemoteButton(KeyPressKeyValues.REV, R.id.rev_button);
-        linkRepeatingRemoteButton(KeyPressKeyValues.PLAY, R.id.play_button);
-        linkRepeatingRemoteButton(KeyPressKeyValues.FWD, R.id.fwd_button);
+        linkButton(KeyPressKeyValues.REV, R.id.rev_button);
+        linkButton(KeyPressKeyValues.PLAY, R.id.play_button);
+        linkButton(KeyPressKeyValues.FWD, R.id.fwd_button);
 
-        linkRepeatingRemoteButton(KeyPressKeyValues.VOLUME_MUTE, R.id.mute_button);
-        linkRepeatingRemoteButton(KeyPressKeyValues.VOLUME_DOWN, R.id.volume_down_button);
-        linkRepeatingRemoteButton(KeyPressKeyValues.VOLUME_UP, R.id.volume_up_button);
+        linkButton(KeyPressKeyValues.VOLUME_MUTE, R.id.mute_button);
+        linkButton(KeyPressKeyValues.VOLUME_DOWN, R.id.volume_down_button);
+        linkButton(KeyPressKeyValues.VOLUME_UP, R.id.volume_up_button);
 
         ImageButton keyboardButton = getView().findViewById(R.id.keyboard_button);
         keyboardButton.setOnClickListener(view -> {
@@ -172,40 +171,35 @@ public class RemoteFragment extends Fragment {
         getActivity().unregisterReceiver(mUpdateReceiver);
     }
 
-    private void linkRepeatingRemoteButton(final KeyPressKeyValues keypressKeyValue, int id) {
+    private void linkButton(final KeyPressKeyValues keypressKeyValue, int id) {
         View button = getView().findViewById(id);
 
-	button.setOnTouchListener((view, event) -> {
-		switch(event.getAction()) {
-		case MotionEvent.ACTION_DOWN:
-		    performKeydown(keypressKeyValue);
-		    if (id == R.id.back_button ||
-			id == R.id.home_button ||
-			id == R.id.ok_button) {
-			BroadcastUtils.Companion.sendUpdateDeviceBroadcast(requireContext());
-		    }
-		    break;
-		case MotionEvent.ACTION_UP:
-		case MotionEvent.ACTION_CANCEL:
-		    performKeyup(keypressKeyValue);
-		    break;
-		}
-		return false;
-	    });
-    }
-
-    private void linkButton(final KeyPressKeyValues keypressKeyValue, int id) {
-        ImageButton button = getView().findViewById(id);
-
         button.setOnClickListener(view -> {
-            performKeypress(keypressKeyValue);
-
-            if (id == R.id.back_button ||
+                if (id == R.id.back_button ||
                     id == R.id.home_button ||
                     id == R.id.ok_button) {
-                BroadcastUtils.Companion.sendUpdateDeviceBroadcast(requireContext());
-            }
-        });
+                    BroadcastUtils.Companion.sendUpdateDeviceBroadcast(requireContext());
+                }
+                performKeypress(keypressKeyValue);
+            });
+
+        button.setOnTouchListener((view, event) -> {
+                switch(event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    performKeydown(keypressKeyValue);
+                    if (id == R.id.back_button ||
+                        id == R.id.home_button ||
+                        id == R.id.ok_button) {
+                        BroadcastUtils.Companion.sendUpdateDeviceBroadcast(requireContext());
+                    }
+                    break;
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    performKeyup(keypressKeyValue);
+                    break;
+                }
+                return false;
+            });
     }
 
     private void performRequest(final ECPRequest<Void> request) {
