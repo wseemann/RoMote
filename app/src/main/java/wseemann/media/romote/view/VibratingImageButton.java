@@ -30,12 +30,14 @@ public class VibratingImageButton extends AppCompatImageButton {
     public VibratingImageButton(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         super.setOnClickListener((View view) -> {
-            if (mClickListener != null && !preventClick) {
-                ViewUtils.provideHapticEffect(view, VibrationEffect.EFFECT_TICK, VIBRATE_DURATION_MS);
-                mClickListener.onClick(view);
-            }
-            preventClick = false;
-        });
+                if (!preventClick) {
+                    ViewUtils.provideHapticEffect(view, VibrationEffect.EFFECT_TICK, VIBRATE_DURATION_MS);
+                    if (mClickListener != null) {
+                        mClickListener.onClick(view);
+                    }
+                }
+                preventClick = false;
+            });
 
         super.setOnTouchListener((View view, MotionEvent event) -> {
                 if (mTouchListener == null) {
