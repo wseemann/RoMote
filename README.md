@@ -1,10 +1,15 @@
 # RoMote
+
 Open source Roku remote. Turn your Android Device into a control center for your Roku Player and Roku TV.
 
 <a href="https://f-droid.org/packages/wseemann.media.romote" target="_blank">
 <img src="https://f-droid.org/badge/get-it-on.png" alt="Get it on F-Droid" height="90"/></a>
 <a href="https://play.google.com/store/apps/details?id=wseemann.media.romote" target="_blank">
 <img src="https://play.google.com/intl/en_us/badges/images/generic/en-play-badge.png" alt="Get it on Google Play" height="90"/></a>
+
+If RoMote fails to detect your Roku device or send commands to it,
+make sure the **Control by mobile apps** setting in your Roku [is
+enabled](https://support.roku.com/article/217288467#section-2).
 
 Privacy
 -------
