@@ -20,11 +20,12 @@ public class ViewUtils {
     }
 
     private static Vibrator getVibrator(View view) {
-        if (!CommonModule.PreferenceUtilsSingleton.preferenceUtils.shouldProvideHapticFeedback()) {
+        if (!CommonModule.PreferenceUtilsSingleton.preferenceUtils.shouldProvideHapticFeedback())
             return null;
-        }
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-            VibratorManager vibratorManager = (VibratorManager) view.getContext().getSystemService(Context.VIBRATOR_MANAGER_SERVICE);
+            VibratorManager vibratorManager = (VibratorManager) view.getContext()
+                .getSystemService(Context.VIBRATOR_MANAGER_SERVICE);
             return vibratorManager.getDefaultVibrator();
         }
         return (Vibrator) view.getContext().getSystemService(Context.VIBRATOR_SERVICE);
@@ -33,21 +34,18 @@ public class ViewUtils {
     // effect: use one of android.os.VibrationEffect
     public static void provideHapticEffect(View view, int effect_id, int fallbackVibrateDurationMs) {
         Vibrator vibrator = getVibrator(view);
-        if (vibrator == null) {
+        if (vibrator == null)
             return;
-        }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             VibrationEffect effect;
-            if (effect_id == VibrationEffect.DEFAULT_AMPLITUDE) {
+            if (effect_id == VibrationEffect.DEFAULT_AMPLITUDE)
                 effect = VibrationEffect.createOneShot(fallbackVibrateDurationMs, effect_id);
-            } else {
+            else
                 effect = VibrationEffect.createPredefined(effect_id);
-            }
             vibrator.vibrate(effect);
-        } else {
+        } else
             vibrator.vibrate(fallbackVibrateDurationMs); 
-       }
     }
 
     public static void provideHapticFeedback(View view, int vibrateDurationMs) {
