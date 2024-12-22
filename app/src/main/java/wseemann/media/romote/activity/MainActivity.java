@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.os.IBinder;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -59,6 +60,14 @@ public class MainActivity extends ConnectivityActivity implements
     private ChannelFragment mChannelFragment;
 
     @Override
+    public Object onRetainCustomNonConfigurationInstance() {
+        if (mViewPager == null) {
+            return null;
+        }
+        return new Integer(mViewPager.getCurrentItem());
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         SplashScreen.installSplashScreen(this);
         super.onCreate(savedInstanceState);
@@ -98,12 +107,22 @@ public class MainActivity extends ConnectivityActivity implements
             }
         });
 
-        if (!commandHelper.getDeviceURL().equals("")) {
-            mViewPager.setCurrentItem(1);
-        }
-
         TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
+
+        Integer lastItem = (Integer) getLastCustomNonConfigurationInstance();
+        if (lastItem != null) {
+            new Handler().post(new Runnable() {
+                    @Override
+                    public void run() {
+                        mViewPager.setCurrentItem(lastItem, false);
+                    }
+                });
+        } else {
+            if (!commandHelper.getDeviceURL().equals("")) {
+                mViewPager.setCurrentItem(1, false);
+            }
+        }
 
         /*BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
         bottomNavigationView.setLabelVisibilityMode(LabelVisibilityMode.LABEL_VISIBILITY_LABELED);
