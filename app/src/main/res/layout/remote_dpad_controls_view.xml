@@ -16,7 +16,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1" />
 
-        <wseemann.media.romote.view.RepeatingImageButton
+        <wseemann.media.romote.view.VibratingImageButton
             android:id="@+id/up_button"
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -36,7 +36,7 @@
         android:layout_weight="1"
         android:orientation="horizontal">
 
-        <wseemann.media.romote.view.RepeatingImageButton
+        <wseemann.media.romote.view.VibratingImageButton
             android:id="@+id/left_button"
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -52,7 +52,7 @@
             android:background="@drawable/background_glow_selector"
             android:tag="Select" />
 
-        <wseemann.media.romote.view.RepeatingImageButton
+        <wseemann.media.romote.view.VibratingImageButton
             android:id="@+id/right_button"
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -72,7 +72,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1" />
 
-        <wseemann.media.romote.view.RepeatingImageButton
+        <wseemann.media.romote.view.VibratingImageButton
             android:id="@+id/down_button"
             android:layout_width="0dp"
             android:layout_height="match_parent"
