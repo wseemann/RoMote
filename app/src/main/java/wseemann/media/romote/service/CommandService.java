@@ -1,5 +1,7 @@
 package wseemann.media.romote.service;
 
+import java.io.UnsupportedEncodingException;
+
 import android.app.IntentService;
 import android.content.Intent;
 import android.util.Log;
@@ -51,7 +53,13 @@ public class CommandService extends IntentService {
     private void performKeypress(KeyPressKeyValues keypressKeyValue) {
         String url = commandHelper.getDeviceURL();
 
-        KeyPressRequest keypressRequest = new KeyPressRequest(url, keypressKeyValue.getValue());
+        KeyPressRequest keypressRequest;
+        try {
+            keypressRequest = new KeyPressRequest(url, keypressKeyValue.getValue());
+        } catch (UnsupportedEncodingException ex) {
+            ex.printStackTrace();
+            return;
+        }
         keypressRequest.sendAsync(new ResponseCallback<Void>() {
             @Override
             public void onSuccess(@Nullable Void unused) {
