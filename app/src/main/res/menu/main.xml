@@ -4,8 +4,8 @@
         android:title="@string/action_search"
         android:icon="@drawable/ic_action_search"
         app:showAsAction="always"/>
-    <item android:id="@+id/action_gamepad"
-        android:title="@string/action_gamepad"
+    <item android:id="@+id/action_input_devices"
+        android:title="@string/action_input_devices"
         android:icon="@drawable/ic_videogame_asset"
         app:showAsAction="always"/>
     <item android:id="@+id/action_settings"
