@@ -1,5 +1,7 @@
 package wseemann.media.romote.fragment;
 
+import java.io.UnsupportedEncodingException;
+
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
@@ -92,7 +94,13 @@ public class SettingsFragment extends PreferenceFragmentCompat
     private void performKeypress(KeyPressKeyValues keyPressKeyValue) {
         String url = commandHelper.getDeviceURL();
 
-        KeyPressRequest keypressRequest = new KeyPressRequest(url, keyPressKeyValue.getValue());
+        KeyPressRequest keypressRequest;
+        try {
+            keypressRequest = new KeyPressRequest(url, keyPressKeyValue.getValue());
+        } catch (UnsupportedEncodingException ex) {
+            ex.printStackTrace();
+            return;
+        }
         keypressRequest.sendAsync(new ResponseCallback<Void>() {
             @Override
             public void onSuccess(@Nullable Void unused) {

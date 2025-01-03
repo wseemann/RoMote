@@ -1,5 +1,7 @@
 package wseemann.media.romote.receiver;
 
+import java.io.UnsupportedEncodingException;
+
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -35,7 +37,14 @@ public class CommandReceiver extends BroadcastReceiver {
                 return;
             }
 
-            KeyPressRequest keypressRequest = new KeyPressRequest(url, keypressKeyValues.getValue());
+            KeyPressRequest keypressRequest;
+            try {
+                keypressRequest = new KeyPressRequest(url, keypressKeyValues.getValue());
+            } catch (UnsupportedEncodingException ex) {
+                ex.printStackTrace();
+                return;
+            }
+
             keypressRequest.sendAsync(new ResponseCallback<>() {
                 @Override
                 public void onSuccess(@Nullable Void unused) {

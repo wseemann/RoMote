@@ -1,5 +1,7 @@
 package wseemann.media.romote.fragment;
 
+import java.io.UnsupportedEncodingException;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -253,7 +255,13 @@ public class RemoteFragment extends Fragment {
     private void performKeypress(KeyPressKeyValues keypressKeyValue) {
         String url = commandHelper.getDeviceURL();
 
-        KeyPressRequest keyPressRequest = new KeyPressRequest(url, keypressKeyValue.getValue());
+        KeyPressRequest keyPressRequest;
+        try {
+            keyPressRequest = new KeyPressRequest(url, keypressKeyValue.getValue());
+        } catch (UnsupportedEncodingException ex) {
+            ex.printStackTrace();
+            return;
+        }
         performRequest(keyPressRequest);
     }
 
