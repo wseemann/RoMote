@@ -263,21 +263,39 @@ public class RemoteFragment extends Fragment {
     private void performKeypress(KeyPressKeyValues keypressKeyValue) {
         String url = commandHelper.getDeviceURL();
 
-        KeyPressRequest keyPressRequest = new KeyPressRequest(url, keypressKeyValue.getValue());
+        KeyPressRequest keyPressRequest;
+        try {
+            keyPressRequest = new KeyPressRequest(url, keypressKeyValue.getValue());
+        } catch (UnsupportedEncodingException ex) {
+            ex.printStackTrace();
+            return;
+        }
         performRequest(keyPressRequest);
     }
 
     private void performKeydown(KeyPressKeyValues keypressKeyValue) {
         String url = commandHelper.getDeviceURL();
 
-        KeydownRequest keydownRequest = new KeydownRequest(url, keypressKeyValue.getValue());
+        KeydownRequest keydownRequest;
+        try {
+            keydownRequest = new KeydownRequest(url, keypressKeyValue.getValue());
+        } catch (UnsupportedEncodingException ex) {
+            ex.printStackTrace();
+            return;
+        }
         performRequest(keydownRequest);
     }
 
     private void performKeyup(KeyPressKeyValues keypressKeyValue) {
         String url = commandHelper.getDeviceURL();
 
-        KeyupRequest keyupRequest = new KeyupRequest(url, keypressKeyValue.getValue());
+        KeyupRequest keyupRequest;
+        try {
+            keyupRequest = new KeyupRequest(url, keypressKeyValue.getValue());
+        } catch (UnsupportedEncodingException ex) {
+            ex.printStackTrace();
+            return;
+        }
         performRequest(keyupRequest);
     }
 
