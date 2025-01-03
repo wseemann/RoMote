@@ -1,5 +1,6 @@
 package wseemann.media.romote.utils;
 
+import java.io.UnsupportedEncodingException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -90,7 +91,7 @@ public class InputDeviceManager implements InputManager.InputDeviceListener {
             Method method = cls.getMethod("isExternal");
             Boolean res = (Boolean) method.invoke(device);
             return res.booleanValue();
-        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException ex) {
             return true;
         }
     }
@@ -165,7 +166,7 @@ public class InputDeviceManager implements InputManager.InputDeviceListener {
             public void onSuccess(@Nullable Void unused) { }
 
             @Override
-            public void onError(@NonNull Exception e) { }
+            public void onError(@NonNull Exception ex) { }
         });
     }
 
@@ -179,7 +180,12 @@ public class InputDeviceManager implements InputManager.InputDeviceListener {
             cache_key = url + "/DOWN/" + url_key;
             request = mRequestCache.get(cache_key);
             if (request == null) {
-                request = new KeydownRequest(url, url_key);
+                try {
+                    request = new KeydownRequest(url, url_key);
+                } catch (UnsupportedEncodingException ex) {
+                    ex.printStackTrace();
+                    return;
+                }
                 mRequestCache.put(cache_key, request);
             }
             break;
@@ -187,7 +193,12 @@ public class InputDeviceManager implements InputManager.InputDeviceListener {
             cache_key = url + "/UP/" + url_key;
             request = mRequestCache.get(cache_key);
             if (request == null) {
-                request = new KeyupRequest(url, url_key);
+                try {
+                    request = new KeyupRequest(url, url_key);
+                } catch (UnsupportedEncodingException ex) {
+                    ex.printStackTrace();
+                    return;
+                }
                 mRequestCache.put(cache_key, request);
             }
             break;
