@@ -24,7 +24,6 @@
         <activity
             android:name="wseemann.media.romote.activity.MainActivity"
             android:windowSoftInputMode="stateAlwaysHidden|adjustPan"
-            android:screenOrientation="portrait"
             android:configChanges="orientation|keyboardHidden"
             android:launchMode="singleTask"
             android:exported="true"
@@ -59,32 +58,27 @@
         <activity
             android:name="wseemann.media.romote.activity.RemoteActivity"
             android:theme="@style/AppTheme"
-            android:screenOrientation="portrait"
             android:configChanges="orientation|keyboardHidden"/>
 
         <activity
             android:name="wseemann.media.romote.activity.DeviceInfoActivity"
             android:theme="@style/AppTheme"
             android:label="@string/title_device_info"
-            android:screenOrientation="portrait"
             android:configChanges="orientation|keyboardHidden"/>
 
         <activity
             android:name="wseemann.media.romote.activity.SettingsActivity"
             android:theme="@style/AppTheme"
             android:label="@string/title_settings"
-            android:screenOrientation="portrait"
             android:configChanges="orientation|keyboardHidden"/>
 
         <activity
             android:name="wseemann.media.romote.activity.ConfigureDeviceActivity"
             android:theme="@style/AppTheme"
-            android:screenOrientation="portrait"
             android:configChanges="orientation|keyboardHidden"/>
 
         <activity android:name="wseemann.media.romote.activity.AppWidgetConfigure"
             android:theme="@style/AppTheme"
-            android:screenOrientation="portrait"
             android:configChanges="orientation|keyboardHidden"
             android:exported="true">
             <intent-filter>
@@ -96,7 +90,6 @@
             android:name="wseemann.media.romote.activity.ManualConnectionActivity"
             android:theme="@style/AppTheme"
             android:label="@string/title_connect_manually"
-            android:screenOrientation="portrait"
             android:configChanges="orientation|keyboardHidden"/>
 
         <receiver android:name="wseemann.media.romote.widget.RokuAppWidgetProvider"
