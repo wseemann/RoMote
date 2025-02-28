@@ -16,6 +16,7 @@
 
         <!-- Support library compatibility -->
         <item name="actionBarStyle">@style/MyActionBar</item>
+        <item name="toolbarStyle">@style/ToolbarStyle</item>
     </style>
 
     <style name="AppTheme.Starting" parent="Theme.SplashScreen">
@@ -66,4 +67,7 @@
         <item name="cornerSize">5dp</item>
     </style>
 
+    <style name="ToolbarStyle" parent ="Widget.MaterialComponents.Toolbar">
+        <item name="titleTextColor">#ebebeb</item>
+    </style>
 </resources>
