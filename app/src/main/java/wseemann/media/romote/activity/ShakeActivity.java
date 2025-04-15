@@ -11,6 +11,8 @@ import com.wseemann.ecp.api.ResponseCallback;
 import com.wseemann.ecp.core.KeyPressKeyValues;
 import com.wseemann.ecp.request.KeyPressRequest;
 
+import java.io.UnsupportedEncodingException;
+
 import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -57,7 +59,13 @@ public class ShakeActivity extends AppCompatActivity {
         public void onShake() {
             String url = commandHelper.getDeviceURL();
 
-            KeyPressRequest keyPressRequest = new KeyPressRequest(url, KeyPressKeyValues.PLAY.getValue());
+            KeyPressRequest keyPressRequest;
+            try {
+                keyPressRequest = new KeyPressRequest(url, KeyPressKeyValues.PLAY.getValue());
+            } catch (UnsupportedEncodingException ex) {
+                ex.printStackTrace();
+                return;
+            }
             keyPressRequest.sendAsync(new ResponseCallback<Void>() {
                 @Override
                 public void onSuccess(@Nullable Void unused) {
