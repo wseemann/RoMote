@@ -36,11 +36,13 @@ android {
         main.java.srcDirs += 'src/main/kotlin'
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_17
-        targetCompatibility JavaVersion.VERSION_17
+        sourceCompatibility JavaVersion.VERSION_21
+        targetCompatibility JavaVersion.VERSION_21
     }
     packagingOptions {
-        exclude("META-INF/DEPENDENCIES")
+        resources {
+            excludes += ['META-INF/DEPENDENCIES']
+        }
     }
     buildFeatures {
         buildConfig = true
