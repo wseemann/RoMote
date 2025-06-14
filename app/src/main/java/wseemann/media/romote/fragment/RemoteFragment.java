@@ -23,6 +23,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
@@ -36,7 +37,10 @@ import androidx.fragment.app.Fragment;
 
 import com.wseemann.ecp.api.ResponseCallback;
 import com.wseemann.ecp.core.KeyPressKeyValues;
+import com.wseemann.ecp.core.ECPRequest;
 import com.wseemann.ecp.request.KeyPressRequest;
+import com.wseemann.ecp.request.KeyupRequest;
+import com.wseemann.ecp.request.KeydownRequest;
 import com.wseemann.ecp.request.QueryDeviceInfoRequest;
 
 import java.util.List;
@@ -53,7 +57,6 @@ import wseemann.media.romote.utils.BroadcastUtils;
 import wseemann.media.romote.utils.CommandHelper;
 import wseemann.media.romote.utils.Constants;
 import wseemann.media.romote.utils.PreferenceUtils;
-import wseemann.media.romote.view.RepeatingImageButton;
 import wseemann.media.romote.view.VibratingImageButton;
 
 /**
@@ -102,15 +105,15 @@ public class RemoteFragment extends Fragment {
         mVoiceSearcButton.requestFocus();*/
 
         linkButton(KeyPressKeyValues.BACK, R.id.back_button);
-        linkRepeatingRemoteButton(KeyPressKeyValues.UP, R.id.up_button);
+        linkButton(KeyPressKeyValues.UP, R.id.up_button);
         linkButton(KeyPressKeyValues.HOME, R.id.home_button);
 
-        linkRepeatingRemoteButton(KeyPressKeyValues.LEFT, R.id.left_button);
+        linkButton(KeyPressKeyValues.LEFT, R.id.left_button);
         linkButton(KeyPressKeyValues.SELECT, R.id.ok_button);
-        linkRepeatingRemoteButton(KeyPressKeyValues.RIGHT, R.id.right_button);
+        linkButton(KeyPressKeyValues.RIGHT, R.id.right_button);
 
         linkButton(KeyPressKeyValues.INTANT_REPLAY, R.id.instant_replay_button);
-        linkRepeatingRemoteButton(KeyPressKeyValues.DOWN, R.id.down_button);
+        linkButton(KeyPressKeyValues.DOWN, R.id.down_button);
         linkButton(KeyPressKeyValues.INFO, R.id.info_button);
 
         linkButton(KeyPressKeyValues.REV, R.id.rev_button);
@@ -168,31 +171,38 @@ public class RemoteFragment extends Fragment {
         getActivity().unregisterReceiver(mUpdateReceiver);
     }
 
-    private void linkRepeatingRemoteButton(final KeyPressKeyValues keypressKeyValue, int id) {
-        RepeatingImageButton button = getView().findViewById(id);
-
-        button.setOnClickListener(view -> {
-            performKeypress(keypressKeyValue);
-        });
-
-        button.setRepeatListener((v, duration, repeatcount) -> performKeypress(keypressKeyValue), 400);
-    }
-
     private void linkButton(final KeyPressKeyValues keypressKeyValue, int id) {
-        ImageButton button = getView().findViewById(id);
+        View button = getView().findViewById(id);
 
         button.setOnClickListener(view -> {
-            performKeypress(keypressKeyValue);
-
-            if (id == R.id.back_button ||
+                if (id == R.id.back_button ||
                     id == R.id.home_button ||
                     id == R.id.ok_button) {
-                BroadcastUtils.Companion.sendUpdateDeviceBroadcast(requireContext());
-            }
-        });
+                    BroadcastUtils.Companion.sendUpdateDeviceBroadcast(requireContext());
+                }
+                performKeypress(keypressKeyValue);
+            });
+
+        button.setOnTouchListener((view, event) -> {
+                switch(event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    if (id == R.id.back_button ||
+                        id == R.id.home_button ||
+                        id == R.id.ok_button) {
+                        BroadcastUtils.Companion.sendUpdateDeviceBroadcast(requireContext());
+                    }
+                    performKeydown(keypressKeyValue);
+                    break;
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    performKeyup(keypressKeyValue);
+                    break;
+                }
+                return false;
+            });
     }
 
-    private void performRequest(final KeyPressRequest request) {
+    private void performRequest(final ECPRequest<Void> request) {
         request.sendAsync(new ResponseCallback<>() {
             @Override
             public void onSuccess(@Nullable Void unused) {
@@ -253,8 +263,40 @@ public class RemoteFragment extends Fragment {
     private void performKeypress(KeyPressKeyValues keypressKeyValue) {
         String url = commandHelper.getDeviceURL();
 
-        KeyPressRequest keyPressRequest = new KeyPressRequest(url, keypressKeyValue.getValue());
+        KeyPressRequest keyPressRequest;
+        try {
+            keyPressRequest = new KeyPressRequest(url, keypressKeyValue.getValue());
+        } catch (UnsupportedEncodingException ex) {
+            ex.printStackTrace();
+            return;
+        }
         performRequest(keyPressRequest);
+    }
+
+    private void performKeydown(KeyPressKeyValues keypressKeyValue) {
+        String url = commandHelper.getDeviceURL();
+
+        KeydownRequest keydownRequest;
+        try {
+            keydownRequest = new KeydownRequest(url, keypressKeyValue.getValue());
+        } catch (UnsupportedEncodingException ex) {
+            ex.printStackTrace();
+            return;
+        }
+        performRequest(keydownRequest);
+    }
+
+    private void performKeyup(KeyPressKeyValues keypressKeyValue) {
+        String url = commandHelper.getDeviceURL();
+
+        KeyupRequest keyupRequest;
+        try {
+            keyupRequest = new KeyupRequest(url, keypressKeyValue.getValue());
+        } catch (UnsupportedEncodingException ex) {
+            ex.printStackTrace();
+            return;
+        }
+        performRequest(keyupRequest);
     }
 
     @Override
