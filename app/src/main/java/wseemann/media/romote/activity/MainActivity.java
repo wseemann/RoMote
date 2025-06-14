@@ -38,6 +38,8 @@ import wseemann.media.romote.fragment.SearchDialog;
 import wseemann.media.romote.fragment.StoreFragment;
 import wseemann.media.romote.service.NotificationService;
 import wseemann.media.romote.utils.CommandHelper;
+import wseemann.media.romote.utils.InputDeviceManager;
+
 
 @AndroidEntryPoint
 public class MainActivity extends ConnectivityActivity implements
@@ -48,6 +50,8 @@ public class MainActivity extends ConnectivityActivity implements
 
     @Inject
     protected CommandHelper commandHelper;
+
+    private InputDeviceManager mInputDeviceManager;
 
     private StoreFragment mStoreFragment;
 
@@ -127,6 +131,20 @@ public class MainActivity extends ConnectivityActivity implements
         // Bind to NotificationService
         Intent intent1 = new Intent(this, NotificationService.class);
         bindService(intent1, mConnection, Context.BIND_AUTO_CREATE);
+
+        mInputDeviceManager = new InputDeviceManager(this, commandHelper);
+        if (!sharedPreferences.getBoolean("input_devices_enabled", true))
+            mInputDeviceManager.setEnabled(false);
+        mInputDeviceManager.
+            setHardwareDevicesListener(new InputDeviceManager.HardwareDevicesListener() {
+                    @Override
+                    public void onIsEnabledWithDevices(boolean is_enabled, boolean has_devices) {
+                        SharedPreferences.Editor editor = sharedPreferences.edit();
+                        editor.putBoolean("input_devices_enabled", is_enabled);
+                        editor.commit();
+                        invalidateOptionsMenu();
+                    }
+                });
     }
 
     @Override
@@ -145,6 +163,18 @@ public class MainActivity extends ConnectivityActivity implements
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        mInputDeviceManager.resume();
+    }
+
+    @Override
+    public void onPause() {
+        mInputDeviceManager.pause();
+        super.onPause();
+    }
+
+    @Override
     protected void onWifiConnected() {
         if (mChannelFragment != null) {
             mChannelFragment.refresh();
@@ -155,6 +185,17 @@ public class MainActivity extends ConnectivityActivity implements
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.main, menu);
+
+        if (mInputDeviceManager != null) {
+            MenuItem menuItem = menu.findItem(R.id.action_input_devices);
+            if (menuItem != null) {
+                if (mInputDeviceManager.isEnabledWithDevices())
+                    menuItem.setIcon(getDrawable(R.drawable.ic_videogame_asset));
+                else
+                    menuItem.setIcon(getDrawable(R.drawable.ic_videogame_asset_off));
+            }
+        }
+
         return true;
     }
 
@@ -165,12 +206,24 @@ public class MainActivity extends ConnectivityActivity implements
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        if (id == R.id.action_settings) {
+        switch (id) {
+        case R.id.action_settings:
             startActivity(new Intent(this, SettingsActivity.class));
             return true;
-        } else if (id == R.id.action_search) {
+        case R.id.action_search:
             SearchDialog fragment = SearchDialog.Companion.newInstance(this);
             fragment.show(getSupportFragmentManager(), SearchDialog.class.getName());
+            return true;
+        case R.id.action_input_devices:
+            if (mInputDeviceManager != null) {
+                boolean is_enabled = !mInputDeviceManager.isEnabled();
+
+                SharedPreferences.Editor editor = sharedPreferences.edit();
+                editor.putBoolean("input_devices_enabled", is_enabled);
+                editor.commit();
+
+                mInputDeviceManager.setEnabled(is_enabled);
+            }
             return true;
         }
 
@@ -178,17 +231,18 @@ public class MainActivity extends ConnectivityActivity implements
     }
 
     @Override
+    public boolean dispatchKeyEvent(KeyEvent event) {
+        if (mInputDeviceManager.dispatchKeyEvent(event))
+            return true;
+        return super.dispatchKeyEvent(event);
+    }
+
+    @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (mViewPager.getCurrentItem() != 3) {
-            return super.onKeyDown(keyCode, event);
-        }
-
-        if (mStoreFragment != null) {
-            if (mStoreFragment.onKeyDown(keyCode)) {
-                return true;
-            }
-        }
-
+        if (mViewPager.getCurrentItem() == 3 &&
+            mStoreFragment != null &&
+            mStoreFragment.onKeyDown(keyCode))
+            return true;
         return super.onKeyDown(keyCode, event);
     }
 
