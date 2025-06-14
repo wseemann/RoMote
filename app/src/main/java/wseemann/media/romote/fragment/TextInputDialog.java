@@ -1,5 +1,7 @@
 package wseemann.media.romote.fragment;
 
+import java.io.UnsupportedEncodingException;
+
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Context;
@@ -175,7 +177,13 @@ public class TextInputDialog extends DialogFragment {
     private void sendBackspace() {
         String url = commandHelper.getDeviceURL();
 
-        KeyPressRequest keyPressRequest = new KeyPressRequest(url, KeyPressKeyValues.BACKSPACE.getValue());
+        KeyPressRequest keyPressRequest;
+        try {
+            keyPressRequest = new KeyPressRequest(url, KeyPressKeyValues.BACKSPACE.getValue());
+        } catch (UnsupportedEncodingException ex) {
+            ex.printStackTrace();
+            return;
+        }
         keyPressRequest.sendAsync(new ResponseCallback<Void>() {
             @Override
             public void onSuccess(@Nullable Void unused) {
@@ -192,7 +200,13 @@ public class TextInputDialog extends DialogFragment {
     private void sendStringLiteral(String stringLiteral) {
         String url = commandHelper.getDeviceURL();
 
-        KeyPressRequest keypressRequest = new KeyPressRequest(url, KeyPressKeyValues.LIT_.getValue() + stringLiteral);
+        KeyPressRequest keypressRequest;
+        try {
+            keypressRequest = new KeyPressRequest(url, KeyPressKeyValues.LIT_.getValue() + stringLiteral);
+        } catch (UnsupportedEncodingException ex) {
+            ex.printStackTrace();
+            return;
+        }
         keypressRequest.sendAsync(new ResponseCallback<Void>() {
             @Override
             public void onSuccess(@Nullable Void unused) {
