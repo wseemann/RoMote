@@ -1,6 +1,5 @@
 package wseemann.media.romote.fragment;
 
-import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -8,8 +7,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -18,7 +15,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.widget.AdapterView;
 import android.widget.GridView;
 
 import androidx.annotation.NonNull;
@@ -78,14 +74,6 @@ public class ChannelFragment extends Fragment {
     private CompositeDisposable bin = new CompositeDisposable();
 
     private RequestManager requestManager;
-
-    @SuppressLint("HandlerLeak")
-    private Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            showMenu((View) msg.obj);
-        }
-    };
 
     /**
      * Empty constructor as per the Fragment documentation

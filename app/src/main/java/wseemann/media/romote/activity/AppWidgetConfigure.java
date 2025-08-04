@@ -3,10 +3,8 @@ package wseemann.media.romote.activity;
 import android.appwidget.AppWidgetManager;
 import android.content.Intent;
 import android.os.Bundle;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentTransaction;
-
 import wseemann.media.romote.R;
 import wseemann.media.romote.fragment.MainFragment;
 

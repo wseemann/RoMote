@@ -12,24 +12,19 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
-
 import com.wseemann.ecp.api.ResponseCallback;
 import com.wseemann.ecp.core.KeyPressKeyValues;
 import com.wseemann.ecp.request.KeyPressRequest;
-
+import java.io.UnsupportedEncodingException;
 import javax.inject.Inject;
-
 import dagger.hilt.android.AndroidEntryPoint;
+import timber.log.Timber;
 import wseemann.media.romote.R;
 import wseemann.media.romote.utils.CommandHelper;
 
-/**
- * Created by wseemann on 6/20/16.
- */
 @AndroidEntryPoint
 public class TextInputDialog extends DialogFragment {
 
@@ -175,34 +170,42 @@ public class TextInputDialog extends DialogFragment {
     private void sendBackspace() {
         String url = commandHelper.getDeviceURL();
 
-        KeyPressRequest keyPressRequest = new KeyPressRequest(url, KeyPressKeyValues.BACKSPACE.getValue());
-        keyPressRequest.sendAsync(new ResponseCallback<Void>() {
-            @Override
-            public void onSuccess(@Nullable Void unused) {
+        try {
+            KeyPressRequest keyPressRequest = new KeyPressRequest(url, KeyPressKeyValues.BACKSPACE.getValue());
+            keyPressRequest.sendAsync(new ResponseCallback<>() {
+                @Override
+                public void onSuccess(@Nullable Void unused) {
 
-            }
+                }
 
-            @Override
-            public void onError(@NonNull Exception e) {
+                @Override
+                public void onError(@NonNull Exception e) {
 
-            }
-        });
+                }
+            });
+        } catch (UnsupportedEncodingException ex) {
+            Timber.e(ex, "Failed to execute command");
+        }
     }
 
     private void sendStringLiteral(String stringLiteral) {
         String url = commandHelper.getDeviceURL();
 
-        KeyPressRequest keypressRequest = new KeyPressRequest(url, KeyPressKeyValues.LIT_.getValue() + stringLiteral);
-        keypressRequest.sendAsync(new ResponseCallback<Void>() {
-            @Override
-            public void onSuccess(@Nullable Void unused) {
+        try {
+            KeyPressRequest keypressRequest = new KeyPressRequest(url, KeyPressKeyValues.LIT_.getValue() + stringLiteral);
+            keypressRequest.sendAsync(new ResponseCallback<>() {
+                @Override
+                public void onSuccess(@Nullable Void unused) {
 
-            }
+                }
 
-            @Override
-            public void onError(@NonNull Exception e) {
+                @Override
+                public void onError(@NonNull Exception e) {
 
-            }
-        });
+                }
+            });
+        } catch (UnsupportedEncodingException ex) {
+            Timber.e(ex, "Failed to execute command");
+        }
     }
 }

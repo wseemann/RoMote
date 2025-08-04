@@ -35,17 +35,14 @@
     </style>
 
     <!-- ActionBar styles -->
-    <style name="MyActionBar"
-        parent="@style/Widget.MaterialComponents.ActionBar.Solid">
+    <style name="MyActionBar" parent="@style/Widget.MaterialComponents.ActionBar.Solid">
         <item name="android:background">@color/purple</item>
 
         <!-- Support library compatibility -->
         <item name="background">@color/purple</item>
     </style>
 
-    <style name="AppTheme.NoActionBar">
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
+    <style name="AppTheme.NoActionBar" parent="Theme.MaterialComponents.DayNight.NoActionBar">
     </style>
 
     <style name="AppTheme.TabLayout" parent="Widget.MaterialComponents.TabLayout.Colored">
@@ -68,6 +65,11 @@
     </style>
 
     <style name="ToolbarStyle" parent ="Widget.MaterialComponents.Toolbar">
+        <item name="android:background">@color/purple</item>
         <item name="titleTextColor">#ebebeb</item>
+    </style>
+
+    <style name="AppTheme.AboutLibrariesTheme" parent="AppTheme.NoActionBar">
+        <item name="toolbarStyle">@style/ToolbarStyle</item>
     </style>
 </resources>

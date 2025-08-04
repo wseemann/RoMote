@@ -2,22 +2,21 @@ package wseemann.media.romote.fragment;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.TypedArray;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.preference.PreferenceFragmentCompat;
-
 import com.mikepenz.aboutlibraries.LibsBuilder;
 import com.wseemann.ecp.api.ResponseCallback;
 import com.wseemann.ecp.core.KeyPressKeyValues;
 import com.wseemann.ecp.request.KeyPressRequest;
-
+import java.io.UnsupportedEncodingException;
 import javax.inject.Inject;
-
 import dagger.hilt.android.AndroidEntryPoint;
+import timber.log.Timber;
 import wseemann.media.romote.R;
 import wseemann.media.romote.model.Device;
 import wseemann.media.romote.utils.CommandHelper;
@@ -92,18 +91,22 @@ public class SettingsFragment extends PreferenceFragmentCompat
     private void performKeypress(KeyPressKeyValues keyPressKeyValue) {
         String url = commandHelper.getDeviceURL();
 
-        KeyPressRequest keypressRequest = new KeyPressRequest(url, keyPressKeyValue.getValue());
-        keypressRequest.sendAsync(new ResponseCallback<Void>() {
-            @Override
-            public void onSuccess(@Nullable Void unused) {
+        try {
+            KeyPressRequest keypressRequest = new KeyPressRequest(url, keyPressKeyValue.getValue());
+            keypressRequest.sendAsync(new ResponseCallback<>() {
+                @Override
+                public void onSuccess(@Nullable Void unused) {
 
-            }
+                }
 
-            @Override
-            public void onError(@NonNull Exception e) {
+                @Override
+                public void onError(@NonNull Exception e) {
 
-            }
-        });
+                }
+            });
+        } catch (UnsupportedEncodingException ex) {
+            Timber.e(ex, "Failed to execute command");
+        }
     }
 
     private boolean deviceSupportsFindRemote() {
@@ -118,5 +121,14 @@ public class SettingsFragment extends PreferenceFragmentCompat
         }
 
         return false;
+    }
+
+    private int obtainActionBarHeight() {
+        TypedArray styledAttributes = requireContext().getTheme().obtainStyledAttributes(
+            new int[]{android.R.attr.actionBarSize}
+        );
+        int actionBarHeight = (int) styledAttributes.getDimension(0, 0f);
+        styledAttributes.recycle();
+        return actionBarHeight;
     }
 }

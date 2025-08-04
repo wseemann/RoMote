@@ -27,22 +27,18 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-
 import com.wseemann.ecp.api.ResponseCallback;
 import com.wseemann.ecp.core.KeyPressKeyValues;
 import com.wseemann.ecp.request.KeyPressRequest;
 import com.wseemann.ecp.request.QueryDeviceInfoRequest;
-
+import java.io.UnsupportedEncodingException;
 import java.util.List;
-
 import javax.inject.Inject;
-
 import dagger.hilt.android.AndroidEntryPoint;
 import timber.log.Timber;
 import wseemann.media.romote.R;
@@ -56,9 +52,6 @@ import wseemann.media.romote.utils.PreferenceUtils;
 import wseemann.media.romote.view.RepeatingImageButton;
 import wseemann.media.romote.view.VibratingImageButton;
 
-/**
- * Created by wseemann on 6/19/16.
- */
 @AndroidEntryPoint
 public class RemoteFragment extends Fragment {
 
@@ -253,8 +246,12 @@ public class RemoteFragment extends Fragment {
     private void performKeypress(KeyPressKeyValues keypressKeyValue) {
         String url = commandHelper.getDeviceURL();
 
-        KeyPressRequest keyPressRequest = new KeyPressRequest(url, keypressKeyValue.getValue());
-        performRequest(keyPressRequest);
+        try {
+            KeyPressRequest keyPressRequest = new KeyPressRequest(url, keypressKeyValue.getValue());
+            performRequest(keyPressRequest);
+        } catch (UnsupportedEncodingException ex) {
+            Timber.e(ex, "Failed to execute command");
+        }
     }
 
     @Override

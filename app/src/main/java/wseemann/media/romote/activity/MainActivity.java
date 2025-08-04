@@ -21,13 +21,10 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
-
 import com.google.android.material.tabs.TabLayout;
 import com.wseemann.ecp.api.ResponseCallback;
 import com.wseemann.ecp.request.SearchRequest;
-
 import javax.inject.Inject;
-
 import dagger.hilt.android.AndroidEntryPoint;
 import wseemann.media.romote.R;
 import wseemann.media.romote.fragment.ChannelFragment;
@@ -62,7 +59,11 @@ public class MainActivity extends ConnectivityActivity implements
     public void onCreate(Bundle savedInstanceState) {
         SplashScreen.installSplashScreen(this);
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
+
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
 
         if (sharedPreferences.getBoolean("first_use", true)) {
             startActivity(new Intent(this, ConfigureDeviceActivity.class));
@@ -78,14 +79,12 @@ public class MainActivity extends ConnectivityActivity implements
             fragment.show(getSupportFragmentManager(), InstallChannelDialog.class.getName());
         }
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
         mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
-        mViewPager = (ViewPager) findViewById(R.id.container);
+        mViewPager = findViewById(R.id.container);
         mViewPager.setAdapter(mSectionsPagerAdapter);
         mViewPager.setOffscreenPageLimit(3);
         mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
@@ -98,31 +97,12 @@ public class MainActivity extends ConnectivityActivity implements
             }
         });
 
-        if (!commandHelper.getDeviceURL().equals("")) {
+        if (!commandHelper.getDeviceURL().isEmpty()) {
             mViewPager.setCurrentItem(1);
         }
 
-        TabLayout tabLayout = (TabLayout) findViewById(R.id.tabs);
+        TabLayout tabLayout = findViewById(R.id.tabs);
         tabLayout.setupWithViewPager(mViewPager);
-
-        /*BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
-        bottomNavigationView.setLabelVisibilityMode(LabelVisibilityMode.LABEL_VISIBILITY_LABELED);
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
-                if (menuItem.getItemId() == R.id.action_devices) {
-                    mViewPager.setCurrentItem(0);
-                } else if (menuItem.getItemId() == R.id.action_remote) {
-                    mViewPager.setCurrentItem(1);
-                } else if (menuItem.getItemId() == R.id.action_channels) {
-                    mViewPager.setCurrentItem(2);
-                } else if (menuItem.getItemId() == R.id.action_store) {
-                    mViewPager.setCurrentItem(3);
-                }
-
-                return false;
-            }
-        });*/
 
         // Bind to NotificationService
         Intent intent1 = new Intent(this, NotificationService.class);
@@ -203,6 +183,7 @@ public class MainActivity extends ConnectivityActivity implements
         }
 
         @Override
+        @NonNull
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
@@ -243,7 +224,7 @@ public class MainActivity extends ConnectivityActivity implements
     }
 
     /** Defines callbacks for service binding, passed to bindService() */
-    private ServiceConnection mConnection = new ServiceConnection() {
+    private final ServiceConnection mConnection = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName className,
@@ -269,7 +250,7 @@ public class MainActivity extends ConnectivityActivity implements
     }
 
     @Override
-    public void onSearch(String searchText) {
+    public void onSearch(@NonNull String searchText) {
         performSearch(searchText);
     }
 

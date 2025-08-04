@@ -1,0 +1,34 @@
+[versions]
+about-libraries-plugin = "12.2.1"
+androidx-appcompat = "1.7.1"
+androidx-constraintlayout = "2.2.1"
+androidx-legacy = "1.0.0"
+androidx-preference = "1.2.1"
+androidx-splashscreen = "1.0.1"
+android-material = "1.12.0"
+glide = "4.16.0"
+hilt = "2.56.2"
+jdom = "2.0.6"
+roku-ecp-wrapper-kotlin = "1.3.0"
+rxjava-android = "2.1.1"
+rxjava = "2.2.21"
+timber = "5.0.1"
+junit = "4.13.2"
+
+[libraries]
+about-libraries-plugin = { module = "com.mikepenz:aboutlibraries", version.ref = "about-libraries-plugin" }
+androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-appcompat" }
+androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "androidx-constraintlayout" }
+androidx-legacy = { module = "androidx.legacy:legacy-support-v4", version.ref = "androidx-legacy" }
+androidx-preference = { module = "androidx.preference:preference", version.ref = "androidx-preference" }
+androidx-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "androidx-splashscreen" }
+android-material = { module = "com.google.android.material:material", version.ref = "android-material" }
+glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
+hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
+hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }
+jdom = { module = "org.jdom:jdom2", version.ref = "jdom" }
+roku-ecp-wrapper-kotlin = { module = "com.github.wseemann:roku-ecp-wrapper-kotlin", version.ref = "roku-ecp-wrapper-kotlin" }
+rxjava = { module = "io.reactivex.rxjava2:rxjava", version.ref = "rxjava" }
+rxjava-android = { module = "io.reactivex.rxjava2:rxandroid", version.ref = "rxjava-android" }
+timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
+junit = { module = "junit:junit", version.ref = "junit" }

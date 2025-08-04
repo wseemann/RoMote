@@ -10,6 +10,8 @@ import android.widget.ArrayAdapter;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
+
 import wseemann.media.romote.R;
 
 import com.bumptech.glide.RequestManager;
@@ -61,7 +63,8 @@ public class ChannelAdapter extends ArrayAdapter<Channel> {
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup container) {
+    @NonNull
+    public View getView(int position, View convertView, @NonNull ViewGroup container) {
         // Now handle the main ImageView thumbnails
         ViewHolder holder = null;
         LayoutInflater mInflater = (LayoutInflater)

@@ -3,12 +3,13 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fitsSystemWindows="true"
     tools:context=".activity.ManualConnectionActivity">
 
-    <fragment
+    <androidx.fragment.app.FragmentContainerView
         android:name="wseemann.media.romote.fragment.ManualConnectionFragment"
         android:id="@+id/manual_connection_fragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent" />
 
 </FrameLayout>

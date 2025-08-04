@@ -18,12 +18,11 @@ android {
 
     defaultConfig {
         applicationId "wseemann.media.romote"
-        buildToolsVersion = versions.get("buildToolsVersion")
-        compileSdk versions.get("compileSdkVersion")
-        minSdkVersion versions.get("minSdkVersion")
-        targetSdkVersion versions.get("targetSdkVersion")
-        versionCode 27
-        versionName "1.0.27"
+        minSdkVersion 26
+        targetSdk 35
+        compileSdk 35
+        versionCode 28
+        versionName "1.0.28"
     }
     buildTypes {
         getByName("release") {
@@ -52,21 +51,21 @@ android {
 
 dependencies {
     implementation fileTree(dir: 'src/main/libs', include: ['*.aar', '*.jar'], exclude: [])
-    implementation deps.about_libraries_plugin
-    implementation deps.androidx_appcompat
-    implementation deps.androidx_legacy
-    implementation deps.androidx_constraintlayout
-    implementation deps.androidx_preference
-    implementation deps.androidx_splashscreen
-    implementation deps.android_material
-    implementation deps.glide
-    implementation deps.hilt_android
-    kapt deps.hilt_compiler
-    implementation deps.jdom
-    implementation deps.roku_ecp_wrapper_kotlin
-    implementation deps.rxjava_android
-    implementation deps.rxjava
-    implementation deps.timber
+    implementation(libs.about.libraries.plugin)
+    implementation(libs.androidx.appcompat)
+    implementation(libs.androidx.legacy)
+    implementation(libs.androidx.constraintlayout)
+    implementation(libs.androidx.preference)
+    implementation(libs.androidx.splashscreen)
+    implementation(libs.android.material)
+    implementation(libs.glide)
+    implementation(libs.hilt.android)
+    kapt(libs.hilt.compiler)
+    implementation(libs.jdom)
+    implementation(libs.roku.ecp.wrapper.kotlin)
+    implementation(libs.rxjava.android)
+    implementation(libs.rxjava)
+    implementation(libs.timber)
 
-    testImplementation deps.junit
+    testImplementation(libs.junit)
 }

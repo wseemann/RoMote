@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    android:id="@android:id/content"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".activity.DeviceInfoActivity"/>
+    android:fitsSystemWindows="true"
+    tools:context=".activity.DeviceInfoActivity">
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/content"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+</FrameLayout>

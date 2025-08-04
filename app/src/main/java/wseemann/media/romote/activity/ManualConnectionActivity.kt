@@ -4,9 +4,6 @@ import android.os.Bundle
 import android.view.MenuItem
 import wseemann.media.romote.R
 
-/**
- * Created by wseemann on 6/19/16.
- */
 class ManualConnectionActivity : ConnectivityActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {

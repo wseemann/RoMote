@@ -5,9 +5,6 @@ import android.view.MenuItem
 import wseemann.media.romote.R
 import wseemann.media.romote.fragment.DeviceInfoFragment
 
-/**
- * Created by wseemann on 6/19/16.
- */
 class DeviceInfoActivity : ConnectivityActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -18,7 +15,7 @@ class DeviceInfoActivity : ConnectivityActivity() {
         val host = intent.getStringExtra("host")
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         val transaction = supportFragmentManager.beginTransaction()
-        transaction.add(android.R.id.content, DeviceInfoFragment.getInstance(serialNumber, host))
+        transaction.add(R.id.content, DeviceInfoFragment.getInstance(serialNumber, host))
             .commit()
     }
 
