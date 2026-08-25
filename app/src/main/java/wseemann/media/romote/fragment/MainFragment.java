@@ -20,15 +20,14 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.fragment.app.ListFragment;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import dagger.hilt.android.AndroidEntryPoint;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -38,18 +37,16 @@ import wseemann.media.romote.activity.DeviceInfoActivity;
 import wseemann.media.romote.activity.ManualConnectionActivity;
 import wseemann.media.romote.adapter.DeviceAdapter;
 import wseemann.media.romote.adapter.SeparatedListAdapter;
-
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-
 import javax.inject.Inject;
-
 import wseemann.media.romote.R;
+import wseemann.media.romote.event.MainScreenUiEvent;
 import wseemann.media.romote.model.Device;
-import wseemann.media.romote.tasks.AvailableDevicesTask;
 import wseemann.media.romote.tasks.UpdatePairedDeviceTask;
 import wseemann.media.romote.utils.BroadcastUtils;
 import wseemann.media.romote.utils.DBUtils;
 import wseemann.media.romote.utils.PreferenceUtils;
+import wseemann.media.romote.viewmodels.MainScreenViewModel;
 import wseemann.media.romote.widget.RokuAppWidgetProvider;
 
 /**
@@ -78,6 +75,8 @@ public class MainFragment extends ListFragment {
 
     private final CompositeDisposable bin = new CompositeDisposable();
 
+    private MainScreenViewModel mainScreenViewModel;
+
     @SuppressLint("HandlerLeak")
     private final Handler mHandler = new Handler() {
         @Override
@@ -99,6 +98,7 @@ public class MainFragment extends ListFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mainScreenViewModel = new ViewModelProvider(this).get(MainScreenViewModel.class);
 
         setHasOptionsMenu(true);
     }
@@ -120,13 +120,23 @@ public class MainFragment extends ListFragment {
                     // This method performs the actual data-refresh operation.
                     // The method calls setRefreshing(false) when it's finished.
                     setLoadingText(true);
-                    loadAvailableDevices();
+                    mainScreenViewModel.onHandleEvent(MainScreenUiEvent.LoadAvailableDevicesEvent.INSTANCE);
                 }
         );
 
         mFab = view.findViewById(R.id.fab);
 
         return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        mainScreenViewModel.getUiStateLiveData().observe(getViewLifecycleOwner(), state -> {
+            mSwiperefresh.setRefreshing(state.isLoading());
+            onAvailableDevicesLoadFinished(state.getAvailableDevices());
+        });
     }
 
     @Override
@@ -206,7 +216,7 @@ public class MainFragment extends ListFragment {
 
         if (id == R.id.action_refresh) {
             setLoadingText(true);
-            loadAvailableDevices();
+            mainScreenViewModel.onHandleEvent(MainScreenUiEvent.LoadAvailableDevicesEvent.INSTANCE);
             return true;
         }
 
@@ -223,13 +233,6 @@ public class MainFragment extends ListFragment {
 
             refreshList(false);
         }
-    }
-
-    private void loadAvailableDevices() {
-        bin.add(Observable.fromCallable(new AvailableDevicesTask(getContext()))
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(devices -> onAvailableDevicesLoadFinished((List<Device>) devices)));
     }
 
     private void onAvailableDevicesLoadFinished(List<Device> devices) {
@@ -308,7 +311,7 @@ public class MainFragment extends ListFragment {
     private void refreshList(boolean showLoadingText) {
         setLoadingText(showLoadingText);
         loadPairedDevices();
-        loadAvailableDevices();
+        mainScreenViewModel.onHandleEvent(MainScreenUiEvent.LoadAvailableDevicesEvent.INSTANCE);
         updatePairedDevice();
     }
 

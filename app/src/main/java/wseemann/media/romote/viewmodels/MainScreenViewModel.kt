@@ -15,26 +15,26 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import wseemann.media.romote.event.ConfigureDeviceScreenUiEvent
-import wseemann.media.romote.model.ConfigureDeviceScreenUiState
+import wseemann.media.romote.event.MainScreenUiEvent
 import wseemann.media.romote.model.Device
 import wseemann.media.romote.model.Device.Companion.fromDevice
+import wseemann.media.romote.model.MainScreenUiState
 import wseemann.media.romote.utils.DBUtils
 import wseemann.media.romote.utils.WifiApManager
 import javax.inject.Inject
 
 @HiltViewModel
-class ConfigureDeviceScreenViewModel @Inject constructor(
+class MainScreenViewModel @Inject constructor(
     @ApplicationContext val context: Context
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(ConfigureDeviceScreenUiState())
+    private val _uiState = MutableStateFlow(MainScreenUiState())
     val uiState = _uiState.asStateFlow()
     val uiStateLiveData = uiState.asLiveData()
 
-    fun onHandleEvent(event: ConfigureDeviceScreenUiEvent) {
+    fun onHandleEvent(event: MainScreenUiEvent) {
         when (event) {
-            is ConfigureDeviceScreenUiEvent.LoadAvailableDevicesEvent -> onLoadAvailableDevices()
+            is MainScreenUiEvent.LoadAvailableDevicesEvent -> onLoadAvailableDevices()
         }
     }
 
@@ -122,6 +122,6 @@ class ConfigureDeviceScreenViewModel @Inject constructor(
     }
 
     private companion object {
-        const val TAG = "ConfigureDeviceScreenViewModel"
+        const val TAG = "MainFragmentViewModel"
     }
 }
