@@ -15,20 +15,15 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import wseemann.media.romote.model.Device.Companion.fromDevice
+import wseemann.media.romote.model.DeviceInfoUiState
 import wseemann.media.romote.model.Entry
 import wseemann.media.romote.tasks.ResponseCallbackWrapper
 import wseemann.media.romote.utils.CommandHelper
 import wseemann.media.romote.utils.DBUtils
 import javax.inject.Inject
 
-sealed class DeviceInfoUiState {
-    object Loading : DeviceInfoUiState()
-    data class Success(val entries: MutableList<Entry>) : DeviceInfoUiState()
-    data class Error(val exception: Exception) : DeviceInfoUiState()
-}
-
 @HiltViewModel
-class DeviceInfoViewModel @Inject constructor(
+class DeviceInfoScreenViewModel @Inject constructor(
     @ApplicationContext val context: Context,
     val commandHelper: CommandHelper
 ) : ViewModel() {

@@ -1,13 +1,10 @@
 package wseemann.media.romote.fragment;
 
-import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -22,25 +19,23 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.PopupMenu;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
-import androidx.loader.content.Loader;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import dagger.hilt.android.AndroidEntryPoint;
-import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.schedulers.Schedulers;
+import timber.log.Timber;
 import wseemann.media.romote.BuildConfig;
 import wseemann.media.romote.R;
 import wseemann.media.romote.adapter.ChannelAdapter;
-import wseemann.media.romote.tasks.ChannelTask;
+import wseemann.media.romote.event.ChannelScreenUiEvent;
 import wseemann.media.romote.util.Utils;
 import wseemann.media.romote.utils.BroadcastUtils;
 import wseemann.media.romote.utils.CommandHelper;
 import wseemann.media.romote.utils.Constants;
+import wseemann.media.romote.viewmodels.ChannelScreenViewModel;
 
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
@@ -71,21 +66,16 @@ public class ChannelFragment extends Fragment {
 
     private SwipeRefreshLayout mSwiperefresh;
 
-    private CompositeDisposable bin = new CompositeDisposable();
-
-    private RequestManager requestManager;
-
-    /**
-     * Empty constructor as per the Fragment documentation
-     */
-    public ChannelFragment() {}
+    private ChannelScreenViewModel channelScreenViewModel;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        channelScreenViewModel = new ViewModelProvider(this).get(ChannelScreenViewModel.class);
+
         setHasOptionsMenu(true);
 
-        requestManager = Glide.with(this);
+        RequestManager requestManager = Glide.with(this);
 
         mImageThumbSize = getResources().getDimensionPixelSize(R.dimen.image_thumbnail_size);
         mImageThumbSpacing = getResources().getDimensionPixelSize(R.dimen.image_thumbnail_spacing);
@@ -94,7 +84,7 @@ public class ChannelFragment extends Fragment {
 
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Constants.UPDATE_DEVICE_BROADCAST);
-        getActivity().registerReceiver(mUpdateReceiver, intentFilter, ContextCompat.RECEIVER_NOT_EXPORTED);
+        requireActivity().registerReceiver(mUpdateReceiver, intentFilter, ContextCompat.RECEIVER_NOT_EXPORTED);
     }
 
     @Override
@@ -105,19 +95,15 @@ public class ChannelFragment extends Fragment {
         final GridView mGridView = v.findViewById(android.R.id.list);
 
         mSwiperefresh = v.findViewById(R.id.swiperefresh);
+        // This method performs the actual data-refresh operation.
+        // The method calls setRefreshing(false) when it's finished.
         mSwiperefresh.setOnRefreshListener(
-                new SwipeRefreshLayout.OnRefreshListener() {
-                    @Override
-                    public void onRefresh() {
-                        // This method performs the actual data-refresh operation.
-                        // The method calls setRefreshing(false) when it's finished.
-                        loadChannels();
-                    }
+                () -> {
+                    // This method performs the actual data-refresh operation.
+                    // The method calls setRefreshing(false) when it's finished.
+                    channelScreenViewModel.onHandleEvent(ChannelScreenUiEvent.LoadChannelsEvent.INSTANCE);
                 }
         );
-
-        //View emptyView = v.findViewById(android.R.id.empty);
-        //mGridView.setEmptyView(emptyView);
 
         mGridView.setAdapter(mAdapter);
         mGridView.setOnItemClickListener((parent, view, position, id) -> {
@@ -133,7 +119,6 @@ public class ChannelFragment extends Fragment {
         // of each view so we get nice square thumbnails.
         mGridView.getViewTreeObserver().addOnGlobalLayoutListener(
                 new ViewTreeObserver.OnGlobalLayoutListener() {
-                    @TargetApi(VERSION_CODES.JELLY_BEAN)
                     @Override
                     public void onGlobalLayout() {
                         if (mAdapter.getNumColumns() == 0) {
@@ -145,7 +130,7 @@ public class ChannelFragment extends Fragment {
                                 mAdapter.setNumColumns(numColumns);
                                 mAdapter.setItemHeight(columnWidth);
                                 if (BuildConfig.DEBUG) {
-                                    Log.d(TAG, "onCreateView - numColumns set to " + numColumns);
+                                    Timber.tag(TAG).d("onCreateView - numColumns set to %s", numColumns);
                                 }
                                 if (Utils.hasJellyBean()) {
                                     mGridView.getViewTreeObserver()
@@ -163,9 +148,13 @@ public class ChannelFragment extends Fragment {
     }
 
     @Override
-    public void onActivityCreated(Bundle savedInstanceState){
-        super.onActivityCreated(savedInstanceState);
-        loadChannels();
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        channelScreenViewModel.getUiStateLiveData().observe(getViewLifecycleOwner(), state -> {
+            mSwiperefresh.setRefreshing(state.isLoading());
+            onLoadFinished(state.getChannels());
+        });
     }
 
     @Override
@@ -178,13 +167,11 @@ public class ChannelFragment extends Fragment {
     public void onDestroy() {
         super.onDestroy();
 
-        bin.dispose();
-
-        getActivity().unregisterReceiver(mUpdateReceiver);
+        requireActivity().unregisterReceiver(mUpdateReceiver);
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.main_menu, menu);
     }
 
@@ -194,25 +181,15 @@ public class ChannelFragment extends Fragment {
         int id = item.getItemId();
 
         if (id == R.id.action_refresh) {
-            mSwiperefresh.setRefreshing(true);
-            loadChannels();
+            channelScreenViewModel.onHandleEvent(ChannelScreenUiEvent.LoadChannelsEvent.INSTANCE);
             return true;
         }
 
         return false;
     }
 
-    private void loadChannels() {
-        bin.add(Observable.fromCallable(new ChannelTask(commandHelper))
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(channels -> onLoadFinished((List<Channel>) channels)));
-    }
-
     private void onLoadFinished(List<Channel> channels) {
-        mSwiperefresh.setRefreshing(false);
-
-        if (channels.size() == 0) {
+        if (channels.isEmpty()) {
             //setListShown(true);
             return;
         }
@@ -226,51 +203,36 @@ public class ChannelFragment extends Fragment {
         }
 
         mAdapter.notifyDataSetChanged();
-
-        // The list should now be shown.
-        if (isResumed()) {
-            //setListShown(true);
-        } else {
-            //setListShownNoAnimation(true);
-        }
-    }
-
-    public void onLoaderReset(Loader<List<Channel>> channels) {
-        // Clear the devices in the adapter.
-        mAdapter.clear();
     }
 
     private void showMenu(final View v) {
-        PopupMenu popup = new PopupMenu(getActivity(), v);
+        PopupMenu popup = new PopupMenu(requireActivity(), v);
 
         // This activity implements OnMenuItemClickListener
-        popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                if (item.getItemId() == R.id.action_share) {
-                    Channel channel = (Channel) v.getTag();
+        popup.setOnMenuItemClickListener(item -> {
+            if (item.getItemId() == R.id.action_share) {
+                Channel channel = (Channel) v.getTag();
 
-                    Intent intent = new Intent();
-                    intent.setAction(Intent.ACTION_SEND);
-                    intent.putExtra(Intent.EXTRA_TEXT, "Install this Roku channel (" +
-                            channel.getTitle() + "):\n\n" +
-                            "http://romote/" + channel.getId() + "\n\n" + "Sent using RoMote.");
-                    intent.setType("text/plain");
-                    startActivity(intent);
-                    return true;
-                } else {
-                    return false;
-                }
+                Intent intent = new Intent();
+                intent.setAction(Intent.ACTION_SEND);
+                intent.putExtra(Intent.EXTRA_TEXT, "Install this Roku channel (" +
+                        channel.getTitle() + "):\n\n" +
+                        "http://romote/" + channel.getId() + "\n\n" + "Sent using RoMote.");
+                intent.setType("text/plain");
+                startActivity(intent);
+                return true;
+            } else {
+                return false;
             }
         });
         popup.inflate(R.menu.channel_menu);
         popup.show();
     }
 
-    private BroadcastReceiver mUpdateReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver mUpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            loadChannels();
+            channelScreenViewModel.onHandleEvent(ChannelScreenUiEvent.LoadChannelsEvent.INSTANCE);
         }
     };
 
@@ -293,7 +255,7 @@ public class ChannelFragment extends Fragment {
 
     public void refresh() {
         if (mAdapter.getChannelCount() == 0) {
-            loadChannels();
+            channelScreenViewModel.onHandleEvent(ChannelScreenUiEvent.LoadChannelsEvent.INSTANCE);
         }
     }
 }

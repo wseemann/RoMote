@@ -10,8 +10,8 @@ import java.util.ArrayList;
 import dagger.hilt.android.AndroidEntryPoint;
 import wseemann.media.romote.R;
 import wseemann.media.romote.adapter.DeviceInfoAdapter;
-import wseemann.media.romote.viewmodels.DeviceInfoUiState;
-import wseemann.media.romote.viewmodels.DeviceInfoViewModel;
+import wseemann.media.romote.model.DeviceInfoUiState;
+import wseemann.media.romote.viewmodels.DeviceInfoScreenViewModel;
 
 /**
  * Created by wseemann on 6/19/16.
@@ -52,7 +52,7 @@ public class DeviceInfoFragment extends ListFragment {
         setListAdapter(mAdapter);
         setListShown(false);
 
-        DeviceInfoViewModel viewModel = new ViewModelProvider(this).get(DeviceInfoViewModel.class);
+        DeviceInfoScreenViewModel viewModel = new ViewModelProvider(this).get(DeviceInfoScreenViewModel.class);
 
         viewModel.getDeviceInfoLiveData().observe(getViewLifecycleOwner(), state -> {
             if (state instanceof DeviceInfoUiState.Success) {
