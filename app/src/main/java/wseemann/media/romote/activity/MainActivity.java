@@ -8,7 +8,6 @@ import android.content.SharedPreferences;
 import android.os.IBinder;
 
 import android.os.Bundle;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -45,8 +44,6 @@ public class MainActivity extends ConnectivityActivity implements
 
     @Inject
     protected CommandHelper commandHelper;
-
-    private StoreFragment mStoreFragment;
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
@@ -157,21 +154,6 @@ public class MainActivity extends ConnectivityActivity implements
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if (mViewPager.getCurrentItem() != 3) {
-            return super.onKeyDown(keyCode, event);
-        }
-
-        if (mStoreFragment != null) {
-            if (mStoreFragment.onKeyDown(keyCode)) {
-                return true;
-            }
-        }
-
-        return super.onKeyDown(keyCode, event);
-    }
-
     /**
      * A {@link FragmentPagerAdapter} that returns a fragment corresponding to
      * one of the sections/tabs/pages.
@@ -197,8 +179,7 @@ public class MainActivity extends ConnectivityActivity implements
                 mChannelFragment = new ChannelFragment();
                 return mChannelFragment;
             } else {
-                mStoreFragment = new StoreFragment();
-                return mStoreFragment;
+                return new StoreFragment();
             }
         }
 

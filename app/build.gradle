@@ -2,6 +2,7 @@ apply plugin: 'com.android.application'
 apply plugin: 'com.google.devtools.ksp'
 apply plugin: 'com.mikepenz.aboutlibraries.plugin'
 apply plugin: 'dagger.hilt.android.plugin'
+apply plugin: 'org.jetbrains.kotlin.plugin.compose'
 
 android {
     namespace = "wseemann.media.romote"
@@ -19,7 +20,7 @@ android {
         applicationId "wseemann.media.romote"
         minSdkVersion 26
         targetSdk 35
-        compileSdk 35
+        compileSdk 36
         versionCode 29
         versionName "1.0.29"
     }
@@ -42,20 +43,28 @@ android {
     buildFeatures {
         buildConfig = true
         aidl = true
+        compose = true
     }
 }
 
 dependencies {
     implementation fileTree(dir: 'src/main/libs', include: ['*.aar', '*.jar'], exclude: [])
     implementation(libs.about.libraries.plugin)
+    implementation(platform(libs.compose.bom))
+    implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.appcompat)
     implementation(libs.androidx.constraintlayout)
     implementation(libs.androidx.legacy)
     implementation(libs.androidx.lifecycle.livedata.ktx)
+    implementation(libs.androidx.lifecycle.runtime.compose)
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.preference)
     implementation(libs.androidx.splashscreen)
     implementation(libs.android.material)
+    implementation(libs.compose.material3)
+    implementation(libs.compose.ui)
+    implementation(libs.compose.ui.tooling.preview)
     implementation(libs.glide)
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
@@ -64,6 +73,8 @@ dependencies {
     implementation(libs.rxjava.android)
     implementation(libs.rxjava)
     implementation(libs.timber)
+
+    debugImplementation(libs.compose.ui.tooling)
 
     testImplementation(libs.junit)
 }

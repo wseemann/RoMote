@@ -1,46 +1,71 @@
 package wseemann.media.romote.fragment
 
-import android.annotation.SuppressLint
 import android.os.Bundle
-import android.view.KeyEvent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.webkit.WebView
-import android.webkit.WebViewClient
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
-import wseemann.media.romote.R
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import dagger.hilt.android.AndroidEntryPoint
+import wseemann.media.romote.composables.StoreScreen
+import wseemann.media.romote.composables.theme.RomoteTheme
+import wseemann.media.romote.viewmodels.StoreScreenViewModel
 
 /**
  * Created by wseemann on 8/6/16.
  */
+@AndroidEntryPoint
 class StoreFragment : Fragment() {
 
-    private lateinit var mWebView: WebView
+    private lateinit var storeScreenViewModel: StoreScreenViewModel
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        val view = inflater.inflate(R.layout.fragment_store, container, false)
-        mWebView = view.findViewById<View>(R.id.webview) as WebView
-        return view
+    /**
+     * Whether this fragment is the ViewPager's current page. MainActivity's SectionsPagerAdapter
+     * uses the default FragmentPagerAdapter behavior (BEHAVIOR_SET_USER_VISIBLE_HINT) with an
+     * offscreen page limit of 3, so this fragment is RESUMED even while another tab is on screen.
+     * setUserVisibleHint is the signal that behavior mode drives, which is why the deprecated hook
+     * is still the right one here - it replaces the old
+     * `mViewPager.getCurrentItem() != 3` guard MainActivity used to apply before forwarding
+     * back-key presses.
+     */
+    private var isCurrentPage by mutableStateOf(false)
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        storeScreenViewModel = ViewModelProvider(this)[StoreScreenViewModel::class.java]
     }
 
-    @SuppressLint("SetJavaScriptEnabled")
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
-        mWebView.loadUrl("https://channelstore.roku.com/browse")
-        mWebView.webViewClient = WebViewClient()
-        mWebView.settings.javaScriptEnabled = true
-        mWebView.settings.javaScriptCanOpenWindowsAutomatically = true
+    @Deprecated("Required by FragmentPagerAdapter's BEHAVIOR_SET_USER_VISIBLE_HINT mode")
+    override fun setUserVisibleHint(isVisibleToUser: Boolean) {
+        @Suppress("DEPRECATION")
+        super.setUserVisibleHint(isVisibleToUser)
+        isCurrentPage = isVisibleToUser
     }
 
-    fun onKeyDown(keyCode: Int): Boolean {
-        // Check if the key event was the Back button and if there's history
-        if (keyCode == KeyEvent.KEYCODE_BACK && mWebView.canGoBack()) {
-            mWebView.goBack()
-            return true
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        return ComposeView(requireContext()).apply {
+            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
+            setContent {
+                val uiState by storeScreenViewModel.uiState.collectAsStateWithLifecycle()
+
+                RomoteTheme {
+                    StoreScreen(
+                        uiState = uiState,
+                        isCurrentPage = isCurrentPage,
+                        onEvent = storeScreenViewModel::onHandleEvent
+                    )
+                }
+            }
         }
-        // If it wasn't the Back key or there's no web page history, bubble up to the default
-        // system behavior (probably exit the activity)
-        return false
     }
 }
