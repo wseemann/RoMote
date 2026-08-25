@@ -41,7 +41,5 @@ hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt"
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }
 jdom = { module = "org.jdom:jdom2", version.ref = "jdom" }
 roku-ecp-wrapper-kotlin = { module = "com.github.wseemann:roku-ecp-wrapper-kotlin", version.ref = "roku-ecp-wrapper-kotlin" }
-rxjava = { module = "io.reactivex.rxjava2:rxjava", version.ref = "rxjava" }
-rxjava-android = { module = "io.reactivex.rxjava2:rxandroid", version.ref = "rxjava-android" }
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 junit = { module = "junit:junit", version.ref = "junit" }

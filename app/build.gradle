@@ -70,8 +70,6 @@ dependencies {
     ksp(libs.hilt.compiler)
     implementation(libs.jdom)
     implementation(libs.roku.ecp.wrapper.kotlin)
-    implementation(libs.rxjava.android)
-    implementation(libs.rxjava)
     implementation(libs.timber)
 
     debugImplementation(libs.compose.ui.tooling)
