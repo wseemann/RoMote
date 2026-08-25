@@ -5,5 +5,6 @@ import kotlinx.collections.immutable.persistentListOf
 
 data class MainScreenUiState(
     val availableDevices: ImmutableList<Device> = persistentListOf(),
-    val isLoading: Boolean = true
+    val pairedDevices: ImmutableList<Device> = persistentListOf(),
+    val isLoading: Boolean = false
 )

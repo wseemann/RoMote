@@ -8,8 +8,11 @@ import com.wseemann.ecp.api.DeviceRequests
 import com.wseemann.ecp.api.QueryRequests
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -32,20 +35,25 @@ class MainScreenViewModel @Inject constructor(
     val uiState = _uiState.asStateFlow()
     val uiStateLiveData = uiState.asLiveData()
 
+    private var loadJob: Job? = null
+
     fun onHandleEvent(event: MainScreenUiEvent) {
         when (event) {
             is MainScreenUiEvent.LoadAvailableDevicesEvent -> onLoadAvailableDevices()
+            is MainScreenUiEvent.LoadPairedDevicesEvent -> onLoadPairedDevices()
         }
     }
 
     private fun onLoadAvailableDevices() {
-        viewModelScope.launch(Dispatchers.IO) {
+        // A new request supersedes any scan that is still running.
+        loadJob?.cancel()
+        loadJob = viewModelScope.launch(Dispatchers.IO) {
+            _uiState.update { it.copy(isLoading = true) }
+
             // Retrieve all stored Devices.
             val devices: MutableList<Device?> = DBUtils.getAllDevices(context)
 
             val availableDevices: MutableList<Device> = ArrayList()
-
-            _uiState.update { it.copy(isLoading = true) }
 
             try {
                 val rokuDevices: MutableList<Device> = ArrayList()
@@ -79,9 +87,22 @@ class MainScreenViewModel @Inject constructor(
                 _uiState.update {
                     it.copy(availableDevices = availableDevices.toPersistentList(), isLoading = false)
                 }
+            } catch (ex: CancellationException) {
+                // Superseded by a newer scan, which owns the loading state now.
+                throw ex
             } catch (ex: Exception) {
                 Timber.e(ex)
-                _uiState.update { it.copy(isLoading = false) }
+                _uiState.update {
+                    it.copy(availableDevices = persistentListOf(), isLoading = false)
+                }
+            }
+        }
+    }
+
+    private fun onLoadPairedDevices() {
+        viewModelScope.launch(Dispatchers.IO) {
+            _uiState.update {
+                it.copy(pairedDevices = DBUtils.getAllDevices(context).toPersistentList())
             }
         }
     }

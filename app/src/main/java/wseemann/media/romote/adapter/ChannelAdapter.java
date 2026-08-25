@@ -63,13 +63,13 @@ public class ChannelAdapter extends ArrayAdapter<ChannelItem> {
     @NonNull
     public View getView(int position, View convertView, @NonNull ViewGroup container) {
         // Now handle the main ImageView thumbnails
-        ViewHolder holder = null;
+        ViewHolder holder;
         LayoutInflater mInflater = (LayoutInflater)
                 context.getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
         if (convertView == null) { // if it's not recycled, instantiate and initialize
             convertView = mInflater.inflate(R.layout.list_item_grid, null);
             holder = new ViewHolder();
-            holder.mImageView = (ImageView) convertView.findViewById(android.R.id.icon);
+            holder.mImageView = convertView.findViewById(android.R.id.icon);
             holder.mImageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
             holder.mImageView.setLayoutParams(mImageViewLayoutParams);
             convertView.setTag(holder);

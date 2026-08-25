@@ -29,10 +29,6 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import java.util.ArrayList;
 import java.util.List;
 import dagger.hilt.android.AndroidEntryPoint;
-import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.schedulers.Schedulers;
 import wseemann.media.romote.activity.DeviceInfoActivity;
 import wseemann.media.romote.activity.ManualConnectionActivity;
 import wseemann.media.romote.adapter.DeviceAdapter;
@@ -72,8 +68,6 @@ public class MainFragment extends ListFragment {
     private FloatingActionButton mFab;
 
     private OnDeviceSelectedListener mListener;
-
-    private final CompositeDisposable bin = new CompositeDisposable();
 
     private MainScreenViewModel mainScreenViewModel;
 
@@ -117,8 +111,8 @@ public class MainFragment extends ListFragment {
         mSwiperefresh = view.findViewById(R.id.swiperefresh);
         mSwiperefresh.setOnRefreshListener(
                 () -> {
-                    // This method performs the actual data-refresh operation.
-                    // The method calls setRefreshing(false) when it's finished.
+                    // Kicks off the actual data-refresh operation. The uiState observer
+                    // clears the refreshing and loading indicators when it's finished.
                     setLoadingText(true);
                     mainScreenViewModel.onHandleEvent(MainScreenUiEvent.LoadAvailableDevicesEvent.INSTANCE);
                 }
@@ -135,7 +129,12 @@ public class MainFragment extends ListFragment {
 
         mainScreenViewModel.getUiStateLiveData().observe(getViewLifecycleOwner(), state -> {
             mSwiperefresh.setRefreshing(state.isLoading());
-            onAvailableDevicesLoadFinished(state.getAvailableDevices());
+
+            if (!state.isLoading()) {
+                setLoadingText(false);
+                onAvailableDevicesLoadFinished(state.getAvailableDevices());
+                onPairedDeviceLoadFinished(state.getPairedDevices());
+            }
         });
     }
 
@@ -172,7 +171,7 @@ public class MainFragment extends ListFragment {
             mAvailableDeviceAdapter.clear();
             mAdapter.notifyDataSetChanged();
 
-            loadPairedDevices();
+            mainScreenViewModel.onHandleEvent(MainScreenUiEvent.LoadPairedDevicesEvent.INSTANCE);
         });
 
         mFab.setOnClickListener(view -> {
@@ -196,12 +195,6 @@ public class MainFragment extends ListFragment {
     public void onDetach() {
         super.onDetach();
         mListener = null;
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        bin.dispose();
     }
 
     @Override
@@ -236,9 +229,6 @@ public class MainFragment extends ListFragment {
     }
 
     private void onAvailableDevicesLoadFinished(List<Device> devices) {
-        setLoadingText(false);
-        mSwiperefresh.setRefreshing(false);
-
         mAvailableDeviceAdapter.clear();
         mAdapter.notifyDataSetChanged();
 
@@ -277,7 +267,7 @@ public class MainFragment extends ListFragment {
                 fragment.setListener(() -> {
                     mAvailableDeviceAdapter.clear();
                     mAdapter.notifyDataSetChanged();
-                    loadPairedDevices();
+                    mainScreenViewModel.onHandleEvent(MainScreenUiEvent.LoadPairedDevicesEvent.INSTANCE);
                     BroadcastUtils.Companion.sendUpdateDeviceBroadcast(requireContext());
                 });
                 fragment.show(MainFragment.this.getFragmentManager(), EditDeviceNameDialog.class.getName());
@@ -310,23 +300,16 @@ public class MainFragment extends ListFragment {
 
     private void refreshList(boolean showLoadingText) {
         setLoadingText(showLoadingText);
-        loadPairedDevices();
+        mainScreenViewModel.onHandleEvent(MainScreenUiEvent.LoadPairedDevicesEvent.INSTANCE);
         mainScreenViewModel.onHandleEvent(MainScreenUiEvent.LoadAvailableDevicesEvent.INSTANCE);
         updatePairedDevice();
     }
 
-    private void loadPairedDevices() {
-        Observable.just(DBUtils.getAllDevices(getContext()))
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(devices -> onPairedDeviceLoadFinished((List<Device>) devices));
-    }
-
     private void updatePairedDevice() {
-        Observable.fromCallable(new UpdatePairedDeviceTask(getContext(), preferenceUtils))
+        /*Observable.fromCallable(new UpdatePairedDeviceTask(getContext(), preferenceUtils))
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
-                .subscribe();
+                .subscribe();*/
     }
 
 

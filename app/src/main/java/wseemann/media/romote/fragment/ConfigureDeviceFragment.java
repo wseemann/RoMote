@@ -18,16 +18,13 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
-
 import java.util.List;
 import javax.inject.Inject;
 import dagger.hilt.android.AndroidEntryPoint;
-import io.reactivex.disposables.CompositeDisposable;
 import wseemann.media.romote.R;
 import wseemann.media.romote.activity.MainActivity;
 import wseemann.media.romote.activity.ManualConnectionActivity;
@@ -56,8 +53,6 @@ public class ConfigureDeviceFragment extends Fragment {
     private Button mConnectManuallyButton;
 
     private final Handler mHandler = new Handler(Looper.getMainLooper());
-
-    private final CompositeDisposable bin = new CompositeDisposable();
 
     private ConfigureDeviceScreenViewModel configureDeviceScreenViewModel;
 
@@ -117,12 +112,6 @@ public class ConfigureDeviceFragment extends Fragment {
         super.onPause();
 
         mHandler.removeCallbacksAndMessages(null);
-    }
-
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        bin.dispose();
     }
 
     @Override

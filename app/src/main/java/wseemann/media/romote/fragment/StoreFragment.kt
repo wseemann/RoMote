@@ -17,9 +17,6 @@ import wseemann.media.romote.composables.StoreScreen
 import wseemann.media.romote.composables.theme.RomoteTheme
 import wseemann.media.romote.viewmodels.StoreScreenViewModel
 
-/**
- * Created by wseemann on 8/6/16.
- */
 @AndroidEntryPoint
 class StoreFragment : Fragment() {
 

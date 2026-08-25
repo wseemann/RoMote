@@ -22,19 +22,6 @@ import wseemann.media.romote.composables.theme.RomoteTheme
 import wseemann.media.romote.event.StoreScreenUiEvent
 import wseemann.media.romote.model.StoreScreenUiState
 
-/**
- * The Roku channel store, migrated from res/layout/fragment_store.xml (a LinearLayout wrapping a
- * single full-bleed WebView).
- *
- * WebView has no Compose equivalent, so it stays a View behind [AndroidView]. The WebView is built
- * once in the factory - loadUrl must never move into `update`, or every recomposition restarts the
- * page load and throws away the user's browsing history.
- *
- * @param isCurrentPage whether the Store tab is the ViewPager's selected page. MainActivity's
- * SectionsPagerAdapter uses the default FragmentPagerAdapter behavior with an offscreen page limit
- * of 3, so StoreFragment stays RESUMED while other tabs are on screen. Without this gate the
- * [BackHandler] below would swallow back presses made on the Main, Remote, and Channels tabs.
- */
 @SuppressLint("SetJavaScriptEnabled")
 @Composable
 fun StoreScreen(
@@ -88,10 +75,6 @@ fun StoreScreen(
     }
 }
 
-/**
- * AndroidView does not render in the preview surface, so this only exercises the loading chrome and
- * the theme. Use a device or emulator to verify the WebView itself.
- */
 @Preview(showBackground = true)
 @Composable
 private fun StoreScreenPreview() {
