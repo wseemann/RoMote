@@ -1,24 +1,19 @@
 package wseemann.media.romote.fragment;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.speech.RecognizerIntent;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -29,7 +24,6 @@ import android.widget.ImageButton;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.annotation.RequiresApi;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 import com.wseemann.ecp.api.ResponseCallback;
@@ -80,18 +74,9 @@ public class RemoteFragment extends Fragment {
         return inflater.inflate(R.layout.fragment_remote, container, false);
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.O)
     @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-
-        /*mVoiceSearcButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                displaySpeechRecognizer();
-            }
-        });
-        mVoiceSearcButton.requestFocus();*/
 
         linkButton(KeyPressKeyValues.BACK, R.id.back_button);
         linkRepeatingRemoteButton(KeyPressKeyValues.UP, R.id.up_button);
@@ -157,7 +142,7 @@ public class RemoteFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        getActivity().unregisterReceiver(mUpdateReceiver);
+        requireActivity().unregisterReceiver(mUpdateReceiver);
     }
 
     private void linkRepeatingRemoteButton(final KeyPressKeyValues keypressKeyValue, int id) {
@@ -210,7 +195,7 @@ public class RemoteFragment extends Fragment {
 
             @Override
             public void onError(@NonNull Exception e) {
-                Log.d("TAG", e.getMessage());
+                Timber.tag("TAG").d(e);
             }
         }));
     }
@@ -225,15 +210,9 @@ public class RemoteFragment extends Fragment {
             builder.setTitle(R.string.power_dialog_title);
             builder.setMessage(R.string.power_dialog_message);
             builder.setCancelable(true);
-            builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int whichButton) {
-                }
+            builder.setNegativeButton(android.R.string.cancel, (dialog, whichButton) -> {
             });
-            builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int whichButton) {
-                    performKeypress(KeyPressKeyValues.POWER_OFF);
-                }
-            });
+            builder.setPositiveButton(android.R.string.ok, (dialog, whichButton) -> performKeypress(KeyPressKeyValues.POWER_OFF));
 
             Dialog dialog = builder.create();
             dialog.show();
@@ -254,7 +233,7 @@ public class RemoteFragment extends Fragment {
     }
 
     @Override
-    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+    public void onCreateOptionsMenu(@NonNull Menu menu, MenuInflater inflater) {
         inflater.inflate(R.menu.remote_menu, menu);
     }
 
@@ -264,21 +243,11 @@ public class RemoteFragment extends Fragment {
         int id = item.getItemId();
 
         if (id == R.id.action_cancel) {
-            getActivity().finish();
+            requireActivity().finish();
             return true;
         }
 
         return false;
-    }
-
-    private static final int SPEECH_REQUEST_CODE = 0;
-
-    private void displaySpeechRecognizer() {
-        Intent intent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
-        intent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
-                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
-        // Start the activity, the intent will be populated with the speech text
-        startActivityForResult(intent, SPEECH_REQUEST_CODE);
     }
 
     // This callback is invoked when the Speech Recognizer returns.
@@ -286,18 +255,10 @@ public class RemoteFragment extends Fragment {
     @Override
     public void onActivityResult(int requestCode, int resultCode,
                                     Intent data) {
-        if (requestCode == SPEECH_REQUEST_CODE && resultCode == Activity.RESULT_OK) {
-            List<String> results = data.getStringArrayListExtra(
-                    RecognizerIntent.EXTRA_RESULTS);
-            String spokenText = results.get(0);
-            // Do something with spokenText
-            //mTextBox.setText(spokenText);
-            //Toast.makeText(getActivity(), spokenText, Toast.LENGTH_LONG).show();
-        }
         super.onActivityResult(requestCode, resultCode, data);
     }
 
-    private BroadcastReceiver mUpdateReceiver = new BroadcastReceiver() {
+    private final BroadcastReceiver mUpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             updateVolumeControls();
@@ -316,7 +277,7 @@ public class RemoteFragment extends Fragment {
             }
 
         } catch (Exception ex) {
-            Log.e(TAG, "Error updating remote layout for newly connected device.");
+            Timber.tag(TAG).e("Error updating remote layout for newly connected device.");
         }
     }
 
@@ -335,7 +296,7 @@ public class RemoteFragment extends Fragment {
             rokuDeviceName.setText(deviceName);
 
         } catch (Exception ex) {
-            Log.e(TAG, "Error updating roku device name for newly connected device.");
+            Timber.tag(TAG).e("Error updating roku device name for newly connected device.");
         }
     }
 
@@ -348,10 +309,10 @@ public class RemoteFragment extends Fragment {
             Device device = preferenceUtils.getConnectedDevice();
 
             if (device.getSupportsPrivateListening() != null) {
-                supportsRemoteAudio = Boolean.valueOf(device.getSupportsPrivateListening());
+                supportsRemoteAudio = Boolean.parseBoolean(device.getSupportsPrivateListening());
             }
         } catch (Exception ex) {
-            Log.e(TAG, "Error updating remote layout for newly connected device.");
+            Timber.tag(TAG).e("Error updating remote layout for newly connected device.");
         }
 
         if (!supportsRemoteAudio || !privateListeningInstalled()) {
@@ -386,7 +347,7 @@ public class RemoteFragment extends Fragment {
             showDownloadPrivateListeningDialog();
         } else {
             try {
-                getContext().bindService(intent, remoteAudioConnection, Context.BIND_AUTO_CREATE);
+                requireContext().bindService(intent, remoteAudioConnection, Context.BIND_AUTO_CREATE);
             } catch (SecurityException ex) {
                 Timber.e(ex, "Failed to start private listening service");
             }
@@ -415,20 +376,20 @@ public class RemoteFragment extends Fragment {
                         "wseemann.media.romote.audio.remoteaudio.RemoteAudio"
                 )
         );
-        List<ResolveInfo> list = getContext().getPackageManager().queryIntentServices(intent,
+        List<ResolveInfo> list = requireContext().getPackageManager().queryIntentServices(intent,
                 PackageManager.MATCH_DEFAULT_ONLY);
 
-        return list.size() != 0;
+        return !list.isEmpty();
     }
 
     /**
      * Class for interacting with the main interface of the service.
      */
-    private ServiceConnection remoteAudioConnection = new ServiceConnection() {
+    private final ServiceConnection remoteAudioConnection = new ServiceConnection() {
 
         @Override
         public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            Log.d(TAG, "onServiceConnected");
+            Timber.tag(TAG).d("onServiceConnected");
             mService = IRemoteAudioInterface.Stub.asInterface(iBinder);
             isBound = true;
 
@@ -446,7 +407,7 @@ public class RemoteFragment extends Fragment {
 
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
-            Log.d(TAG, "onServiceDisconnected");
+            Timber.tag(TAG).d("onServiceDisconnected");
             isBound = false;
             mService = null;
             updatePrivateListening();
@@ -454,7 +415,7 @@ public class RemoteFragment extends Fragment {
 
         @Override
         public void onBindingDied(ComponentName name) {
-            Log.d(TAG, "onBindingDied");
+            Timber.tag(TAG).d("onBindingDied");
             isBound = false;
             mService = null;
             updatePrivateListening();
@@ -462,7 +423,7 @@ public class RemoteFragment extends Fragment {
 
         @Override
         public void onNullBinding(ComponentName name) {
-            Log.d(TAG, "onNullBinding");
+            Timber.tag(TAG).d("onNullBinding");
             isBound = false;
             mService = null;
             updatePrivateListening();

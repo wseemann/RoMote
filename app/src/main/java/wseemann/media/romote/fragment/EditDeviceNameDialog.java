@@ -50,7 +50,7 @@ public class EditDeviceNameDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         LayoutInflater inflater = getActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.dialog_fragment_edit_device_name, null);
-        mCustomUserDeviceNameText = (EditText) view.findViewById(R.id.custom_user_device_name_text);
+        mCustomUserDeviceNameText = view.findViewById(R.id.custom_user_device_name_text);
         mCustomUserDeviceNameText.setText(getArguments().getString(EXTRA_CUSTOM_USER_DEVICE_NAME));
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());

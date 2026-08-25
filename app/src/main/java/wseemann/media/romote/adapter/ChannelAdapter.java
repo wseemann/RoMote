@@ -15,36 +15,33 @@ import androidx.annotation.NonNull;
 import wseemann.media.romote.R;
 
 import com.bumptech.glide.RequestManager;
-import com.wseemann.ecp.model.Channel;
 
 import java.util.List;
 
-import wseemann.media.romote.utils.CommandHelper;
+import wseemann.media.romote.model.ChannelItem;
 
 /**
  * The main adapter that backs the GridView. This is fairly standard except the number of
  * columns in the GridView is used to create a fake top row of empty views as we use a
  * transparent ActionBar and don't want the real top row of images to start off covered by it.
  */
-public class ChannelAdapter extends ArrayAdapter<Channel> {
+public class ChannelAdapter extends ArrayAdapter<ChannelItem> {
 
     private final Context context;
     private final RequestManager requestManager;
-    private final List<Channel> mChannels;
-    private final CommandHelper commandHelper;
+    private final List<ChannelItem> mChannels;
 
     private int mItemHeight = 0;
     private int mNumColumns = 0;
     private FrameLayout.LayoutParams mImageViewLayoutParams;
 
-    public ChannelAdapter(Context context, RequestManager requestManager, List<Channel> channels, CommandHelper commandHelper) {
+    public ChannelAdapter(Context context, RequestManager requestManager, List<ChannelItem> channels) {
         super(context, R.layout.empty_device_list, channels);
         this.context = context;
         this.requestManager = requestManager;
         mChannels = channels;
         mImageViewLayoutParams = new FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
-        this.commandHelper = commandHelper;
     }
 
     @Override
@@ -85,11 +82,11 @@ public class ChannelAdapter extends ArrayAdapter<Channel> {
             holder.mImageView.setLayoutParams(mImageViewLayoutParams);
         }
 
-        final Channel channel = getItem(position);
+        final ChannelItem channel = getItem(position);
 
         // Finally load the image asynchronously into the ImageView, this also takes care of
         // setting a placeholder image while the background thread runs
-        requestManager.load(Uri.parse(commandHelper.getIconURL(channel.getId())))
+        requestManager.load(Uri.parse(channel.getIconUrl()))
                 .into(holder.mImageView);
 
         return convertView;

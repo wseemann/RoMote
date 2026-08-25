@@ -10,6 +10,7 @@ import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,25 +19,23 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import java.util.List;
-
 import javax.inject.Inject;
-
 import dagger.hilt.android.AndroidEntryPoint;
-import io.reactivex.Observable;
-import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.CompositeDisposable;
-import io.reactivex.schedulers.Schedulers;
 import wseemann.media.romote.R;
 import wseemann.media.romote.activity.MainActivity;
 import wseemann.media.romote.activity.ManualConnectionActivity;
-
+import wseemann.media.romote.event.ConfigureDeviceScreenUiEvent;
 import wseemann.media.romote.model.Device;
-import wseemann.media.romote.tasks.AvailableDevicesTask;
 import wseemann.media.romote.utils.DBUtils;
 import wseemann.media.romote.utils.PreferenceUtils;
+import wseemann.media.romote.viewmodels.ConfigureDeviceScreenViewModel;
 
 /**
  * Created by wseemann on 6/20/16.
@@ -56,13 +55,16 @@ public class ConfigureDeviceFragment extends Fragment {
     private LinearLayout mList;
     private Button mConnectManuallyButton;
 
-    private Handler mHandler;
+    private final Handler mHandler = new Handler(Looper.getMainLooper());
 
     private final CompositeDisposable bin = new CompositeDisposable();
+
+    private ConfigureDeviceScreenViewModel configureDeviceScreenViewModel;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        configureDeviceScreenViewModel = new ViewModelProvider(this).get(ConfigureDeviceScreenViewModel.class);
     }
 
     @Override
@@ -79,6 +81,19 @@ public class ConfigureDeviceFragment extends Fragment {
     }
 
     @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        configureDeviceScreenViewModel.getUiStateLiveData().observe(getViewLifecycleOwner(), state -> {
+            setListShown(!state.isLoading());
+
+            if (!state.isLoading()) {
+                onLoadFinished(state.getAvailableDevices());
+            }
+        });
+    }
+
+    @Override
     public void onActivityCreated(Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
@@ -86,8 +101,6 @@ public class ConfigureDeviceFragment extends Fragment {
             Intent intent = new Intent(ConfigureDeviceFragment.this.getActivity(), ManualConnectionActivity.class);
             startActivityForResult(intent, 0);
         });
-
-        mHandler = new Handler();
     }
 
     @Override
@@ -96,10 +109,7 @@ public class ConfigureDeviceFragment extends Fragment {
 
         mWirelessNextworkTextview.setText(getWirelessNetworkName(requireContext()));
 
-        mHandler.postDelayed(() -> {
-            setListShown(false);
-            loadAvailableDevices();
-        }, 1000);
+        scheduleScan(1000);
     }
 
     @Override
@@ -151,21 +161,16 @@ public class ConfigureDeviceFragment extends Fragment {
         return networkName;
     }
 
-    private void loadAvailableDevices() {
-        bin.add(Observable.fromCallable(new AvailableDevicesTask(getContext()))
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(devices -> onLoadFinished((List<Device>) devices)));
+    private void scheduleScan(long delayMillis) {
+        mHandler.removeCallbacksAndMessages(null);
+        mHandler.postDelayed(() -> configureDeviceScreenViewModel.onHandleEvent(
+                ConfigureDeviceScreenUiEvent.LoadAvailableDevicesEvent.INSTANCE), delayMillis);
     }
 
     private void onLoadFinished(List<Device> devices) {
-        mHandler.postDelayed(() -> {
-            setListShown(false);
-            loadAvailableDevices();
-        }, 5000);
+        scheduleScan(5000);
 
-        if (devices.size() == 0) {
-            setListShown(true);
+        if (devices.isEmpty()) {
             return;
         }
 
@@ -194,13 +199,6 @@ public class ConfigureDeviceFragment extends Fragment {
             }
         }
 
-        // The list should now be shown.
-        if (isResumed()) {
-            setListShown(true);
-        } else {
-            setListShown(true);
-            //setListShownNoAnimation(true);
-        }
     }
 
     public void setListShown(boolean shown) {
