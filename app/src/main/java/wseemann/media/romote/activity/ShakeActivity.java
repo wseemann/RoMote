@@ -13,6 +13,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 import timber.log.Timber;
 import wseemann.media.romote.utils.CommandHelper;
 import wseemann.media.romote.utils.ShakeMonitor;
+import wseemann.media.romote.utils.WindowInsetsUtils;
 
 @AndroidEntryPoint
 public class ShakeActivity extends AppCompatActivity {
@@ -28,6 +29,9 @@ public class ShakeActivity extends AppCompatActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        // Must run before subclasses call setContentView.
+        WindowInsetsUtils.enableRomoteEdgeToEdge(this);
 
         mShakeMonitor = new ShakeMonitor(this);
         mShakeMonitor.setOnShakeListener(mShakeListener);

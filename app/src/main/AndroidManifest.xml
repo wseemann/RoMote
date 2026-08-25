@@ -67,27 +67,27 @@
             android:configChanges="orientation|keyboardHidden"
             android:label="@string/title_device_info"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme" />
+            android:theme="@style/AppTheme.NoActionBar" />
 
         <activity
             android:name="wseemann.media.romote.activity.SettingsActivity"
             android:configChanges="orientation|keyboardHidden"
             android:label="@string/title_settings"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme" />
+            android:theme="@style/AppTheme.NoActionBar" />
 
         <activity
             android:name="wseemann.media.romote.activity.ConfigureDeviceActivity"
             android:configChanges="orientation|keyboardHidden"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme" />
+            android:theme="@style/AppTheme.NoActionBar" />
 
         <activity
             android:name="wseemann.media.romote.activity.AppWidgetConfigure"
             android:configChanges="orientation|keyboardHidden"
             android:exported="true"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme">
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
             </intent-filter>
@@ -98,7 +98,7 @@
             android:configChanges="orientation|keyboardHidden"
             android:label="@string/title_connect_manually"
             android:screenOrientation="portrait"
-            android:theme="@style/AppTheme" />
+            android:theme="@style/AppTheme.NoActionBar" />
 
         <activity
             android:name="com.mikepenz.aboutlibraries.ui.LibsActivity"

@@ -42,6 +42,7 @@ import wseemann.media.romote.tasks.UpdatePairedDeviceTask;
 import wseemann.media.romote.utils.BroadcastUtils;
 import wseemann.media.romote.utils.DBUtils;
 import wseemann.media.romote.utils.PreferenceUtils;
+import wseemann.media.romote.utils.WindowInsetsUtils;
 import wseemann.media.romote.viewmodels.MainScreenViewModel;
 import wseemann.media.romote.widget.RokuAppWidgetProvider;
 
@@ -100,6 +101,7 @@ public class MainFragment extends ListFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_main, container, false);
+        WindowInsetsUtils.applyNavigationBarBottomPadding(view);
 
         mSelectDeviceText = view.findViewById(R.id.select_device_text);
         mProgressLayout = view.findViewById(R.id.progress_layout);

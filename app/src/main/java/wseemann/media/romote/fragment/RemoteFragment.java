@@ -42,6 +42,7 @@ import wseemann.media.romote.utils.BroadcastUtils;
 import wseemann.media.romote.utils.CommandHelper;
 import wseemann.media.romote.utils.Constants;
 import wseemann.media.romote.utils.PreferenceUtils;
+import wseemann.media.romote.utils.WindowInsetsUtils;
 import wseemann.media.romote.view.RepeatingImageButton;
 import wseemann.media.romote.view.VibratingImageButton;
 
@@ -71,7 +72,9 @@ public class RemoteFragment extends Fragment {
 
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_remote, container, false);
+        View view = inflater.inflate(R.layout.fragment_remote, container, false);
+        WindowInsetsUtils.applyNavigationBarBottomPadding(view);
+        return view;
     }
 
     @Override

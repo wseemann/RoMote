@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -36,7 +37,8 @@ fun StoreScreen(
         webView?.goBack()
     }
 
-    Column(modifier = modifier.fillMaxSize()) {
+    // The app is edge-to-edge, so keep the web content clear of the navigation bar.
+    Column(modifier = modifier.fillMaxSize().navigationBarsPadding()) {
         if (uiState.isLoading) {
             LinearProgressIndicator(modifier = Modifier.fillMaxWidth())
         }

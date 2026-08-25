@@ -20,6 +20,7 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
+import com.google.android.material.appbar.AppBarLayout;
 import com.google.android.material.tabs.TabLayout;
 import com.wseemann.ecp.api.ResponseCallback;
 import com.wseemann.ecp.request.SearchRequest;
@@ -34,6 +35,7 @@ import wseemann.media.romote.fragment.SearchDialog;
 import wseemann.media.romote.fragment.StoreFragment;
 import wseemann.media.romote.service.NotificationService;
 import wseemann.media.romote.utils.CommandHelper;
+import wseemann.media.romote.utils.WindowInsetsUtils;
 
 @AndroidEntryPoint
 public class MainActivity extends ConnectivityActivity implements
@@ -61,6 +63,9 @@ public class MainActivity extends ConnectivityActivity implements
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
+
+        AppBarLayout appBarLayout = findViewById(R.id.app_bar_layout);
+        WindowInsetsUtils.applyStatusBarTopPadding(appBarLayout);
 
         if (sharedPreferences.getBoolean("first_use", true)) {
             startActivity(new Intent(this, ConfigureDeviceActivity.class));

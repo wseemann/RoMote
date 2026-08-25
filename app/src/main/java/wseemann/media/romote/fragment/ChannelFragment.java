@@ -31,6 +31,7 @@ import wseemann.media.romote.model.ChannelItem;
 import wseemann.media.romote.util.Utils;
 import wseemann.media.romote.utils.BroadcastUtils;
 import wseemann.media.romote.utils.Constants;
+import wseemann.media.romote.utils.WindowInsetsUtils;
 import wseemann.media.romote.viewmodels.ChannelScreenViewModel;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.RequestManager;
@@ -80,6 +81,7 @@ public class ChannelFragment extends Fragment {
 
         final View v = inflater.inflate(R.layout.fragment_channels, container, false);
         final GridView mGridView = v.findViewById(android.R.id.list);
+        WindowInsetsUtils.applyNavigationBarBottomPadding(mGridView);
 
         mSwiperefresh = v.findViewById(R.id.swiperefresh);
         // This method performs the actual data-refresh operation.
