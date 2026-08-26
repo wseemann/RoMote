@@ -80,25 +80,20 @@ public class TextInputDialog extends DialogFragment {
             if (actionId == EditorInfo.IME_ACTION_DONE) {
                 if (event.getKeyCode() == 67 &&
                         event.getAction() == KeyEvent.ACTION_DOWN) { //&&
-                    //textbox.length() == 0) {
                     sendBackspace();
                     return true;
                 }
             }
             return false;
         });
-        mTextBox.setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if (keyCode == 67 &&
-                        event.getAction() == KeyEvent.ACTION_DOWN) { //&&
-                        //textbox.length() == 0) {
-                    sendBackspace();
-                    return true;
-                }
-
-                return false;
+        mTextBox.setOnKeyListener((v, keyCode, event) -> {
+            if (keyCode == 67 &&
+                    event.getAction() == KeyEvent.ACTION_DOWN) {
+                sendBackspace();
+                return true;
             }
+
+            return false;
         });
         mTextBox.addTextChangedListener(new TextWatcher() {
             @Override

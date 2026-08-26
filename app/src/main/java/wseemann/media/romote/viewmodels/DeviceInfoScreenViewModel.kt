@@ -1,6 +1,7 @@
 package wseemann.media.romote.viewmodels
 
 import android.content.Context
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wseemann.ecp.api.QueryRequests
@@ -14,7 +15,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import wseemann.media.romote.event.DeviceInfoScreenUiEvent
 import wseemann.media.romote.data.Device
 import wseemann.media.romote.data.Device.Companion.fromDevice
 import wseemann.media.romote.model.DeviceInfoScreenUiState
@@ -26,17 +26,21 @@ import javax.inject.Inject
 @HiltViewModel
 class DeviceInfoScreenViewModel @Inject constructor(
     @ApplicationContext val context: Context,
-    val commandHelper: CommandHelper
+    val commandHelper: CommandHelper,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DeviceInfoScreenUiState())
     val uiState = _uiState.asStateFlow()
 
-    fun onHandleEvent(event: DeviceInfoScreenUiEvent) {
-        when (event) {
-            is DeviceInfoScreenUiEvent.LoadDeviceInfoEvent ->
-                onLoadDeviceInfo(event.serialNumber, event.host)
-        }
+    init {
+        // The extras DeviceInfoActivity was started with arrive here by way of the SavedStateHandle.
+        // Loading from init rather than from an event means a configuration change re-creates the
+        // Activity but not the ViewModel, so the device is queried exactly once.
+        onLoadDeviceInfo(
+            serialNumber = savedStateHandle[EXTRA_SERIAL_NUMBER],
+            host = savedStateHandle[EXTRA_HOST]
+        )
     }
 
     private fun onLoadDeviceInfo(serialNumber: String?, host: String?) {
@@ -99,5 +103,11 @@ class DeviceInfoScreenViewModel @Inject constructor(
             Entry("supports-private-listening", device.supportsPrivateListening.orEmpty()),
             Entry("headphones-connected", device.headphonesConnected.orEmpty())
         ).toPersistentList()
+    }
+
+    companion object {
+        /** Intent extras DeviceInfoActivity is started with; see MainFragment. */
+        const val EXTRA_SERIAL_NUMBER = "serial_number"
+        const val EXTRA_HOST = "host"
     }
 }

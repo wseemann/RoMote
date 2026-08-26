@@ -12,6 +12,14 @@ internal val PurpleAccentTwo = Color(0xFF8F318A)
 internal val OnPurple = Color(0xFFEBEBEB)
 
 /**
+ * The lighter purple the connect/scan buttons are tinted with in the XML layouts
+ * (fragment_configure_device.xml, dialog_fragment_volume.xml). It is not a role in the color
+ * scheme - it never was in the XML theme either - so Compose buttons that used to be those
+ * MaterialButtons name it directly.
+ */
+internal val PurpleButton = Color(0xFFA865F3)
+
+/**
  * Window backgrounds. The XML screens take these from Theme.MaterialComponents.DayNight rather than
  * from colors.xml, so they are spelled out here to keep the Compose screens on the same surface.
  */

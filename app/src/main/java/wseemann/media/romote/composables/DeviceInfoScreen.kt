@@ -1,7 +1,9 @@
 package wseemann.media.romote.composables
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
@@ -9,6 +11,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -25,21 +28,40 @@ import wseemann.media.romote.data.Entry
 /**
  * The device info screen: everything the connected Roku reports about itself, as key/value rows.
  *
- * There is nothing to interact with here, so unlike the other screens this one takes no `onEvent` -
- * DeviceInfoFragment fires the one load event this screen needs.
- *
- * Note that no navigation bar padding is applied: DeviceInfoActivity already pads the container
- * this screen is hosted in.
+ * There is nothing to interact with here beyond leaving, so unlike the other screens this one takes
+ * no `onEvent` - DeviceInfoScreenViewModel starts its one query as soon as it is created.
  */
 @Composable
 fun DeviceInfoScreen(
     uiState: DeviceInfoScreenUiState,
+    onBackClick: () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Scaffold(
+        modifier = modifier.fillMaxSize(),
+        topBar = {
+            RomoteTopAppBar(
+                title = stringResource(R.string.title_device_info),
+                onBackClick = onBackClick
+            )
+        }
+    ) { contentPadding ->
+        DeviceInfoContent(uiState = uiState, contentPadding = contentPadding)
+    }
+}
+
+@Composable
+private fun DeviceInfoContent(
+    uiState: DeviceInfoScreenUiState,
+    contentPadding: PaddingValues,
     modifier: Modifier = Modifier
 ) {
     if (uiState.entries.isEmpty()) {
         Box(
             contentAlignment = Alignment.Center,
-            modifier = modifier.fillMaxSize()
+            modifier = modifier
+                .fillMaxSize()
+                .padding(contentPadding)
         ) {
             if (uiState.isLoading) {
                 CircularProgressIndicator()
@@ -54,7 +76,12 @@ fun DeviceInfoScreen(
         return
     }
 
-    LazyColumn(modifier = modifier.fillMaxSize()) {
+    // The padding goes to the list rather than around it, so the rows scroll under the navigation
+    // bar instead of stopping short of it.
+    LazyColumn(
+        contentPadding = contentPadding,
+        modifier = modifier.fillMaxSize()
+    ) {
         items(uiState.entries, key = { entry -> entry.key }) { entry ->
             DeviceInfoRow(entry = entry)
             HorizontalDivider()
@@ -93,7 +120,8 @@ private fun DeviceInfoScreenPreview() {
                     Entry("software-version", "13.0.0")
                 ),
                 isLoading = false
-            )
+            ),
+            onBackClick = {}
         )
     }
 }
@@ -102,7 +130,7 @@ private fun DeviceInfoScreenPreview() {
 @Composable
 private fun DeviceInfoScreenLoadingPreview() {
     RomoteTheme {
-        DeviceInfoScreen(uiState = DeviceInfoScreenUiState())
+        DeviceInfoScreen(uiState = DeviceInfoScreenUiState(), onBackClick = {})
     }
 }
 
@@ -110,6 +138,6 @@ private fun DeviceInfoScreenLoadingPreview() {
 @Composable
 private fun DeviceInfoScreenEmptyPreview() {
     RomoteTheme {
-        DeviceInfoScreen(uiState = DeviceInfoScreenUiState(isLoading = false))
+        DeviceInfoScreen(uiState = DeviceInfoScreenUiState(isLoading = false), onBackClick = {})
     }
 }

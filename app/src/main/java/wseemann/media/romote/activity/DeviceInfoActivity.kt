@@ -1,40 +1,34 @@
 package wseemann.media.romote.activity
 
 import android.os.Bundle
-import android.view.MenuItem
-import androidx.appcompat.widget.Toolbar
-import wseemann.media.romote.R
-import wseemann.media.romote.fragment.DeviceInfoFragment
-import wseemann.media.romote.utils.applyNavigationBarBottomPadding
-import wseemann.media.romote.utils.applyStatusBarTopPadding
+import androidx.activity.compose.setContent
+import androidx.activity.viewModels
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import dagger.hilt.android.AndroidEntryPoint
+import wseemann.media.romote.composables.DeviceInfoScreen
+import wseemann.media.romote.composables.theme.RomoteTheme
+import wseemann.media.romote.viewmodels.DeviceInfoScreenViewModel
 
+/**
+ * Everything the device reports about itself. Reached from the device lists, either for a paired
+ * device (by serial number) or one that was just discovered (by host); both arrive as Intent
+ * extras, which DeviceInfoScreenViewModel reads from its SavedStateHandle.
+ */
+@AndroidEntryPoint
 class DeviceInfoActivity : ConnectivityActivity() {
+
+    private val deviceInfoScreenViewModel: DeviceInfoScreenViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_deviceinfo)
 
-        setSupportActionBar(findViewById(R.id.toolbar))
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        applyStatusBarTopPadding(findViewById(R.id.app_bar_layout))
-        applyNavigationBarBottomPadding(findViewById(R.id.content))
+        setContent {
+            val uiState by deviceInfoScreenViewModel.uiState.collectAsStateWithLifecycle()
 
-        val serialNumber = intent.getStringExtra("serial_number")
-        val host = intent.getStringExtra("host")
-        val transaction = supportFragmentManager.beginTransaction()
-        transaction.add(R.id.content, DeviceInfoFragment.getInstance(serialNumber, host))
-            .commit()
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            android.R.id.home -> {
-                finish()
-                return true
+            RomoteTheme {
+                DeviceInfoScreen(uiState = uiState, onBackClick = { finish() })
             }
-
-            else -> {}
         }
-        return super.onOptionsItemSelected(item)
     }
 }

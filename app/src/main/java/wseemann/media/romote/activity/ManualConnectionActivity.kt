@@ -1,33 +1,60 @@
 package wseemann.media.romote.activity
 
+import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
-import android.view.MenuItem
-import androidx.appcompat.widget.Toolbar
-import wseemann.media.romote.R
-import wseemann.media.romote.utils.applyNavigationBarBottomPadding
-import wseemann.media.romote.utils.applyStatusBarTopPadding
+import androidx.activity.compose.setContent
+import androidx.activity.viewModels
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
+import wseemann.media.romote.composables.ManualConnectionScreen
+import wseemann.media.romote.composables.theme.RomoteTheme
+import wseemann.media.romote.viewmodels.ManualConnectionScreenViewModel
 
+/**
+ * Pairing with a device by typing its IP address, for the devices discovery misses. Started for a
+ * result by MainFragment and ConfigureDeviceFragment, both of which refresh their device lists on
+ * RESULT_OK.
+ */
+@AndroidEntryPoint
 class ManualConnectionActivity : ConnectivityActivity() {
+
+    private val manualConnectionScreenViewModel: ManualConnectionScreenViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_manual_connection)
 
-        setSupportActionBar(findViewById<Toolbar>(R.id.toolbar))
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        applyStatusBarTopPadding(findViewById(R.id.app_bar_layout))
-        applyNavigationBarBottomPadding(findViewById(R.id.manual_connection_fragment))
-    }
+        // Backing out without pairing is the default outcome; the collector below upgrades it.
+        setResult(RESULT_CANCELED)
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when (item.itemId) {
-            android.R.id.home -> {
-                finish()
-                return true
+        setContent {
+            val uiState by manualConnectionScreenViewModel.uiState.collectAsStateWithLifecycle()
+
+            RomoteTheme {
+                ManualConnectionScreen(
+                    uiState = uiState,
+                    onEvent = manualConnectionScreenViewModel::onHandleEvent,
+                    onBackClick = { finish() }
+                )
             }
-
-            else -> {}
         }
-        return super.onOptionsItemSelected(item)
+
+        // Finishing is collected here rather than run from the composition, so
+        // ManualConnectionScreen stays a pure function of its state.
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                manualConnectionScreenViewModel.uiState.collect { state ->
+                    if (state.isConnected) {
+                        setResult(RESULT_OK, Intent())
+                        finish()
+                    }
+                }
+            }
+        }
     }
 }
