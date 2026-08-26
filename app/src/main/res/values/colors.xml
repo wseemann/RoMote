@@ -3,8 +3,6 @@
     <color name="colorPrimary">#3F51B5</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
-    <color name="grid_state_pressed">#1Affffff</color>
-    <color name="grid_state_focused">#80000000</color>
     <color name="purple">#65318f</color>
     <color name="purple_accent">#843abc</color>
     <color name="purple_accent_two">#8F318A</color>

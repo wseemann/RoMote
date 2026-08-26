@@ -60,19 +60,9 @@
         <item name="tabTextColor">@android:color/white</item>
     </style>
 
-    <style name="PhotoGridLayout">
-        <item name="android:drawSelectorOnTop">true</item>
-        <item name="android:listSelector">@drawable/photogrid_list_selector</item>
-    </style>
-
     <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar" />
 
     <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light" />
-
-    <style name="roundedCornersImageView" parent="">
-        <item name="cornerFamily">rounded</item>
-        <item name="cornerSize">5dp</item>
-    </style>
 
     <style name="ToolbarStyle" parent ="Widget.MaterialComponents.Toolbar">
         <item name="android:background">@color/purple</item>

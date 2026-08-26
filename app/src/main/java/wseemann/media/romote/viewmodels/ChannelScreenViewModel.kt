@@ -1,7 +1,6 @@
 package wseemann.media.romote.viewmodels
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.wseemann.ecp.api.QueryRequests
 import com.wseemann.ecp.api.ResponseCallback
@@ -26,7 +25,6 @@ class ChannelScreenViewModel @Inject constructor(private val commandHelper: Comm
 
     private val _uiState = MutableStateFlow(ChannelScreenUiState())
     val uiState = _uiState.asStateFlow()
-    val uiStateLiveData = uiState.asLiveData()
 
     fun onHandleEvent(event: ChannelScreenUiEvent) {
         when (event) {

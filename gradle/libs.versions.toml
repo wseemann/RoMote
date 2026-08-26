@@ -8,6 +8,7 @@ androidx-lifecycle = "2.8.7"
 androidx-preference = "1.2.1"
 androidx-splashscreen = "1.0.1"
 android-material = "1.12.0"
+coil = "3.3.0"
 compose-bom = "2026.06.01"
 glide = "4.16.0"
 hilt = "2.59.2"
@@ -32,6 +33,8 @@ androidx-lifecycle-viewmodel-ktx = { module = "androidx.lifecycle:lifecycle-view
 androidx-preference = { module = "androidx.preference:preference", version.ref = "androidx-preference" }
 androidx-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "androidx-splashscreen" }
 android-material = { module = "com.google.android.material:material", version.ref = "android-material" }
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
+coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coil" }
 compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose-bom" }
 compose-material-icons-core = { module = "androidx.compose.material:material-icons-core" }
 compose-material3 = { module = "androidx.compose.material3:material3" }

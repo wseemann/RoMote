@@ -195,17 +195,13 @@ public class MainActivity extends ConnectivityActivity implements
 
         @Override
         public CharSequence getPageTitle(int position) {
-            switch (position) {
-                case 0:
-                    return getString(R.string.title_devices);
-                case 1:
-                    return getString(R.string.title_remote);
-                case 2:
-                    return getString(R.string.title_channels);
-                case 3:
-                    return getString(R.string.title_store);
-            }
-            return null;
+            return switch (position) {
+                case 0 -> getString(R.string.title_devices);
+                case 1 -> getString(R.string.title_remote);
+                case 2 -> getString(R.string.title_channels);
+                case 3 -> getString(R.string.title_store);
+                default -> null;
+            };
         }
     }
 
