@@ -1,41 +1,49 @@
 package wseemann.media.romote.activity
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
-import android.view.MenuItem
-import androidx.appcompat.app.AppCompatActivity
-import androidx.appcompat.widget.Toolbar
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.viewModels
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
-import wseemann.media.romote.R
-import wseemann.media.romote.fragment.SettingsFragment
-import wseemann.media.romote.utils.applyNavigationBarBottomPadding
-import wseemann.media.romote.utils.applyStatusBarTopPadding
+import wseemann.media.romote.composables.SettingsScreen
+import wseemann.media.romote.composables.theme.RomoteTheme
+import wseemann.media.romote.utils.Constants
 import wseemann.media.romote.utils.enableRomoteEdgeToEdge
+import wseemann.media.romote.viewmodels.SettingsScreenViewModel
 
 @AndroidEntryPoint
-class SettingsActivity : AppCompatActivity() {
+class SettingsActivity : ComponentActivity() {
+
+    private val settingsScreenViewModel: SettingsScreenViewModel by viewModels()
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        // This Activity doesn't extend ShakeActivity, so it can't inherit the edge-to-edge setup
+        // the rest of the app gets from there.
+        enableRomoteEdgeToEdge(this)
         super.onCreate(savedInstanceState)
 
-        // This Activity extends AppCompatActivity directly, so it can't inherit the
-        // edge-to-edge setup ShakeActivity does for the rest of the app.
-        enableRomoteEdgeToEdge(this)
+        setContent {
+            val uiState by settingsScreenViewModel.uiState.collectAsStateWithLifecycle()
 
-        setContentView(R.layout.activity_settings)
-
-        setSupportActionBar(findViewById<Toolbar>(R.id.toolbar))
-        supportActionBar?.setDisplayHomeAsUpEnabled(true)
-        applyStatusBarTopPadding(findViewById(R.id.app_bar_layout))
-        applyNavigationBarBottomPadding(findViewById(R.id.content))
-
-        val fragmentTransaction = supportFragmentManager.beginTransaction()
-        fragmentTransaction.add(R.id.content, SettingsFragment()).commit()
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val id = item.itemId
-        if (id == android.R.id.home) {
-            finish()
+            RomoteTheme {
+                SettingsScreen(
+                    uiState = uiState,
+                    onEvent = settingsScreenViewModel::onHandleEvent,
+                    onLicensesClick = {
+                        startActivity(Intent(this, LicensesActivity::class.java))
+                    },
+                    onDonateClick = {
+                        startActivity(
+                            Intent(Intent.ACTION_VIEW, Uri.parse(Constants.PAYPAL_DONATION_LINK))
+                        )
+                    },
+                    onBackClick = { finish() }
+                )
+            }
         }
-        return super.onOptionsItemSelected(item)
     }
 }

@@ -12,9 +12,6 @@ import java.util.Map;
 
 import wseemann.media.romote.R;
 
-/**
- * Created by wseemann on 7/11/16.
- */
 public class SeparatedListAdapter extends BaseAdapter {
 
     public final Map<String,Adapter> sections = new LinkedHashMap<String,Adapter>();

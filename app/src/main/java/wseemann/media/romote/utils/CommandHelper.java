@@ -3,9 +3,6 @@ package wseemann.media.romote.utils;
 import timber.log.Timber;
 import wseemann.media.romote.data.Device;
 
-/**
- * Created by wseemann on 6/25/16.
- */
 public class CommandHelper {
 
     private final PreferenceUtils preferenceUtils;

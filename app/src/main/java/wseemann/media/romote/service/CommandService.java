@@ -16,9 +16,6 @@ import dagger.hilt.android.AndroidEntryPoint;
 import timber.log.Timber;
 import wseemann.media.romote.utils.CommandHelper;
 
-/**
- * Created by wseemann on 6/19/16.
- */
 @AndroidEntryPoint
 public class CommandService extends IntentService {
 

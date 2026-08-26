@@ -42,9 +42,6 @@ import wseemann.media.romote.utils.Constants;
 import wseemann.media.romote.utils.NotificationUtils;
 import wseemann.media.romote.utils.PreferenceUtils;
 
-/**
- * Created by wseemann on 6/19/16.
- */
 @AndroidEntryPoint
 public class NotificationService extends Service {
 

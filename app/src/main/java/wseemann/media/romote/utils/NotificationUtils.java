@@ -13,9 +13,6 @@ import wseemann.media.romote.R;
 import wseemann.media.romote.activity.MainActivity;
 import wseemann.media.romote.service.CommandService;
 
-/**
- * Created by wseemann on 6/19/16.
- */
 public class NotificationUtils {
 
     private NotificationUtils() {

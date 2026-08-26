@@ -1,8 +1,5 @@
 package wseemann.media.romote.utils;
 
-/**
- * Created by wseemann on 6/28/16.
- */
 public class Constants {
 
     private Constants() {

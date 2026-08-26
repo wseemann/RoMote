@@ -135,7 +135,6 @@ fun ManualConnectionScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 8.dp, end = 8.dp, top = 10.dp)
-                    .height(ConnectButtonHeight)
             ) {
                 Text(
                     text = stringResource(R.string.connect),

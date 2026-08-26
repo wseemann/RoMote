@@ -5,9 +5,6 @@ import android.content.SharedPreferences;
 
 import wseemann.media.romote.data.Device;
 
-/**
- * Created by wseemann on 6/21/16.
- */
 public class PreferenceUtils {
 
     private final Context context;

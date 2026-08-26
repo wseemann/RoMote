@@ -10,9 +10,6 @@ import android.view.View;
 import wseemann.media.romote.BuildConfig;
 import wseemann.media.romote.di.CommonModule;
 
-/**
- * Created by wseemann on 10/23/16.
- */
 public class ViewUtils {
 
     private ViewUtils() {

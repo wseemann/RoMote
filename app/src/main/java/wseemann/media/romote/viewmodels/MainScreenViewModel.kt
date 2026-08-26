@@ -45,6 +45,9 @@ class MainScreenViewModel @Inject constructor(
             is MainScreenUiEvent.LoadAvailableDevicesEvent -> onLoadAvailableDevices()
             is MainScreenUiEvent.LoadPairedDevicesEvent -> onLoadPairedDevices()
             is MainScreenUiEvent.UpdatePairedDeviceEvent -> onUpdatePairedDevice()
+            is MainScreenUiEvent.RenameDeviceClickedEvent -> onRenameDeviceClicked(event)
+            is MainScreenUiEvent.RenameDeviceConfirmedEvent -> onRenameDeviceConfirmed(event.name)
+            is MainScreenUiEvent.RenameDeviceDismissedEvent -> onRenameDeviceDismissed()
         }
     }
 
@@ -122,6 +125,49 @@ class MainScreenViewModel @Inject constructor(
         }
     }
 
+    private fun onRenameDeviceClicked(event: MainScreenUiEvent.RenameDeviceClickedEvent) {
+        _uiState.update {
+            it.copy(
+                renameTarget = MainScreenUiState.RenameTarget(
+                    serialNumber = event.serialNumber,
+                    currentName = event.currentName
+                )
+            )
+        }
+    }
+
+    private fun onRenameDeviceDismissed() {
+        _uiState.update { it.copy(renameTarget = null) }
+    }
+
+    /**
+     * Stores the name the rename dialog collected. EditDeviceNameDialog used to do this itself, on
+     * the main thread, and tell the list to refresh through a listener a configuration change threw
+     * away - so a rename confirmed after a rotation reached the database but never the list.
+     */
+    private fun onRenameDeviceConfirmed(name: String) {
+        val target = _uiState.value.renameTarget ?: return
+
+        _uiState.update { it.copy(renameTarget = null) }
+
+        viewModelScope.launch(Dispatchers.IO) {
+            DBUtils.getDevice(context, target.serialNumber)?.let { device ->
+                device.setCustomUserDeviceName(name)
+                DBUtils.updateDevice(context, device)
+                BroadcastUtils.sendUpdateDeviceBroadcast(context)
+            }
+
+            // The old listener cleared the available devices before reloading the paired ones,
+            // because a renamed device is a paired one and has no business in both lists.
+            _uiState.update {
+                it.copy(
+                    availableDevices = persistentListOf(),
+                    pairedDevices = DBUtils.getAllDevices(context).toPersistentList()
+                )
+            }
+        }
+    }
+
     private fun discoverDevices(): List<Device> {
         val rokuDevices = ArrayList<Device>()
 
@@ -154,15 +200,15 @@ class MainScreenViewModel @Inject constructor(
 
                 for (clientScanResult in clients) {
                     Timber.tag(TAG).d(
-                        "Device: " + clientScanResult.getDevice() +
-                                " HW Address: " + clientScanResult.getHWAddr() +
-                                " IP Address:  " + clientScanResult.getIpAddr()
+                        "Device: " + clientScanResult.device +
+                                " HW Address: " + clientScanResult.hwAddr +
+                                " IP Address:  " + clientScanResult.ipAddr
                     )
 
                     try {
                         val device =
-                            fromDevice(QueryRequests.queryDeviceInfo("http://" + clientScanResult.getIpAddr() + ":8060"))
-                        device.host = "http://" + clientScanResult.getIpAddr() + ":8060"
+                            fromDevice(QueryRequests.queryDeviceInfo("http://" + clientScanResult.ipAddr + ":8060"))
+                        device.host = "http://" + clientScanResult.ipAddr + ":8060"
                         availableDevices.add(device)
                     } catch (ex: java.lang.Exception) {
                         Timber.tag(TAG).e("Invalid device: %s", ex.message)

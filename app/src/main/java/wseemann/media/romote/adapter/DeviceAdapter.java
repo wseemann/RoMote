@@ -23,9 +23,6 @@ import wseemann.media.romote.R;
 import wseemann.media.romote.data.Device;
 import wseemann.media.romote.utils.PreferenceUtils;
 
-/**
- * Created by wseemann on 6/19/16.
- */
 public class DeviceAdapter extends ArrayAdapter<Device> {
 
     private final Context mContext;

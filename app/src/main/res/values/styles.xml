@@ -12,11 +12,9 @@
         <item name="colorSecondaryVariant">@color/purple</item>
 
         <!-- Material 3 sizes a small top app bar at 64dp, which is what Compose's TopAppBar lays
-             out to. The XML toolbars all read ?attr/actionBarSize, so overriding it here keeps them
-             the same height as the Compose screens. Both namespaces: the layouts read the AppCompat
-             attr, SettingsFragment reads the framework one. -->
+             out to. The remaining XML toolbars all read ?attr/actionBarSize, so overriding it here
+             keeps them the same height as the Compose screens. -->
         <item name="actionBarSize">64dp</item>
-        <item name="android:actionBarSize">64dp</item>
 
         <item name="android:actionBarStyle">@style/MyActionBar</item>
 

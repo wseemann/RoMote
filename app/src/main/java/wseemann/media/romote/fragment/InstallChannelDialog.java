@@ -20,9 +20,6 @@ import dagger.hilt.android.AndroidEntryPoint;
 import wseemann.media.romote.R;
 import wseemann.media.romote.utils.CommandHelper;
 
-/**
- * Created by wseemann on 6/20/16.
- */
 @AndroidEntryPoint
 public class InstallChannelDialog extends DialogFragment {
 

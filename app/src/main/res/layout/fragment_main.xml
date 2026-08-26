@@ -93,4 +93,13 @@
         app:backgroundTint="@color/purple"
         app:tint="@android:color/white" />
 
+    <!--
+        Host for the rename dialog. A Compose dialog opens its own window, so this measures 0x0
+        and leaves the list and the FAB above it untouched.
+    -->
+    <androidx.compose.ui.platform.ComposeView
+        android:id="@+id/rename_dialog_host"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
 </FrameLayout>

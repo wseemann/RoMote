@@ -34,9 +34,6 @@ import wseemann.media.romote.utils.DBUtils;
 import wseemann.media.romote.utils.PreferenceUtils;
 import wseemann.media.romote.viewmodels.ConfigureDeviceScreenViewModel;
 
-/**
- * Created by wseemann on 6/20/16.
- */
 @AndroidEntryPoint
 public class ConfigureDeviceFragment extends Fragment {
 

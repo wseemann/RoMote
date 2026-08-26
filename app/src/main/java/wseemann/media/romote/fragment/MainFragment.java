@@ -33,6 +33,7 @@ import wseemann.media.romote.activity.DeviceInfoActivity;
 import wseemann.media.romote.activity.ManualConnectionActivity;
 import wseemann.media.romote.adapter.DeviceAdapter;
 import wseemann.media.romote.adapter.SeparatedListAdapter;
+import wseemann.media.romote.composables.MainScreenDialogHost;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import javax.inject.Inject;
 import wseemann.media.romote.R;
@@ -45,9 +46,6 @@ import wseemann.media.romote.utils.WindowInsetsUtils;
 import wseemann.media.romote.viewmodels.MainScreenViewModel;
 import wseemann.media.romote.widget.RokuAppWidgetProvider;
 
-/**
- * Created by wseemann on 6/19/16.
- */
 @AndroidEntryPoint
 public class MainFragment extends ListFragment {
 
@@ -104,6 +102,8 @@ public class MainFragment extends ListFragment {
 
         mSelectDeviceText = view.findViewById(R.id.select_device_text);
         mProgressLayout = view.findViewById(R.id.progress_layout);
+
+        MainScreenDialogHost.bindRenameDialog(view.findViewById(R.id.rename_dialog_host), mainScreenViewModel);
 
         mList = view.findViewById(android.R.id.list);
         View emptyView = view.findViewById(android.R.id.empty);
@@ -262,14 +262,11 @@ public class MainFragment extends ListFragment {
 
             int itemId = item.getItemId();
             if (itemId == R.id.action_rename) {
-                EditDeviceNameDialog fragment = EditDeviceNameDialog.getInstance(device.getCustomUserDeviceName(), device.getSerialNumber());
-                fragment.setListener(() -> {
-                    mAvailableDeviceAdapter.clear();
-                    mAdapter.notifyDataSetChanged();
-                    mainScreenViewModel.onHandleEvent(MainScreenUiEvent.LoadPairedDevicesEvent.INSTANCE);
-                    BroadcastUtils.Companion.sendUpdateDeviceBroadcast(requireContext());
-                });
-                fragment.show(MainFragment.this.getFragmentManager(), EditDeviceNameDialog.class.getName());
+                String customUserDeviceName = device.getCustomUserDeviceName();
+
+                mainScreenViewModel.onHandleEvent(new MainScreenUiEvent.RenameDeviceClickedEvent(
+                        device.getSerialNumber(),
+                        customUserDeviceName == null ? "" : customUserDeviceName));
                 return true;
             } else if (itemId == R.id.action_info) {
                 Intent intent = new Intent(getActivity(), DeviceInfoActivity.class);

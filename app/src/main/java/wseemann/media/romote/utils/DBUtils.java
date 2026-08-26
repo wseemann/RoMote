@@ -11,9 +11,6 @@ import java.util.List;
 import wseemann.media.romote.database.DeviceDatabase;
 import wseemann.media.romote.data.Device;
 
-/**
- * Created by wseemann on 6/20/16.
- */
 public class DBUtils {
 
     private DBUtils() {

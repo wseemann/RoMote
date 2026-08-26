@@ -101,15 +101,15 @@ class ConfigureDeviceScreenViewModel @Inject constructor(
 
                 for (clientScanResult in clients) {
                     Timber.tag(TAG).d(
-                        "Device: " + clientScanResult.getDevice() +
-                                " HW Address: " + clientScanResult.getHWAddr() +
-                                " IP Address:  " + clientScanResult.getIpAddr()
+                        "Device: " + clientScanResult.device +
+                                " HW Address: " + clientScanResult.hwAddr +
+                                " IP Address:  " + clientScanResult.ipAddr
                     )
 
                     try {
                         val device =
-                            fromDevice(QueryRequests.queryDeviceInfo("http://" + clientScanResult.getIpAddr() + ":8060"))
-                        device.host = "http://" + clientScanResult.getIpAddr() + ":8060"
+                            fromDevice(QueryRequests.queryDeviceInfo("http://" + clientScanResult.ipAddr + ":8060"))
+                        device.host = "http://" + clientScanResult.ipAddr + ":8060"
                         availableDevices.add(device)
                     } catch (ex: java.lang.Exception) {
                         Timber.tag(TAG).e("Invalid device: %s", ex.message)

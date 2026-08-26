@@ -8,17 +8,14 @@ import android.content.pm.PackageManager;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import androidx.core.content.ContextCompat;
-import wseemann.media.romote.fragment.ConnectivityDialog;
+import wseemann.media.romote.composables.ConnectivityDialogHost;
 import wseemann.media.romote.utils.NetworkMonitor;
 
-/**
- * Created by wseemann on 6/19/16.
- */
 public class ConnectivityActivity extends ShakeActivity {
 
     private static final int MY_PERMISSIONS_ACCESS_NETWORK_STATE = 100;
 
-    private ConnectivityDialog mDialog;
+    private ConnectivityDialogHost mDialogHost;
 
     private NetworkMonitor mNetworkMonitor;
 
@@ -26,6 +23,7 @@ public class ConnectivityActivity extends ShakeActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        mDialogHost = new ConnectivityDialogHost(this);
         mNetworkMonitor = new NetworkMonitor(this, MY_PERMISSIONS_ACCESS_NETWORK_STATE);
     }
 
@@ -35,7 +33,7 @@ public class ConnectivityActivity extends ShakeActivity {
 
         if (!mNetworkMonitor.isConnectedToiWiFi() &&
                 !mNetworkMonitor.isMobileAccessPointOn() &&
-                mDialog == null) {
+                !mDialogHost.isShowing()) {
             showDialog();
         }
 
@@ -78,20 +76,11 @@ public class ConnectivityActivity extends ShakeActivity {
     }
 
     private synchronized void showDialog() {
-        if (mDialog != null) {
-            mDialog.dismiss();
-            mDialog = null;
-        }
-
-        mDialog = new ConnectivityDialog();
-        mDialog.show(getFragmentManager(), ConnectivityDialog.class.getName());
+        mDialogHost.show();
     }
 
     private synchronized void dismissDialog() {
-        if (mDialog != null) {
-            mDialog.dismiss();
-            mDialog = null;
-        }
+        mDialogHost.dismiss();
     }
 
     private BroadcastReceiver mConnectivityReceiver = new BroadcastReceiver() {
@@ -110,11 +99,11 @@ public class ConnectivityActivity extends ShakeActivity {
 
                 if (!isConnected &&
                         !mNetworkMonitor.isMobileAccessPointOn() &&
-                        mDialog == null) { //!mNetworkMonitor.isConnectedToiWiFi() && mDialog == null) {
+                        !mDialogHost.isShowing()) { //!mNetworkMonitor.isConnectedToiWiFi() && !mDialogHost.isShowing()) {
                     showDialog();
                     onWifiDisconnected();
                 }
-            } else if (mNetworkMonitor.isConnectedToiWiFi() && mDialog != null) {
+            } else if (mNetworkMonitor.isConnectedToiWiFi() && mDialogHost.isShowing()) {
                 dismissDialog();
                 onWifiConnected();
             }

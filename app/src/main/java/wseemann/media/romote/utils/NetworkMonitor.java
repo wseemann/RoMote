@@ -10,9 +10,6 @@ import android.net.NetworkInfo;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
-/**
- * Created by wseemann on 6/19/16.
- */
 public class NetworkMonitor {
 
     private ConnectivityManager mCm;
