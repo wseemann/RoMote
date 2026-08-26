@@ -22,13 +22,16 @@ import wseemann.media.romote.event.MainScreenUiEvent
 import wseemann.media.romote.model.Device
 import wseemann.media.romote.model.Device.Companion.fromDevice
 import wseemann.media.romote.model.MainScreenUiState
+import wseemann.media.romote.utils.BroadcastUtils
 import wseemann.media.romote.utils.DBUtils
+import wseemann.media.romote.utils.PreferenceUtils
 import wseemann.media.romote.utils.WifiApManager
 import javax.inject.Inject
 
 @HiltViewModel
 class MainScreenViewModel @Inject constructor(
-    @ApplicationContext val context: Context
+    @ApplicationContext val context: Context,
+    val preferenceUtils: PreferenceUtils
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainScreenUiState())
@@ -41,6 +44,7 @@ class MainScreenViewModel @Inject constructor(
         when (event) {
             is MainScreenUiEvent.LoadAvailableDevicesEvent -> onLoadAvailableDevices()
             is MainScreenUiEvent.LoadPairedDevicesEvent -> onLoadPairedDevices()
+            is MainScreenUiEvent.UpdatePairedDeviceEvent -> onUpdatePairedDevice()
         }
     }
 
@@ -56,20 +60,7 @@ class MainScreenViewModel @Inject constructor(
             val availableDevices: MutableList<Device> = ArrayList()
 
             try {
-                val rokuDevices: MutableList<Device> = ArrayList()
-
-                val wifiApManager = WifiApManager(context)
-
-                if (wifiApManager.isWifiApEnabled) {
-                    // Scan the mobile access point for devices
-                    rokuDevices.addAll(scanAccessPointForDevices())
-                } else {
-                    for (rokuDevice in DeviceRequests.discoverDevices()) {
-                        rokuDevices.add(fromDevice(rokuDevice.queryDeviceInfo()))
-                    }
-                }
-
-                for (device in rokuDevices) {
+                for (device in discoverDevices()) {
                     var exists = false
 
                     for (j in devices.indices) {
@@ -105,6 +96,47 @@ class MainScreenViewModel @Inject constructor(
                 it.copy(pairedDevices = DBUtils.getAllDevices(context).toPersistentList())
             }
         }
+    }
+
+    /**
+     * Refreshes the stored record of the connected device, in case its details
+     * (host, name, ...) changed since it was paired. Runs independently of the
+     * available device scan so a refresh doesn't cancel it.
+     */
+    private fun onUpdatePairedDevice() {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val connectedDevice = preferenceUtils.connectedDevice
+
+                discoverDevices()
+                    .firstOrNull { it.serialNumber == connectedDevice.serialNumber }
+                    ?.let { device ->
+                        DBUtils.updateDevice(context, device)
+                        BroadcastUtils.sendUpdateDeviceBroadcast(context)
+                    }
+            } catch (ex: CancellationException) {
+                throw ex
+            } catch (ex: Exception) {
+                Timber.tag(TAG).e(ex, "Device not found")
+            }
+        }
+    }
+
+    private fun discoverDevices(): List<Device> {
+        val rokuDevices = ArrayList<Device>()
+
+        val wifiApManager = WifiApManager(context)
+
+        if (wifiApManager.isWifiApEnabled) {
+            // Scan the mobile access point for devices
+            rokuDevices.addAll(scanAccessPointForDevices())
+        } else {
+            for (rokuDevice in DeviceRequests.discoverDevices()) {
+                rokuDevices.add(fromDevice(rokuDevice.queryDeviceInfo()))
+            }
+        }
+
+        return rokuDevices
     }
 
     private fun scanAccessPointForDevices(): List<Device> {

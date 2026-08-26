@@ -301,16 +301,8 @@ public class MainFragment extends ListFragment {
         setLoadingText(false);
         mainScreenViewModel.onHandleEvent(MainScreenUiEvent.LoadPairedDevicesEvent.INSTANCE);
         mainScreenViewModel.onHandleEvent(MainScreenUiEvent.LoadAvailableDevicesEvent.INSTANCE);
-        updatePairedDevice();
+        mainScreenViewModel.onHandleEvent(MainScreenUiEvent.UpdatePairedDeviceEvent.INSTANCE);
     }
-
-    private void updatePairedDevice() {
-        /*Observable.fromCallable(new UpdatePairedDeviceTask(getContext(), preferenceUtils))
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe();*/
-    }
-
 
     private void onPairedDeviceLoadFinished(List<Device> devices) {
         mPairedDeviceAdapter.clear();
