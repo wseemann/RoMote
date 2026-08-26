@@ -2,39 +2,41 @@ package wseemann.media.romote.fragment;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.TypedArray;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.preference.PreferenceFragmentCompat;
-import com.wseemann.ecp.api.ResponseCallback;
-import com.wseemann.ecp.core.KeyPressKeyValues;
-import com.wseemann.ecp.request.KeyPressRequest;
 import javax.inject.Inject;
 import dagger.hilt.android.AndroidEntryPoint;
-import timber.log.Timber;
 import wseemann.media.romote.R;
 import wseemann.media.romote.activity.LicensesActivity;
 import wseemann.media.romote.data.Device;
-import wseemann.media.romote.utils.CommandHelper;
+import wseemann.media.romote.event.SettingsScreenUiEvent;
 import wseemann.media.romote.utils.Constants;
 import wseemann.media.romote.utils.PreferenceUtils;
+import wseemann.media.romote.viewmodels.SettingsScreenViewModel;
 
 @AndroidEntryPoint
 public class SettingsFragment extends PreferenceFragmentCompat
         implements SharedPreferences.OnSharedPreferenceChangeListener {
 
-    @Inject
-    protected PreferenceUtils preferenceUtils;
+    private SettingsScreenViewModel settingsScreenViewModel;
 
     @Inject
-    protected CommandHelper commandHelper;
+    protected PreferenceUtils preferenceUtils;
 
     @Override
     public void onCreatePreferences(@Nullable Bundle savedInstanceState, @Nullable String rootKey) {
         setPreferencesFromResource(R.xml.preferences, rootKey);
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        settingsScreenViewModel = new ViewModelProvider(this).get(SettingsScreenViewModel.class);
     }
 
     @Override
@@ -47,7 +49,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
         findPreference("find_remote").setOnPreferenceClickListener(
                 preference -> {
-                    performKeypress(KeyPressKeyValues.FIND_REMOTE);
+                    settingsScreenViewModel.onHandleEvent(SettingsScreenUiEvent.FindRemoteClickedEvent.INSTANCE);
                     return true;
                 });
 
@@ -83,27 +85,6 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
     }
 
-    private void performKeypress(KeyPressKeyValues keyPressKeyValue) {
-        String url = commandHelper.getDeviceURL();
-
-        try {
-            KeyPressRequest keypressRequest = new KeyPressRequest(url, keyPressKeyValue.getValue());
-            keypressRequest.sendAsync(new ResponseCallback<>() {
-                @Override
-                public void onSuccess(@Nullable Void unused) {
-
-                }
-
-                @Override
-                public void onError(@NonNull Exception e) {
-
-                }
-            });
-        } catch (Exception ex) {
-            Timber.e(ex, "Failed to execute command");
-        }
-    }
-
     private boolean deviceSupportsFindRemote() {
         try {
             Device device = preferenceUtils.getConnectedDevice();
@@ -116,14 +97,5 @@ public class SettingsFragment extends PreferenceFragmentCompat
         }
 
         return false;
-    }
-
-    private int obtainActionBarHeight() {
-        TypedArray styledAttributes = requireContext().getTheme().obtainStyledAttributes(
-            new int[]{android.R.attr.actionBarSize}
-        );
-        int actionBarHeight = (int) styledAttributes.getDimension(0, 0f);
-        styledAttributes.recycle();
-        return actionBarHeight;
     }
 }
