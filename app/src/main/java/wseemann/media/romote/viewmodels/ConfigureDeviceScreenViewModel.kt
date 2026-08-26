@@ -4,28 +4,26 @@ import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import com.wseemann.ecp.api.DeviceRequests
-import com.wseemann.ecp.api.QueryRequests
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.collections.immutable.toPersistentList
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import wseemann.media.romote.data.DeviceDiscovery
 import wseemann.media.romote.event.ConfigureDeviceScreenUiEvent
 import wseemann.media.romote.model.ConfigureDeviceScreenUiState
-import wseemann.media.romote.data.Device
-import wseemann.media.romote.data.Device.Companion.fromDevice
 import wseemann.media.romote.utils.DBUtils
-import wseemann.media.romote.utils.WifiApManager
 import javax.inject.Inject
 
 @HiltViewModel
 class ConfigureDeviceScreenViewModel @Inject constructor(
-    @ApplicationContext val context: Context
+    @ApplicationContext val context: Context,
+    private val deviceDiscovery: DeviceDiscovery
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ConfigureDeviceScreenUiState())
@@ -40,85 +38,32 @@ class ConfigureDeviceScreenViewModel @Inject constructor(
 
     private fun onLoadAvailableDevices() {
         viewModelScope.launch(Dispatchers.IO) {
-            // Retrieve all stored Devices.
-            val devices: MutableList<Device?> = DBUtils.getAllDevices(context)
-
-            val availableDevices: MutableList<Device> = ArrayList()
-
             _uiState.update { it.copy(isLoading = true) }
 
             try {
-                val rokuDevices: MutableList<Device> = ArrayList()
+                val discovered = deviceDiscovery.discoverDevices()
 
-                val wifiApManager = WifiApManager(context)
-
-                if (wifiApManager.isWifiApEnabled) {
-                    // Scan the mobile access point for devices
-                    rokuDevices.addAll(scanAccessPointForDevices())
-                } else {
-                    for (rokuDevice in DeviceRequests.discoverDevices()) {
-                        rokuDevices.add(fromDevice(rokuDevice.queryDeviceInfo()))
-                    }
-                }
-
-                for (device in rokuDevices) {
-                    var exists = false
-
-                    for (j in devices.indices) {
-                        if (devices[j]!!.serialNumber == device.serialNumber) {
-                            exists = true
-                            break
-                        }
-                    }
-
-                    if (!exists) {
-                        availableDevices.add(device)
-                    }
-                }
+                // Read what is paired after the scan, so a device unpaired mid-scan is still
+                // offered here.
+                val pairedSerialNumbers = DBUtils.getAllDevices(context)
+                    .map { it.serialNumber }
+                    .toSet()
 
                 _uiState.update {
-                    it.copy(availableDevices = availableDevices.toPersistentList(), isLoading = false)
+                    it.copy(
+                        availableDevices = discovered
+                            .filterNot { device -> device.serialNumber in pairedSerialNumbers }
+                            .toPersistentList(),
+                        isLoading = false
+                    )
                 }
+            } catch (ex: CancellationException) {
+                throw ex
             } catch (ex: Exception) {
-                Timber.e(ex)
+                Timber.tag(TAG).e(ex)
                 _uiState.update { it.copy(isLoading = false) }
             }
         }
-    }
-
-    private fun scanAccessPointForDevices(): List<Device> {
-        val availableDevices = ArrayList<Device>()
-
-        val wifiApManager = WifiApManager(context)
-
-        if (wifiApManager.isWifiApEnabled) {
-            val clients = wifiApManager.getClientList(false, 3000)
-
-            Timber.tag(TAG).d("Access point scan completed.")
-
-            if (clients != null) {
-                Timber.tag(TAG).d("Found %s connected devices.", clients.size)
-
-                for (clientScanResult in clients) {
-                    Timber.tag(TAG).d(
-                        "Device: " + clientScanResult.device +
-                                " HW Address: " + clientScanResult.hwAddr +
-                                " IP Address:  " + clientScanResult.ipAddr
-                    )
-
-                    try {
-                        val device =
-                            fromDevice(QueryRequests.queryDeviceInfo("http://" + clientScanResult.ipAddr + ":8060"))
-                        device.host = "http://" + clientScanResult.ipAddr + ":8060"
-                        availableDevices.add(device)
-                    } catch (ex: java.lang.Exception) {
-                        Timber.tag(TAG).e("Invalid device: %s", ex.message)
-                    }
-                }
-            }
-        }
-
-        return availableDevices
     }
 
     private companion object {

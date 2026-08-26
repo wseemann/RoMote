@@ -39,6 +39,7 @@ import javax.inject.Inject;
 import wseemann.media.romote.R;
 import wseemann.media.romote.event.MainScreenUiEvent;
 import wseemann.media.romote.data.Device;
+import wseemann.media.romote.model.MainScreenUiState;
 import wseemann.media.romote.utils.BroadcastUtils;
 import wseemann.media.romote.utils.DBUtils;
 import wseemann.media.romote.utils.PreferenceUtils;
@@ -68,6 +69,7 @@ public class MainFragment extends ListFragment {
     private OnDeviceSelectedListener mListener;
 
     private MainScreenViewModel mainScreenViewModel;
+    private MainScreenUiState mUiState;
 
     @SuppressLint("HandlerLeak")
     private final Handler mHandler = new Handler() {
@@ -114,8 +116,7 @@ public class MainFragment extends ListFragment {
                 () -> {
                     // Kicks off the actual data-refresh operation. The uiState observer
                     // clears the refreshing and loading indicators when it's finished.
-                    setLoadingText(true);
-                    mainScreenViewModel.onHandleEvent(MainScreenUiEvent.LoadAvailableDevicesEvent.INSTANCE);
+                    mainScreenViewModel.onHandleEvent(MainScreenUiEvent.RefreshEvent.INSTANCE);
                 }
         );
 
@@ -128,14 +129,23 @@ public class MainFragment extends ListFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // The lists are rendered on every emission. Gating them on !isLoading meant a scan that
+        // never finished froze the list at its previous contents - which is exactly what a
+        // forgotten device looked like when it refused to come back.
         mainScreenViewModel.getUiStateLiveData().observe(getViewLifecycleOwner(), state -> {
-            mSwiperefresh.setRefreshing(state.isLoading());
+            mUiState = state;
 
-            if (!state.isLoading()) {
-                setLoadingText(false);
-                onAvailableDevicesLoadFinished(state.getAvailableDevices());
-                onPairedDeviceLoadFinished(state.getPairedDevices());
+            mSwiperefresh.setRefreshing(state.isLoading());
+            setLoadingText(state.isLoading());
+
+            if (mAdapter == null) {
+                // The adapters are built in onActivityCreated, which follows the first emission
+                // only if the view lifecycle raced ahead; refreshList() there republishes.
+                return;
             }
+
+            onAvailableDevicesLoadFinished(state.getAvailableDevices());
+            onPairedDeviceLoadFinished(state.getPairedDevices());
         });
     }
 
@@ -209,8 +219,7 @@ public class MainFragment extends ListFragment {
         int id = item.getItemId();
 
         if (id == R.id.action_refresh) {
-            setLoadingText(true);
-            mainScreenViewModel.onHandleEvent(MainScreenUiEvent.LoadAvailableDevicesEvent.INSTANCE);
+            mainScreenViewModel.onHandleEvent(MainScreenUiEvent.RefreshEvent.INSTANCE);
             return true;
         }
 
@@ -275,9 +284,8 @@ public class MainFragment extends ListFragment {
                 startActivity(intent);
                 return true;
             } else if (itemId == R.id.action_unpair) {
-                preferenceUtils.setConnectedDevice("");
-                DBUtils.removeDevice(getActivity(), device.getSerialNumber());
-                refreshList();
+                mainScreenViewModel.onHandleEvent(
+                        new MainScreenUiEvent.ForgetDeviceEvent(device.getSerialNumber()));
                 return true;
             } else {
                 return false;
@@ -287,7 +295,7 @@ public class MainFragment extends ListFragment {
 
         Device device = (Device) v.getTag();
 
-        if (DBUtils.getDevice(getActivity(), device.getSerialNumber()) == null) {
+        if (!isPaired(device.getSerialNumber())) {
             popup.getMenu().removeItem(R.id.action_unpair);
         }
 
@@ -295,10 +303,21 @@ public class MainFragment extends ListFragment {
     }
 
     private void refreshList() {
-        setLoadingText(false);
-        mainScreenViewModel.onHandleEvent(MainScreenUiEvent.LoadPairedDevicesEvent.INSTANCE);
-        mainScreenViewModel.onHandleEvent(MainScreenUiEvent.LoadAvailableDevicesEvent.INSTANCE);
-        mainScreenViewModel.onHandleEvent(MainScreenUiEvent.UpdatePairedDeviceEvent.INSTANCE);
+        mainScreenViewModel.onHandleEvent(MainScreenUiEvent.RefreshEvent.INSTANCE);
+    }
+
+    private boolean isPaired(String serialNumber) {
+        if (mUiState == null) {
+            return false;
+        }
+
+        for (Device pairedDevice : mUiState.getPairedDevices()) {
+            if (serialNumber.equals(pairedDevice.getSerialNumber())) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private void onPairedDeviceLoadFinished(List<Device> devices) {
