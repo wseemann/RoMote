@@ -6,7 +6,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.media.session.MediaSession;
-import android.os.Build;
 
 import com.wseemann.ecp.core.KeyPressKeyValues;
 
@@ -57,11 +56,8 @@ public class NotificationUtils {
                 .setContentIntent(contentIntent)
                 .setWhen(0)
                 .setSmallIcon(R.drawable.ic_notification_icon)
-                .setPriority(Notification.PRIORITY_LOW);
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            builder.setChannelId(context.getString(R.string.app_name));
-        }
+                .setPriority(Notification.PRIORITY_LOW)
+                .setChannelId(context.getString(R.string.app_name));
 
         if (bitmap != null) {
             builder.setLargeIcon(bitmap);

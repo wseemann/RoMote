@@ -13,22 +13,28 @@ import androidx.compose.runtime.Composable
  *   colorAccent /
  *   colorSecondary      -> secondary
  *   colorSecondaryVariant -> tertiary
+ *   ToolbarStyle titleTextColor -> onPrimary
  *
  * There is no values-night/styles.xml override, so the XML theme resolves the same brand purples
- * in light and dark; both color schemes below do the same. Typography and shapes stay at the
- * Material 3 defaults because the XML theme never customized them.
+ * in light and dark; both color schemes below do the same. The backgrounds are pinned to the values
+ * Theme.MaterialComponents.DayNight resolves to, because the Material 3 defaults are a tinted white
+ * and a warm grey that read as a different app next to the XML screens. Typography and shapes stay
+ * at the Material 3 defaults because the XML theme never customized them.
  */
 private val LightColorScheme = lightColorScheme(
     primary = Purple,
+    onPrimary = OnPurple,
     secondary = PurpleAccent,
-    tertiary = PurpleAccentTwo
+    tertiary = PurpleAccentTwo,
+    background = LightBackground
 )
 
 private val DarkColorScheme = darkColorScheme(
-    primary = PurpleAccent,
+    primary = Purple,
+    onPrimary = OnPurple,
     secondary = PurpleAccent,
     tertiary = PurpleAccentTwo,
-    background = AlmostBlack
+    background = DarkBackground
 )
 
 @Composable

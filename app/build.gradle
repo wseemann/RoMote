@@ -1,6 +1,6 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.devtools.ksp'
-apply plugin: 'com.mikepenz.aboutlibraries.plugin'
+apply plugin: 'com.mikepenz.aboutlibraries.plugin.android'
 apply plugin: 'dagger.hilt.android.plugin'
 apply plugin: 'org.jetbrains.kotlin.plugin.compose'
 
@@ -47,9 +47,15 @@ android {
     }
 }
 
+aboutLibraries {
+    collect.fetchRemoteLicense = false
+    collect.fetchRemoteFunding = false
+    export.excludeFields = ["generated", "developers", "funding"]
+}
+
 dependencies {
     implementation fileTree(dir: 'src/main/libs', include: ['*.aar', '*.jar'], exclude: [])
-    implementation(libs.about.libraries.plugin)
+    implementation(libs.aboutlibraries.compose.m3)
     implementation(platform(libs.compose.bom))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.appcompat)
@@ -62,6 +68,7 @@ dependencies {
     implementation(libs.androidx.preference)
     implementation(libs.androidx.splashscreen)
     implementation(libs.android.material)
+    implementation(libs.compose.material.icons.core)
     implementation(libs.compose.material3)
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.tooling.preview)
@@ -69,6 +76,7 @@ dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     implementation(libs.jdom)
+    implementation(libs.kotlinx.collections.immutable)
     implementation(libs.roku.ecp.wrapper.kotlin)
     implementation(libs.timber)
 

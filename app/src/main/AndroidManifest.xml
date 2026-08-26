@@ -101,8 +101,11 @@
             android:theme="@style/AppTheme.NoActionBar" />
 
         <activity
-            android:name="com.mikepenz.aboutlibraries.ui.LibsActivity"
-            android:theme="@style/AppTheme.AboutLibrariesTheme" />
+            android:name="wseemann.media.romote.activity.LicensesActivity"
+            android:label="@string/open_source_licenses_title_preference"
+            android:screenOrientation="portrait"
+            android:configChanges="orientation|keyboardHidden"
+            android:theme="@style/AppTheme.NoActionBar" />
 
         <receiver
             android:name="wseemann.media.romote.widget.RokuAppWidgetProvider"

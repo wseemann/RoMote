@@ -6,6 +6,7 @@ import android.os.Bundle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.fragment.app.FragmentTransaction;
+import dagger.hilt.android.AndroidEntryPoint;
 import wseemann.media.romote.R;
 import wseemann.media.romote.fragment.MainFragment;
 import wseemann.media.romote.utils.WindowInsetsUtils;
@@ -13,6 +14,7 @@ import wseemann.media.romote.utils.WindowInsetsUtils;
 /**
  * Created by wseemann on 6/25/16.
  */
+@AndroidEntryPoint
 public class AppWidgetConfigure extends AppCompatActivity implements MainFragment.OnDeviceSelectedListener {
 
     private int mAppWidgetId;

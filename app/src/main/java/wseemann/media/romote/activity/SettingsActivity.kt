@@ -26,6 +26,7 @@ class SettingsActivity : AppCompatActivity() {
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         applyStatusBarTopPadding(findViewById(R.id.app_bar_layout))
         applyNavigationBarBottomPadding(findViewById(R.id.content))
+
         val fragmentTransaction = supportFragmentManager.beginTransaction()
         fragmentTransaction.add(R.id.content, SettingsFragment()).commit()
     }

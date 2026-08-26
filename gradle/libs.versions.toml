@@ -1,5 +1,5 @@
 [versions]
-about-libraries-plugin = "12.2.1"
+aboutlibraries = "14.2.1"
 androidx-activity-compose = "1.13.0"
 androidx-appcompat = "1.7.1"
 androidx-constraintlayout = "2.2.1"
@@ -12,6 +12,7 @@ compose-bom = "2026.06.01"
 glide = "4.16.0"
 hilt = "2.59.2"
 jdom = "2.0.6"
+kotlinx-collections-immutable = "0.5.1"
 roku-ecp-wrapper-kotlin = "1.5.0"
 rxjava-android = "2.1.1"
 rxjava = "2.2.21"
@@ -19,7 +20,7 @@ timber = "5.0.1"
 junit = "4.13.2"
 
 [libraries]
-about-libraries-plugin = { module = "com.mikepenz:aboutlibraries", version.ref = "about-libraries-plugin" }
+aboutlibraries-compose-m3 = { module = "com.mikepenz:aboutlibraries-compose-m3", version.ref = "aboutlibraries" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity-compose" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-appcompat" }
 androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "androidx-constraintlayout" }
@@ -32,6 +33,7 @@ androidx-preference = { module = "androidx.preference:preference", version.ref =
 androidx-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "androidx-splashscreen" }
 android-material = { module = "com.google.android.material:material", version.ref = "android-material" }
 compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose-bom" }
+compose-material-icons-core = { module = "androidx.compose.material:material-icons-core" }
 compose-material3 = { module = "androidx.compose.material3:material3" }
 compose-ui = { module = "androidx.compose.ui:ui" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
@@ -40,6 +42,10 @@ glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }
 jdom = { module = "org.jdom:jdom2", version.ref = "jdom" }
+kotlinx-collections-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "kotlinx-collections-immutable" }
 roku-ecp-wrapper-kotlin = { module = "com.github.wseemann:roku-ecp-wrapper-kotlin", version.ref = "roku-ecp-wrapper-kotlin" }
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 junit = { module = "junit:junit", version.ref = "junit" }
+
+[plugins]
+aboutlibraries-android = { id = "com.mikepenz.aboutlibraries.plugin.android", version.ref = "aboutlibraries" }

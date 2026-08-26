@@ -9,4 +9,11 @@ import androidx.compose.ui.graphics.Color
 internal val Purple = Color(0xFF65318F)
 internal val PurpleAccent = Color(0xFF843ABC)
 internal val PurpleAccentTwo = Color(0xFF8F318A)
-internal val AlmostBlack = Color(0xFF2F2E2D)
+internal val OnPurple = Color(0xFFEBEBEB)
+
+/**
+ * Window backgrounds. The XML screens take these from Theme.MaterialComponents.DayNight rather than
+ * from colors.xml, so they are spelled out here to keep the Compose screens on the same surface.
+ */
+internal val LightBackground = Color(0xFFFFFFFF)
+internal val DarkBackground = Color(0xFF121212)

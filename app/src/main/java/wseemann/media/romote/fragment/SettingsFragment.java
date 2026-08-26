@@ -9,7 +9,6 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.preference.PreferenceFragmentCompat;
-import com.mikepenz.aboutlibraries.LibsBuilder;
 import com.wseemann.ecp.api.ResponseCallback;
 import com.wseemann.ecp.core.KeyPressKeyValues;
 import com.wseemann.ecp.request.KeyPressRequest;
@@ -17,6 +16,7 @@ import javax.inject.Inject;
 import dagger.hilt.android.AndroidEntryPoint;
 import timber.log.Timber;
 import wseemann.media.romote.R;
+import wseemann.media.romote.activity.LicensesActivity;
 import wseemann.media.romote.model.Device;
 import wseemann.media.romote.utils.CommandHelper;
 import wseemann.media.romote.utils.Constants;
@@ -53,11 +53,7 @@ public class SettingsFragment extends PreferenceFragmentCompat
 
         findPreference("open_source_licenses").setOnPreferenceClickListener(
                 preference -> {
-                    // When the user selects an option to see the licenses:
-                    new LibsBuilder()
-                            .withActivityTitle(getString(R.string.open_source_licenses_title_preference))
-                            .withSearchEnabled(true)
-                            .start(requireContext());
+                    startActivity(new Intent(requireContext(), LicensesActivity.class));
                     return true;
                 });
 

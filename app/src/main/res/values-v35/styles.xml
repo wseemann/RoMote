@@ -1,6 +1,0 @@
-<resources>
-    <style name="AppTheme.AboutLibrariesTheme" parent="AppTheme.NoActionBar">
-        <item name="android:windowOptOutEdgeToEdgeEnforcement">true</item>
-        <item name="toolbarStyle">@style/ToolbarStyle</item>
-    </style>
-</resources>

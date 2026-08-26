@@ -28,7 +28,6 @@ import wseemann.media.romote.R;
 import wseemann.media.romote.adapter.ChannelAdapter;
 import wseemann.media.romote.event.ChannelScreenUiEvent;
 import wseemann.media.romote.model.ChannelItem;
-import wseemann.media.romote.util.Utils;
 import wseemann.media.romote.utils.BroadcastUtils;
 import wseemann.media.romote.utils.Constants;
 import wseemann.media.romote.utils.WindowInsetsUtils;
@@ -122,13 +121,7 @@ public class ChannelFragment extends Fragment {
                                 if (BuildConfig.DEBUG) {
                                     Timber.tag(TAG).d("onCreateView - numColumns set to %s", numColumns);
                                 }
-                                if (Utils.hasJellyBean()) {
-                                    mGridView.getViewTreeObserver()
-                                            .removeOnGlobalLayoutListener(this);
-                                } else {
-                                    mGridView.getViewTreeObserver()
-                                            .removeGlobalOnLayoutListener(this);
-                                }
+                                mGridView.getViewTreeObserver().removeGlobalOnLayoutListener(this);
                             }
                         }
                     }
