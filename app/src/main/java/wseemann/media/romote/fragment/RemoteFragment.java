@@ -22,6 +22,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
@@ -42,6 +43,7 @@ import wseemann.media.romote.utils.BroadcastUtils;
 import wseemann.media.romote.utils.CommandHelper;
 import wseemann.media.romote.utils.Constants;
 import wseemann.media.romote.utils.PreferenceUtils;
+import wseemann.media.romote.utils.WakeOnLan;
 import wseemann.media.romote.utils.WindowInsetsUtils;
 import wseemann.media.romote.view.RepeatingImageButton;
 import wseemann.media.romote.view.VibratingImageButton;
@@ -197,18 +199,20 @@ public class RemoteFragment extends Fragment {
             }
 
             @Override
-            public void onError(@NonNull Exception e) {
-                Timber.tag("TAG").d(e);
+            public void onError(@NonNull Exception ex) {
+                Timber.tag(TAG).d(ex, "Power mode query failed, falling back to Wake-on-LAN");
+                wakeDevice();
             }
         }));
     }
 
     private void performPowerAction(final com.wseemann.ecp.model.Device device) {
         if (device == null) {
+            wakeDevice();
             return;
         }
 
-        if (device.getPowerMode().equals("PowerOn")) {
+        if ("PowerOn".equals(device.getPowerMode())) {
             AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
             builder.setTitle(R.string.power_dialog_title);
             builder.setMessage(R.string.power_dialog_message);
@@ -222,6 +226,23 @@ public class RemoteFragment extends Fragment {
         } else {
             performKeypress(KeyPressKeyValues.POWER_ON);
         }
+    }
+
+    private void wakeDevice() {
+        WakeOnLan.wakeAsync(requireContext().getApplicationContext(), preferenceUtils, result -> {
+            if (!isAdded()) {
+                return;
+            }
+
+            if (result instanceof WakeOnLan.WakeResult.Sent) {
+                Toast.makeText(requireContext(), R.string.waking_device, Toast.LENGTH_SHORT).show();
+            } else if (result instanceof WakeOnLan.WakeResult.NoMacAddress) {
+                Toast.makeText(requireContext(), R.string.wake_no_mac, Toast.LENGTH_LONG).show();
+            } else if (result instanceof WakeOnLan.WakeResult.Failed failed) {
+                Timber.e(failed.getException(), "Failed to wake the device");
+                Toast.makeText(requireContext(), R.string.wake_failed, Toast.LENGTH_LONG).show();
+            }
+        });
     }
 
     private void performKeypress(KeyPressKeyValues keypressKeyValue) {
