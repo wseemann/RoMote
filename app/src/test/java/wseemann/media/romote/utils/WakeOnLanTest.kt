@@ -4,7 +4,7 @@ import org.junit.Assert.assertArrayEquals
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
 import org.junit.Test
-import wseemann.media.romote.model.Device
+import wseemann.media.romote.data.Device
 
 class WakeOnLanTest {
 

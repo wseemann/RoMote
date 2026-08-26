@@ -17,16 +17,19 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.wseemann.ecp.api.ResponseCallback;
 import com.wseemann.ecp.request.QueryDeviceInfoRequest;
 
 import dagger.hilt.android.AndroidEntryPoint;
 import wseemann.media.romote.R;
-import wseemann.media.romote.model.Device;
+import wseemann.media.romote.data.Device;
 import wseemann.media.romote.tasks.ResponseCallbackWrapper;
 import wseemann.media.romote.utils.DBUtils;
 import wseemann.media.romote.utils.PreferenceUtils;
+import wseemann.media.romote.viewmodels.ConfigureDeviceScreenViewModel;
+import wseemann.media.romote.viewmodels.ManualConnectionScreenViewModel;
 
 import javax.inject.Inject;
 
@@ -46,6 +49,14 @@ public class ManualConnectionFragment extends Fragment {
 
     private String mHost;
 
+    private ManualConnectionScreenViewModel manualConnectionScreenViewModel;
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        manualConnectionScreenViewModel = new ViewModelProvider(this).get(ManualConnectionScreenViewModel.class);
+    }
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_manual_connection, container, false);
@@ -56,6 +67,14 @@ public class ManualConnectionFragment extends Fragment {
         mErrorText = view.findViewById(R.id.error_text);
 
         return view;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
+        manualConnectionScreenViewModel.getUiStateLiveData().observe(getViewLifecycleOwner(), state -> {
+        });
     }
 
     @Override

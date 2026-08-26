@@ -1,4 +1,4 @@
-package wseemann.media.romote.model
+package wseemann.media.romote.data
 
 class Device : com.wseemann.ecp.model.Device() {
 

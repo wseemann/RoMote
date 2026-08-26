@@ -10,7 +10,7 @@ import android.widget.EditText;
 import androidx.fragment.app.DialogFragment;
 
 import wseemann.media.romote.R;
-import wseemann.media.romote.model.Device;
+import wseemann.media.romote.data.Device;
 import wseemann.media.romote.utils.DBUtils;
 
 /**

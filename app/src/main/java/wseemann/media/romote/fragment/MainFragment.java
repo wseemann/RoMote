@@ -37,7 +37,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import javax.inject.Inject;
 import wseemann.media.romote.R;
 import wseemann.media.romote.event.MainScreenUiEvent;
-import wseemann.media.romote.model.Device;
+import wseemann.media.romote.data.Device;
 import wseemann.media.romote.utils.BroadcastUtils;
 import wseemann.media.romote.utils.DBUtils;
 import wseemann.media.romote.utils.PreferenceUtils;

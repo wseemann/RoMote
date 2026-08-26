@@ -33,7 +33,7 @@ import kotlinx.collections.immutable.persistentListOf
 import wseemann.media.romote.R
 import wseemann.media.romote.composables.theme.RomoteTheme
 import wseemann.media.romote.event.ChannelScreenUiEvent
-import wseemann.media.romote.model.ChannelItem
+import wseemann.media.romote.data.ChannelItem
 import wseemann.media.romote.model.ChannelScreenUiState
 
 /** Spacing carried over from the GridView this screen replaced. */

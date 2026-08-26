@@ -20,7 +20,7 @@ import kotlinx.collections.immutable.persistentListOf
 import wseemann.media.romote.R
 import wseemann.media.romote.composables.theme.RomoteTheme
 import wseemann.media.romote.model.DeviceInfoScreenUiState
-import wseemann.media.romote.model.Entry
+import wseemann.media.romote.data.Entry
 
 /**
  * The device info screen: everything the connected Roku reports about itself, as key/value rows.

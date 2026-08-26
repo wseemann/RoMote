@@ -20,7 +20,7 @@ import androidx.core.graphics.drawable.RoundedBitmapDrawableFactory;
 import java.util.List;
 
 import wseemann.media.romote.R;
-import wseemann.media.romote.model.Device;
+import wseemann.media.romote.data.Device;
 import wseemann.media.romote.utils.PreferenceUtils;
 
 /**

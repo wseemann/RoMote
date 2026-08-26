@@ -16,7 +16,7 @@ import timber.log.Timber;
 import wseemann.media.romote.R;
 import wseemann.media.romote.activity.MainActivity;
 import wseemann.media.romote.di.CommonModule;
-import wseemann.media.romote.model.Device;
+import wseemann.media.romote.data.Device;
 import wseemann.media.romote.receiver.CommandReceiver;
 import wseemann.media.romote.service.CommandService;
 

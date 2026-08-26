@@ -15,10 +15,10 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import wseemann.media.romote.event.DeviceInfoScreenUiEvent
-import wseemann.media.romote.model.Device
-import wseemann.media.romote.model.Device.Companion.fromDevice
+import wseemann.media.romote.data.Device
+import wseemann.media.romote.data.Device.Companion.fromDevice
 import wseemann.media.romote.model.DeviceInfoScreenUiState
-import wseemann.media.romote.model.Entry
+import wseemann.media.romote.data.Entry
 import wseemann.media.romote.utils.CommandHelper
 import wseemann.media.romote.utils.DBUtils
 import javax.inject.Inject

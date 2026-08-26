@@ -1,4 +1,4 @@
-package wseemann.media.romote.model
+package wseemann.media.romote.data
 
 data class ChannelItem(
     val id: String,

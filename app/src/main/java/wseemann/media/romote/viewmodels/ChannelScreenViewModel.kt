@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import wseemann.media.romote.event.ChannelScreenUiEvent
-import wseemann.media.romote.model.ChannelItem
+import wseemann.media.romote.data.ChannelItem
 import wseemann.media.romote.model.ChannelScreenUiState
 import wseemann.media.romote.utils.CommandHelper
 import javax.inject.Inject

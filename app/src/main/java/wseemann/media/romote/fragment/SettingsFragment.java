@@ -17,7 +17,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 import timber.log.Timber;
 import wseemann.media.romote.R;
 import wseemann.media.romote.activity.LicensesActivity;
-import wseemann.media.romote.model.Device;
+import wseemann.media.romote.data.Device;
 import wseemann.media.romote.utils.CommandHelper;
 import wseemann.media.romote.utils.Constants;
 import wseemann.media.romote.utils.PreferenceUtils;

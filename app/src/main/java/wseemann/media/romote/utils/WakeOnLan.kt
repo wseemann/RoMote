@@ -9,7 +9,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
-import wseemann.media.romote.model.Device
+import wseemann.media.romote.data.Device
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.Inet4Address

@@ -37,7 +37,7 @@ import dagger.hilt.android.AndroidEntryPoint;
 import timber.log.Timber;
 import wseemann.media.romote.R;
 import wseemann.media.romote.audio.IRemoteAudioInterface;
-import wseemann.media.romote.model.Device;
+import wseemann.media.romote.data.Device;
 import wseemann.media.romote.tasks.ResponseCallbackWrapper;
 import wseemann.media.romote.utils.BroadcastUtils;
 import wseemann.media.romote.utils.CommandHelper;

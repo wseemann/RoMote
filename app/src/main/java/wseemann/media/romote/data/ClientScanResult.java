@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package wseemann.media.romote.model;
+package wseemann.media.romote.data;
 
 public class ClientScanResult {
     private String IpAddr;

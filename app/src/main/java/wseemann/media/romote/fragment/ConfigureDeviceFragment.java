@@ -29,7 +29,7 @@ import wseemann.media.romote.R;
 import wseemann.media.romote.activity.MainActivity;
 import wseemann.media.romote.activity.ManualConnectionActivity;
 import wseemann.media.romote.event.ConfigureDeviceScreenUiEvent;
-import wseemann.media.romote.model.Device;
+import wseemann.media.romote.data.Device;
 import wseemann.media.romote.utils.DBUtils;
 import wseemann.media.romote.utils.PreferenceUtils;
 import wseemann.media.romote.viewmodels.ConfigureDeviceScreenViewModel;

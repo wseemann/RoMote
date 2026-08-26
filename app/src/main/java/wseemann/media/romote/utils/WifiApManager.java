@@ -32,7 +32,7 @@ import android.os.Build;
 import android.provider.Settings;
 import android.util.Log;
 
-import wseemann.media.romote.model.ClientScanResult;
+import wseemann.media.romote.data.ClientScanResult;
 import wseemann.media.romote.utils.Constants.WIFI_AP_STATE;
 
 public class WifiApManager {

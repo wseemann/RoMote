@@ -19,8 +19,8 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import wseemann.media.romote.event.MainScreenUiEvent
-import wseemann.media.romote.model.Device
-import wseemann.media.romote.model.Device.Companion.fromDevice
+import wseemann.media.romote.data.Device
+import wseemann.media.romote.data.Device.Companion.fromDevice
 import wseemann.media.romote.model.MainScreenUiState
 import wseemann.media.romote.utils.BroadcastUtils
 import wseemann.media.romote.utils.DBUtils

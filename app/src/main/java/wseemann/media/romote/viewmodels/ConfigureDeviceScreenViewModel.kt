@@ -17,8 +17,8 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import wseemann.media.romote.event.ConfigureDeviceScreenUiEvent
 import wseemann.media.romote.model.ConfigureDeviceScreenUiState
-import wseemann.media.romote.model.Device
-import wseemann.media.romote.model.Device.Companion.fromDevice
+import wseemann.media.romote.data.Device
+import wseemann.media.romote.data.Device.Companion.fromDevice
 import wseemann.media.romote.utils.DBUtils
 import wseemann.media.romote.utils.WifiApManager
 import javax.inject.Inject
