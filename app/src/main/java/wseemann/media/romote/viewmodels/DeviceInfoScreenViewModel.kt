@@ -2,22 +2,23 @@ package wseemann.media.romote.viewmodels
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
-import com.wseemann.ecp.api.ResponseCallback
-import com.wseemann.ecp.model.Device
-import com.wseemann.ecp.request.QueryDeviceInfoRequest
+import com.wseemann.ecp.api.QueryRequests
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import timber.log.Timber
+import wseemann.media.romote.event.DeviceInfoScreenUiEvent
+import wseemann.media.romote.model.Device
 import wseemann.media.romote.model.Device.Companion.fromDevice
-import wseemann.media.romote.model.DeviceInfoUiState
+import wseemann.media.romote.model.DeviceInfoScreenUiState
 import wseemann.media.romote.model.Entry
-import wseemann.media.romote.tasks.ResponseCallbackWrapper
 import wseemann.media.romote.utils.CommandHelper
 import wseemann.media.romote.utils.DBUtils
 import javax.inject.Inject
@@ -28,17 +29,24 @@ class DeviceInfoScreenViewModel @Inject constructor(
     val commandHelper: CommandHelper
 ) : ViewModel() {
 
-    private val _deviceInfo = MutableStateFlow<DeviceInfoUiState>(DeviceInfoUiState.Loading)
-    val deviceInfo = _deviceInfo.asStateFlow()
-    val deviceInfoLiveData = deviceInfo.asLiveData()
+    private val _uiState = MutableStateFlow(DeviceInfoScreenUiState())
+    val uiState = _uiState.asStateFlow()
 
-    fun queryDeviceInfo(serialNumber: String?, host: String?) {
-        viewModelScope.launch {
-            val dbDevice = withContext(Dispatchers.IO) {
-                DBUtils.getDevice(context, serialNumber)
-            }
-            if (dbDevice != null) {
-                _deviceInfo.value = DeviceInfoUiState.Success(parseDevice(dbDevice))
+    fun onHandleEvent(event: DeviceInfoScreenUiEvent) {
+        when (event) {
+            is DeviceInfoScreenUiEvent.LoadDeviceInfoEvent ->
+                onLoadDeviceInfo(event.serialNumber, event.host)
+        }
+    }
+
+    private fun onLoadDeviceInfo(serialNumber: String?, host: String?) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _uiState.update { it.copy(isLoading = true) }
+
+            // Paint what was stored when the device was paired, so there is something on screen
+            // while the device itself is queried for its current details.
+            DBUtils.getDevice(context, serialNumber)?.let { storedDevice ->
+                _uiState.update { it.copy(entries = parseDevice(storedDevice)) }
             }
 
             val command = if (host == null) {
@@ -46,61 +54,50 @@ class DeviceInfoScreenViewModel @Inject constructor(
             } else {
                 commandHelper.getDeviceInfoURL(host)
             }
-            sendCommand(command)
+
+            try {
+                val device = fromDevice(QueryRequests.queryDeviceInfo(command))
+                _uiState.update { it.copy(entries = parseDevice(device), isLoading = false) }
+            } catch (ex: Exception) {
+                // Any stored entries stay on screen; they are the best answer available.
+                Timber.e(ex)
+                _uiState.update { it.copy(isLoading = false) }
+            }
         }
     }
 
-    private fun sendCommand(command: String) {
-        val queryActiveAppRequest = QueryDeviceInfoRequest(command)
-        queryActiveAppRequest.sendAsync(ResponseCallbackWrapper(object : ResponseCallback<Device?> {
-            override fun onSuccess(data: Device?) {
-                if (data == null) {
-                    _deviceInfo.value = DeviceInfoUiState.Error(Exception("Device returned null"))
-                } else {
-                    _deviceInfo.value = DeviceInfoUiState.Success(parseDevice(fromDevice(data)))
-                }
-            }
-
-            override fun onError(ex: Exception) {
-                _deviceInfo.value = DeviceInfoUiState.Error(ex)
-            }
-        }))
-    }
-
-    private fun parseDevice(device: wseemann.media.romote.model.Device): MutableList<Entry> {
-        val entries: MutableList<Entry> = ArrayList()
-
-        entries.add(Entry("udn", device.udn))
-        entries.add(Entry("serial-number", device.serialNumber))
-        entries.add(Entry("device-id", device.deviceId))
-        entries.add(Entry("vendor-name", device.vendorName))
-        entries.add(Entry("model-number", device.modelNumber))
-        entries.add(Entry("model-name", device.modelName))
-        entries.add(Entry("wifi-mac", device.wifiMac))
-        entries.add(Entry("ethernet-mac", device.ethernetMac))
-        entries.add(Entry("network-type", device.networkType))
-        entries.add(Entry("user-device-name", device.userDeviceName))
-        entries.add(Entry("software-version", device.softwareVersion))
-        entries.add(Entry("software-build", device.softwareBuild))
-        entries.add(Entry("secure-device", device.secureDevice))
-        entries.add(Entry("language", device.language))
-        entries.add(Entry("country", device.country))
-        entries.add(Entry("locale", device.locale))
-        entries.add(Entry("time-zone", device.timeZone))
-        entries.add(Entry("time-zone-offset", device.timeZoneOffset))
-        entries.add(Entry("power-mode", device.powerMode))
-        entries.add(Entry("supports-suspend", device.supportsSuspend))
-        entries.add(Entry("supports-find-remote", device.supportsFindRemote))
-        entries.add(Entry("supports-audio-guide", device.supportsAudioGuide))
-        entries.add(Entry("developer-enabled", device.developerEnabled))
-        entries.add(Entry("keyed-developer-id", device.keyedDeveloperId))
-        entries.add(Entry("search-enabled", device.searchEnabled))
-        entries.add(Entry("voice-search-enabled", device.voiceSearchEnabled))
-        entries.add(Entry("notifications-enabled", device.notificationsEnabled))
-        entries.add(Entry("notifications-first-use", device.notificationsFirstUse))
-        entries.add(Entry("supports-private-listening", device.supportsPrivateListening))
-        entries.add(Entry("headphones-connected", device.headphonesConnected))
-
-        return entries
+    private fun parseDevice(device: Device): ImmutableList<Entry> {
+        return listOf(
+            Entry("udn", device.udn.orEmpty()),
+            Entry("serial-number", device.serialNumber.orEmpty()),
+            Entry("device-id", device.deviceId.orEmpty()),
+            Entry("vendor-name", device.vendorName.orEmpty()),
+            Entry("model-number", device.modelNumber.orEmpty()),
+            Entry("model-name", device.modelName.orEmpty()),
+            Entry("wifi-mac", device.wifiMac.orEmpty()),
+            Entry("ethernet-mac", device.ethernetMac.orEmpty()),
+            Entry("network-type", device.networkType.orEmpty()),
+            Entry("user-device-name", device.userDeviceName.orEmpty()),
+            Entry("software-version", device.softwareVersion.orEmpty()),
+            Entry("software-build", device.softwareBuild.orEmpty()),
+            Entry("secure-device", device.secureDevice.orEmpty()),
+            Entry("language", device.language.orEmpty()),
+            Entry("country", device.country.orEmpty()),
+            Entry("locale", device.locale.orEmpty()),
+            Entry("time-zone", device.timeZone.orEmpty()),
+            Entry("time-zone-offset", device.timeZoneOffset.orEmpty()),
+            Entry("power-mode", device.powerMode.orEmpty()),
+            Entry("supports-suspend", device.supportsSuspend.orEmpty()),
+            Entry("supports-find-remote", device.supportsFindRemote.orEmpty()),
+            Entry("supports-audio-guide", device.supportsAudioGuide.orEmpty()),
+            Entry("developer-enabled", device.developerEnabled.orEmpty()),
+            Entry("keyed-developer-id", device.keyedDeveloperId.orEmpty()),
+            Entry("search-enabled", device.searchEnabled.orEmpty()),
+            Entry("voice-search-enabled", device.voiceSearchEnabled.orEmpty()),
+            Entry("notifications-enabled", device.notificationsEnabled.orEmpty()),
+            Entry("notifications-first-use", device.notificationsFirstUse.orEmpty()),
+            Entry("supports-private-listening", device.supportsPrivateListening.orEmpty()),
+            Entry("headphones-connected", device.headphonesConnected.orEmpty())
+        ).toPersistentList()
     }
 }
