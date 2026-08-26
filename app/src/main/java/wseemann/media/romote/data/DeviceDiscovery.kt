@@ -9,7 +9,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import wseemann.media.romote.data.Device.Companion.fromDevice
-import wseemann.media.romote.utils.SsdpDiscovery
+import wseemann.media.romote.discovery.SsdpDiscovery
 import wseemann.media.romote.utils.WifiApManager
 import javax.inject.Inject
 import javax.inject.Singleton

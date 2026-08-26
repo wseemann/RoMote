@@ -1,4 +1,4 @@
-package wseemann.media.romote.utils
+package wseemann.media.romote.discovery
 
 import timber.log.Timber
 import java.net.DatagramPacket

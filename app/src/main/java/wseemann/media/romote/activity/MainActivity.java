@@ -27,11 +27,11 @@ import com.wseemann.ecp.request.SearchRequest;
 import javax.inject.Inject;
 import dagger.hilt.android.AndroidEntryPoint;
 import wseemann.media.romote.R;
+import wseemann.media.romote.composables.SearchDialogHost;
 import wseemann.media.romote.fragment.ChannelFragment;
 import wseemann.media.romote.fragment.InstallChannelDialog;
 import wseemann.media.romote.fragment.MainFragment;
 import wseemann.media.romote.fragment.RemoteFragment;
-import wseemann.media.romote.fragment.SearchDialog;
 import wseemann.media.romote.fragment.StoreFragment;
 import wseemann.media.romote.service.NotificationService;
 import wseemann.media.romote.utils.CommandHelper;
@@ -39,7 +39,7 @@ import wseemann.media.romote.utils.WindowInsetsUtils;
 
 @AndroidEntryPoint
 public class MainActivity extends ConnectivityActivity implements
-        InstallChannelDialog.InstallChannelListener, SearchDialog.SearchDialogListener {
+        InstallChannelDialog.InstallChannelListener {
 
     @Inject
     protected SharedPreferences sharedPreferences;
@@ -54,12 +54,16 @@ public class MainActivity extends ConnectivityActivity implements
 
     private ChannelFragment mChannelFragment;
 
+    private SearchDialogHost mSearchDialogHost;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         SplashScreen.installSplashScreen(this);
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
+
+        mSearchDialogHost = new SearchDialogHost(this, this::performSearch);
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -151,8 +155,7 @@ public class MainActivity extends ConnectivityActivity implements
             startActivity(new Intent(this, SettingsActivity.class));
             return true;
         } else if (id == R.id.action_search) {
-            SearchDialog fragment = SearchDialog.Companion.newInstance(this);
-            fragment.show(getSupportFragmentManager(), SearchDialog.class.getName());
+            mSearchDialogHost.show();
             return true;
         }
 
@@ -229,11 +232,6 @@ public class MainActivity extends ConnectivityActivity implements
     @Override
     public void onInstallSelected(DialogFragment dialog) {
         dialog.dismiss();
-    }
-
-    @Override
-    public void onSearch(@NonNull String searchText) {
-        performSearch(searchText);
     }
 
     private void performSearch(String searchText) {

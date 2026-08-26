@@ -59,8 +59,6 @@ public class RemoteFragment extends Fragment {
     @Inject
     protected PreferenceUtils preferenceUtils;
 
-    private boolean remoteAudioStarted = false;
-
     /** The primary interface we will be calling on the service.  */
     private IRemoteAudioInterface mService = null;
     private Boolean isBound = false;
@@ -272,14 +270,6 @@ public class RemoteFragment extends Fragment {
         }
 
         return false;
-    }
-
-    // This callback is invoked when the Speech Recognizer returns.
-    // This is where you process the intent and extract the speech text from the intent.
-    @Override
-    public void onActivityResult(int requestCode, int resultCode,
-                                    Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
     }
 
     private final BroadcastReceiver mUpdateReceiver = new BroadcastReceiver() {

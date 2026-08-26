@@ -24,8 +24,6 @@ public class RokuAppWidgetProvider extends AppWidgetProvider {
 
     private static final String TAG = RokuAppWidgetProvider.class.getName();
 
-    public static final String CMDAPPWIDGETUPDATE = RokuAppWidgetProvider.class.getName();
-
     private static RokuAppWidgetProvider sInstance;
 
     public static synchronized RokuAppWidgetProvider getInstance() {
