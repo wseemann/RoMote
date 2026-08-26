@@ -1,8 +1,8 @@
 package wseemann.media.romote.model
 
 data class ManualConnectionScreenUiState(
-    /** Seeded with the prefix the EditText in fragment_manual_connection.xml started out with. */
-    val ipAddress: String = "192.168.1.",
+    /** Starts empty; the screen shows a sample address as a placeholder instead. */
+    val ipAddress: String = "",
     val isLoading: Boolean = false,
     val hasError: Boolean = false,
     /**

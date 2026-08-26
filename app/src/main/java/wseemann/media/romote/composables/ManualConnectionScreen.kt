@@ -61,7 +61,7 @@ fun ManualConnectionScreen(
     val focusRequester = remember { FocusRequester() }
 
     // The caret is view state, not screen state, so it lives here rather than in the UiState. It
-    // is seeded past the "192.168.1." prefix the field starts with, so typing continues the
+    // is seeded at the end of whatever address the state came in with, so typing continues that
     // address instead of landing in front of it.
     var ipAddressValue by remember {
         mutableStateOf(TextFieldValue(uiState.ipAddress, TextRange(uiState.ipAddress.length)))
@@ -106,11 +106,14 @@ fun ManualConnectionScreen(
                     ipAddressValue = it
                     onEvent(ManualConnectionScreenUiEvent.IpAddressChangedEvent(it.text))
                 },
+                placeholder = { Text(text = stringResource(R.string.ip_address_hint)) },
                 singleLine = true,
                 enabled = !uiState.isLoading,
                 isError = uiState.hasError,
                 keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Number,
+                    // Decimal rather than Number: the field no longer starts with the dotted
+                    // prefix, so the keypad has to offer the separator the user now types.
+                    keyboardType = KeyboardType.Decimal,
                     imeAction = ImeAction.Done
                 ),
                 keyboardActions = KeyboardActions(
