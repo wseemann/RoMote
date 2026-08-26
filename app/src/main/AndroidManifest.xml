@@ -83,17 +83,6 @@
             android:theme="@style/AppTheme.NoActionBar" />
 
         <activity
-            android:name="wseemann.media.romote.activity.AppWidgetConfigure"
-            android:configChanges="orientation|keyboardHidden"
-            android:exported="true"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar">
-            <intent-filter>
-                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
-            </intent-filter>
-        </activity>
-
-        <activity
             android:name="wseemann.media.romote.activity.ManualConnectionActivity"
             android:configChanges="orientation|keyboardHidden"
             android:label="@string/title_connect_manually"
