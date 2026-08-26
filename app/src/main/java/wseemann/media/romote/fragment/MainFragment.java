@@ -38,7 +38,6 @@ import javax.inject.Inject;
 import wseemann.media.romote.R;
 import wseemann.media.romote.event.MainScreenUiEvent;
 import wseemann.media.romote.model.Device;
-import wseemann.media.romote.tasks.UpdatePairedDeviceTask;
 import wseemann.media.romote.utils.BroadcastUtils;
 import wseemann.media.romote.utils.DBUtils;
 import wseemann.media.romote.utils.PreferenceUtils;
@@ -190,7 +189,7 @@ public class MainFragment extends ListFragment {
 
         setListAdapter(mAdapter);
 
-        refreshList(false);
+        refreshList();
     }
 
     @Override
@@ -226,7 +225,7 @@ public class MainFragment extends ListFragment {
             mAvailableDeviceAdapter.clear();
             mAdapter.notifyDataSetChanged();
 
-            refreshList(false);
+            refreshList();
         }
     }
 
@@ -258,8 +257,6 @@ public class MainFragment extends ListFragment {
 
     private void showMenu(final View v) {
         PopupMenu popup = new PopupMenu(requireActivity(), v);
-
-        // This activity implements OnMenuItemClickListener
         popup.setOnMenuItemClickListener(item -> {
             Device device = (Device) v.getTag();
 
@@ -283,7 +280,7 @@ public class MainFragment extends ListFragment {
             } else if (itemId == R.id.action_unpair) {
                 preferenceUtils.setConnectedDevice("");
                 DBUtils.removeDevice(getActivity(), device.getSerialNumber());
-                refreshList(false);
+                refreshList();
                 return true;
             } else {
                 return false;
@@ -300,8 +297,8 @@ public class MainFragment extends ListFragment {
         popup.show();
     }
 
-    private void refreshList(boolean showLoadingText) {
-        setLoadingText(showLoadingText);
+    private void refreshList() {
+        setLoadingText(false);
         mainScreenViewModel.onHandleEvent(MainScreenUiEvent.LoadPairedDevicesEvent.INSTANCE);
         mainScreenViewModel.onHandleEvent(MainScreenUiEvent.LoadAvailableDevicesEvent.INSTANCE);
         updatePairedDevice();

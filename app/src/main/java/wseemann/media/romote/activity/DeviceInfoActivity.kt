@@ -14,7 +14,7 @@ class DeviceInfoActivity : ConnectivityActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_deviceinfo)
 
-        setSupportActionBar(findViewById<Toolbar>(R.id.toolbar))
+        setSupportActionBar(findViewById(R.id.toolbar))
         supportActionBar?.setDisplayHomeAsUpEnabled(true)
         applyStatusBarTopPadding(findViewById(R.id.app_bar_layout))
         applyNavigationBarBottomPadding(findViewById(R.id.content))
