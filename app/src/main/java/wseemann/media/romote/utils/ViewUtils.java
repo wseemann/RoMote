@@ -9,6 +9,7 @@ import android.view.View;
 
 import wseemann.media.romote.BuildConfig;
 import wseemann.media.romote.di.CommonModule;
+import wseemann.media.romote.di.PreferencesModule;
 
 public class ViewUtils {
 
@@ -17,7 +18,7 @@ public class ViewUtils {
     }
 
     public static void provideHapticFeedback(View view, int vibrateDurationMs) {
-        if (CommonModule.PreferenceUtilsSingleton.preferenceUtils.shouldProvideHapticFeedback()) {
+        if (PreferencesModule.PreferenceUtilsSingleton.preferenceUtils.shouldProvideHapticFeedback()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
                 VibratorManager vibratorManager = (VibratorManager) view.getContext().getSystemService(Context.VIBRATOR_MANAGER_SERVICE);
                 Vibrator vibrator = vibratorManager.getDefaultVibrator();

@@ -3,7 +3,6 @@ package wseemann.media.romote.fragment;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.wifi.WifiInfo;
@@ -30,6 +29,7 @@ import wseemann.media.romote.activity.MainActivity;
 import wseemann.media.romote.activity.ManualConnectionActivity;
 import wseemann.media.romote.event.ConfigureDeviceScreenUiEvent;
 import wseemann.media.romote.data.Device;
+import wseemann.media.romote.preferences.AppPreferences;
 import wseemann.media.romote.utils.DBUtils;
 import wseemann.media.romote.utils.PreferenceUtils;
 import wseemann.media.romote.viewmodels.ConfigureDeviceScreenViewModel;
@@ -38,10 +38,10 @@ import wseemann.media.romote.viewmodels.ConfigureDeviceScreenViewModel;
 public class ConfigureDeviceFragment extends Fragment {
 
     @Inject
-    protected SharedPreferences sharedPreferences;
+    protected PreferenceUtils preferenceUtils;
 
     @Inject
-    protected PreferenceUtils preferenceUtils;
+    protected AppPreferences appPreferences;
 
     private TextView mWirelessNextworkTextview;
     private TextView mSelectDeviceText;
@@ -220,9 +220,7 @@ public class ConfigureDeviceFragment extends Fragment {
             DBUtils.insertDevice(ConfigureDeviceFragment.this.getActivity(), device);
             preferenceUtils.setConnectedDevice(device.getSerialNumber());
 
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putBoolean("first_use", false);
-            editor.commit();
+            appPreferences.setFirstUse(false);
 
             startActivity(new Intent(ConfigureDeviceFragment.this.getActivity(), MainActivity.class));
             ConfigureDeviceFragment.this.requireActivity().finish();

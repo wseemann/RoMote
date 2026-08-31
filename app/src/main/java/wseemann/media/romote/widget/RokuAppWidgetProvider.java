@@ -15,8 +15,8 @@ import com.wseemann.ecp.core.KeyPressKeyValues;
 import timber.log.Timber;
 import wseemann.media.romote.R;
 import wseemann.media.romote.activity.MainActivity;
-import wseemann.media.romote.di.CommonModule;
 import wseemann.media.romote.data.Device;
+import wseemann.media.romote.di.PreferencesModule;
 import wseemann.media.romote.receiver.CommandReceiver;
 import wseemann.media.romote.service.CommandService;
 
@@ -48,7 +48,7 @@ public class RokuAppWidgetProvider extends AppWidgetProvider {
         Device device;
 
         try {
-            device = CommonModule.PreferenceUtilsSingleton.preferenceUtils.getConnectedDevice();
+            device = PreferencesModule.PreferenceUtilsSingleton.preferenceUtils.getConnectedDevice();
         } catch (Exception ex) {
             return;
         }

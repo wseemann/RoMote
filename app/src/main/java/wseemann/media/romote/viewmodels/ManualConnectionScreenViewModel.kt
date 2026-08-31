@@ -1,7 +1,6 @@
 package wseemann.media.romote.viewmodels
 
 import android.content.Context
-import android.content.SharedPreferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wseemann.ecp.api.ResponseCallback
@@ -17,6 +16,7 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import wseemann.media.romote.event.ManualConnectionScreenUiEvent
 import wseemann.media.romote.model.ManualConnectionScreenUiState
+import wseemann.media.romote.preferences.AppPreferences
 import wseemann.media.romote.tasks.ResponseCallbackWrapper
 import wseemann.media.romote.utils.DBUtils
 import wseemann.media.romote.utils.PreferenceUtils
@@ -26,7 +26,7 @@ import javax.inject.Inject
 class ManualConnectionScreenViewModel @Inject constructor(
     @ApplicationContext val context: Context,
     private val preferenceUtils: PreferenceUtils,
-    private val sharedPreferences: SharedPreferences
+    private val appPreferences: AppPreferences
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ManualConnectionScreenUiState())
@@ -84,9 +84,7 @@ class ManualConnectionScreenViewModel @Inject constructor(
             DBUtils.insertDevice(context, device)
             preferenceUtils.setConnectedDevice(device.serialNumber)
 
-            val editor: SharedPreferences.Editor = sharedPreferences.edit()
-            editor.putBoolean("first_use", false)
-            editor.commit()
+            appPreferences.setFirstUse(false)
 
             _uiState.update { it.copy(isLoading = false, isConnected = true) }
         }

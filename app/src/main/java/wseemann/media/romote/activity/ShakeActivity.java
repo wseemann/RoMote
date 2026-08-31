@@ -1,6 +1,5 @@
 package wseemann.media.romote.activity;
 
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -11,6 +10,7 @@ import com.wseemann.ecp.request.KeyPressRequest;
 import javax.inject.Inject;
 import dagger.hilt.android.AndroidEntryPoint;
 import timber.log.Timber;
+import wseemann.media.romote.preferences.AppPreferences;
 import wseemann.media.romote.utils.CommandHelper;
 import wseemann.media.romote.utils.ShakeMonitor;
 import wseemann.media.romote.utils.WindowInsetsUtils;
@@ -19,7 +19,7 @@ import wseemann.media.romote.utils.WindowInsetsUtils;
 public class ShakeActivity extends AppCompatActivity {
 
     @Inject
-    protected SharedPreferences sharedPreferences;
+    protected AppPreferences appPreferences;
 
     @Inject
     protected CommandHelper commandHelper;
@@ -75,6 +75,6 @@ public class ShakeActivity extends AppCompatActivity {
     };
 
     private boolean shakeEnabled() {
-        return sharedPreferences.getBoolean("shake_to_pause_checkbox_preference", false);
+        return appPreferences.isShakeToPauseEnabled();
     }
 }

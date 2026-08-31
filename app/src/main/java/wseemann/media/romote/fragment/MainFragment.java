@@ -6,7 +6,6 @@ import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -40,6 +39,7 @@ import wseemann.media.romote.R;
 import wseemann.media.romote.event.MainScreenUiEvent;
 import wseemann.media.romote.data.Device;
 import wseemann.media.romote.model.MainScreenUiState;
+import wseemann.media.romote.preferences.AppPreferences;
 import wseemann.media.romote.utils.BroadcastUtils;
 import wseemann.media.romote.utils.DBUtils;
 import wseemann.media.romote.utils.PreferenceUtils;
@@ -51,10 +51,10 @@ import wseemann.media.romote.widget.RokuAppWidgetProvider;
 public class MainFragment extends ListFragment {
 
     @Inject
-    protected SharedPreferences sharedPreferences;
+    protected PreferenceUtils preferenceUtils;
 
     @Inject
-    protected PreferenceUtils preferenceUtils;
+    protected AppPreferences appPreferences;
 
     private TextView mSelectDeviceText;
     private RelativeLayout mProgressLayout;
@@ -159,9 +159,7 @@ public class MainFragment extends ListFragment {
             DBUtils.insertDevice(getActivity(), device);
             preferenceUtils.setConnectedDevice(device.getSerialNumber());
 
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putBoolean("first_use", false);
-            editor.commit();
+            appPreferences.setFirstUse(false);
 
             Toast.makeText(getActivity(), "Device " + device.getSerialNumber() + " " + getString(R.string.connected), Toast.LENGTH_SHORT).show();
 

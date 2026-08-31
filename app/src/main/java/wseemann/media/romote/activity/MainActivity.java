@@ -4,13 +4,10 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.os.IBinder;
-
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
@@ -33,6 +30,7 @@ import wseemann.media.romote.fragment.InstallChannelDialog;
 import wseemann.media.romote.fragment.MainFragment;
 import wseemann.media.romote.fragment.RemoteFragment;
 import wseemann.media.romote.fragment.StoreFragment;
+import wseemann.media.romote.preferences.AppPreferences;
 import wseemann.media.romote.service.NotificationService;
 import wseemann.media.romote.utils.CommandHelper;
 import wseemann.media.romote.utils.WindowInsetsUtils;
@@ -42,10 +40,10 @@ public class MainActivity extends ConnectivityActivity implements
         InstallChannelDialog.InstallChannelListener {
 
     @Inject
-    protected SharedPreferences sharedPreferences;
+    protected CommandHelper commandHelper;
 
     @Inject
-    protected CommandHelper commandHelper;
+    protected AppPreferences appPreferences;
 
     private SectionsPagerAdapter mSectionsPagerAdapter;
     private ViewPager mViewPager;
@@ -71,7 +69,7 @@ public class MainActivity extends ConnectivityActivity implements
         AppBarLayout appBarLayout = findViewById(R.id.app_bar_layout);
         WindowInsetsUtils.applyStatusBarTopPadding(appBarLayout);
 
-        if (sharedPreferences.getBoolean("first_use", true)) {
+        if (appPreferences.isFirstUse()) {
             startActivity(new Intent(this, ConfigureDeviceActivity.class));
             finish();
         }

@@ -15,27 +15,23 @@ import android.media.MediaMetadata;
 import android.media.session.MediaSession;
 import android.media.session.PlaybackState;
 import android.os.Binder;
-import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
-
 import com.wseemann.ecp.api.ResponseCallback;
 import com.wseemann.ecp.model.Channel;
 import com.wseemann.ecp.request.QueryActiveAppRequest;
 import com.wseemann.ecp.request.QueryIconRequest;
-
 import java.util.List;
 import java.util.Random;
-
 import javax.inject.Inject;
-
 import dagger.hilt.android.AndroidEntryPoint;
+import timber.log.Timber;
 import wseemann.media.romote.R;
 import wseemann.media.romote.data.Device;
+import wseemann.media.romote.preferences.AppPreferences;
 import wseemann.media.romote.tasks.ResponseCallbackWrapper;
 import wseemann.media.romote.utils.CommandHelper;
 import wseemann.media.romote.utils.Constants;
@@ -49,6 +45,9 @@ public class NotificationService extends Service {
 
     @Inject
     protected SharedPreferences sharedPreferences;
+
+    @Inject
+    protected AppPreferences appPreferences;
 
     @Inject
     protected CommandHelper commandHelper;
@@ -97,17 +96,15 @@ public class NotificationService extends Service {
 
         mNM = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            NotificationChannel channel = new NotificationChannel(getString(R.string.app_name), getString(R.string.app_name), NotificationManager.IMPORTANCE_LOW);
-            channel.setDescription(TAG);
-            channel.enableLights(false);
-            channel.enableVibration(false);
-            mNM.createNotificationChannel(channel);
-        }
+        NotificationChannel channel = new NotificationChannel(getString(R.string.app_name), getString(R.string.app_name), NotificationManager.IMPORTANCE_LOW);
+        channel.setDescription(TAG);
+        channel.enableLights(false);
+        channel.enableVibration(false);
+        mNM.createNotificationChannel(channel);
 
         //startForeground(NotificationService.NOTIFICATION, notification);
 
-        boolean enableNotification = sharedPreferences.getBoolean("notification_checkbox_preference", false);
+        boolean enableNotification = appPreferences.isNotificationWidgetEnabled();
 
         sharedPreferences.registerOnSharedPreferenceChangeListener(mPreferencesChangedListener);
 
@@ -126,7 +123,7 @@ public class NotificationService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        Log.i(TAG, "Received start id " + startId + ": " + intent);
+        Timber.tag(TAG).i("Received start id " + startId + ": " + intent);
 
         mServiceStartId = startId;
 
@@ -216,7 +213,7 @@ public class NotificationService extends Service {
     private final BroadcastReceiver mUpdateReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            boolean enableNotification = sharedPreferences.getBoolean("notification_checkbox_preference", false);
+            boolean enableNotification = appPreferences.isNotificationWidgetEnabled();
 
             if (enableNotification) {
                 notification = NotificationUtils.buildNotification(NotificationService.this, null, null, null, mediaSession.getSessionToken());
@@ -231,10 +228,10 @@ public class NotificationService extends Service {
         }
     };
 
-    private SharedPreferences.OnSharedPreferenceChangeListener mPreferencesChangedListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
+    private final SharedPreferences.OnSharedPreferenceChangeListener mPreferencesChangedListener = new SharedPreferences.OnSharedPreferenceChangeListener() {
         public void onSharedPreferenceChanged(SharedPreferences prefs, String key) {
-            if (key.equals("notification_checkbox_preference")) {
-                boolean enableNotification = sharedPreferences.getBoolean("notification_checkbox_preference", false);
+            if (key != null && key.equals(AppPreferences.APP_PREFERENCE_NOTIFICATION_WIDGET)) {
+                boolean enableNotification = appPreferences.isNotificationWidgetEnabled();
 
                 sharedPreferences.registerOnSharedPreferenceChangeListener(mPreferencesChangedListener);
 
