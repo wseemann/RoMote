@@ -30,7 +30,6 @@ public class ShakeActivity extends AppCompatActivity {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Must run before subclasses call setContentView.
         WindowInsetsUtils.enableRomoteEdgeToEdge(this);
 
         mShakeMonitor = new ShakeMonitor(this);

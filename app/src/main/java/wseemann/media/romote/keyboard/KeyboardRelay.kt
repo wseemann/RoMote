@@ -3,7 +3,6 @@ package wseemann.media.romote.keyboard
 import com.wseemann.ecp.core.KeyPressKeyValues
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -30,7 +29,7 @@ import timber.log.Timber
  */
 class KeyboardRelay(
     scope: CoroutineScope,
-    dispatcher: CoroutineDispatcher = Dispatchers.IO,
+    dispatcher: CoroutineDispatcher,
     private val sendKey: (String) -> Unit
 ) {
 

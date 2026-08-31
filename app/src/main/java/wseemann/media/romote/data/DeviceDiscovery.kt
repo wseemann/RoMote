@@ -3,12 +3,13 @@ package wseemann.media.romote.data
 import android.content.Context
 import com.wseemann.ecp.api.QueryRequests
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import wseemann.media.romote.data.Device.Companion.fromDevice
+import wseemann.media.romote.di.IoDispatcher
 import wseemann.media.romote.discovery.DeviceDescription
 import wseemann.media.romote.discovery.SsdpDiscovery
 import wseemann.media.romote.utils.WifiApManager
@@ -25,13 +26,14 @@ import javax.inject.Singleton
  */
 @Singleton
 class DeviceDiscovery @Inject constructor(
-    @ApplicationContext private val context: Context
+    @ApplicationContext private val context: Context,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) {
 
     private val mutex = Mutex()
 
     suspend fun discoverDevices(): List<Device> = mutex.withLock {
-        withContext(Dispatchers.IO) {
+        withContext(ioDispatcher) {
             val wifiApManager = WifiApManager(context)
 
             if (wifiApManager.isWifiApEnabled) {

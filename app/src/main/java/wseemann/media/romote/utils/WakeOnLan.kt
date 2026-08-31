@@ -3,8 +3,8 @@ package wseemann.media.romote.utils
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -65,9 +65,11 @@ class WakeOnLan {
         fun wakeAsync(
             context: Context,
             preferenceUtils: PreferenceUtils,
+            ioDispatcher: CoroutineDispatcher,
+            mainDispatcher: CoroutineDispatcher,
             callback: WakeCallback
         ) {
-            CoroutineScope(Dispatchers.IO).launch {
+            CoroutineScope(ioDispatcher).launch {
                 val result = try {
                     // Reads SQLite and throws when nothing is paired, so it has to stay off the
                     // main thread.
@@ -76,7 +78,7 @@ class WakeOnLan {
                     WakeResult.Failed(ex)
                 }
 
-                withContext(Dispatchers.Main) {
+                withContext(mainDispatcher) {
                     callback.onResult(result)
                 }
             }

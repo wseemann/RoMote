@@ -1,51 +1,31 @@
 # Overrides layered on top of detekt's bundled defaults (buildUponDefaultConfig = true).
 # Reference: https://github.com/detekt/detekt/blob/main/detekt-core/src/main/resources/default-detekt-config.yml
 #
-# Every entry below exists because the default is wrong for this codebase, not to hide a finding.
-# Anything that was a genuine defect was fixed in the source instead.
-
 complexity:
-  # Compose builds its UI by nesting calls, so a screen composable is legitimately long and
-  # takes state plus one callback per interaction. Neither says anything about complexity here.
   LongMethod:
     ignoreAnnotated: ['Composable']
   LongParameterList:
     ignoreAnnotated: ['Composable']
-  # The default of 11 flags MainScreen.kt (12), AppPreferences (12) and RemoteScreenViewModel (14).
-  # Splitting a screen or its ViewModel to satisfy an arbitrary count would not improve them.
   TooManyFunctions:
     allowedFunctionsPerFile: 15
     allowedFunctionsPerClass: 15
 
 naming:
-  # Composables are PascalCase by convention.
   FunctionNaming:
     ignoreAnnotated: ['Composable']
-  # Compose names private top-level dimension/duration constants in PascalCase, which this
-  # codebase does consistently. Allow that alongside the usual SCREAMING_SNAKE_CASE.
   TopLevelPropertyNaming:
     constantPattern: '[A-Z][_A-Z0-9]*|[A-Z][A-Za-z0-9]*'
 
 style:
-  # dp, sp and alpha literals inside a composable are the layout, not unexplained constants.
   MagicNumber:
     ignoreAnnotated: ['Composable']
-  # @Preview functions are entry points invoked by the IDE and by Compose tooling, so detekt
-  # correctly sees no caller and is wrong to conclude they are dead.
   UnusedPrivateFunction:
     ignoreAnnotated: ['Preview']
-  # Every hit is `ResponseCallback<Void>` from the Roku ECP library, a Java API whose generic
-  # parameter and overridden signatures this code cannot change to Unit.
   ForbiddenVoid:
     ignoreOverridden: true
     ignoreUsageInGenerics: true
-  # The parsers here (MAC, IPv4, SSDP headers, review eligibility) are written as guard clauses
-  # that bail out on malformed input. That is the readable form, not a code smell.
   ReturnCount:
     excludeGuardClauses: true
-  # The SSDP receive loop skips a datagram three ways -- socket timeout, non-Roku reply, and
-  # unusable location URL -- and keeps scanning until its deadline. Successive `continue`s are
-  # the clearest form for that; the default of 1 would force nested lets that read worse.
   LoopWithTooManyJumpStatements:
     maxJumpCount: 3
 
@@ -54,7 +34,4 @@ style:
 #   TooGenericExceptionCaught (23) -- `catch (ex: Exception)` around ECP/network calls. Narrowing
 #     these means enumerating what the Roku ECP client actually throws, which is a behavior change
 #     rather than a lint fix.
-#   InjectDispatcher (12) -- hardcoded Dispatchers.IO in the ViewModels, WakeOnLan and
-#     DeviceDiscovery. Wants an injected CoroutineDispatcher so tests can substitute one.
 #
-# Both are real and left switched on as a to-do list, not silenced.

@@ -9,7 +9,6 @@ import android.os.IBinder
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
@@ -41,7 +40,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.core.net.toUri
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
 import com.wseemann.ecp.api.ResponseCallback
 import com.wseemann.ecp.request.SearchRequest
@@ -209,7 +207,7 @@ class MainActivity : ShakeActivity() {
                     RomoteTopAppBar(
                         title = stringResource(R.string.app_name),
                         actions = {
-                            MainActions(onSearchClick = { isSearchDialogVisible = true })
+                            MainActions { isSearchDialogVisible = true }
                         }
                     )
 
@@ -277,7 +275,7 @@ class MainActivity : ShakeActivity() {
      * What menu/main.xml held: search shown as an icon, settings in the overflow.
      */
     @Composable
-    private fun RowScope.MainActions(onSearchClick: () -> Unit) {
+    private fun MainActions(onSearchClick: () -> Unit) {
         var isOverflowExpanded by remember { mutableStateOf(false) }
 
         IconButton(onClick = onSearchClick) {

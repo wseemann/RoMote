@@ -1,14 +1,17 @@
 package wseemann.media.romote.tasks
 
 import com.wseemann.ecp.api.ResponseCallback
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
-class ResponseCallbackWrapper<T>(private val callback: ResponseCallback<T>) : ResponseCallback<T> {
+class ResponseCallbackWrapper<T>(
+    private val dispatcher: CoroutineDispatcher,
+    private val callback: ResponseCallback<T>
+) : ResponseCallback<T> {
     override fun onSuccess(data: T?) {
         runBlocking {
-            withContext(Dispatchers.Main) {
+            withContext(dispatcher) {
                 callback.onSuccess(data)
             }
         }
@@ -16,7 +19,7 @@ class ResponseCallbackWrapper<T>(private val callback: ResponseCallback<T>) : Re
 
     override fun onError(ex: Exception) {
         runBlocking {
-            withContext(Dispatchers.Main) {
+            withContext(dispatcher) {
                 callback.onError(ex)
             }
         }

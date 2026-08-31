@@ -12,13 +12,15 @@ import com.wseemann.ecp.request.KeyPressRequest
 import com.wseemann.ecp.request.QueryDeviceInfoRequest
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import wseemann.media.romote.R
+import wseemann.media.romote.di.IoDispatcher
+import wseemann.media.romote.di.MainDispatcher
 import wseemann.media.romote.event.RemoteScreenUiEvent
 import wseemann.media.romote.model.RemoteScreenUiState
 import wseemann.media.romote.model.RemoteScreenUiState.PrivateListening
@@ -35,7 +37,9 @@ class RemoteScreenViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val commandHelper: CommandHelper,
     private val preferenceUtils: PreferenceUtils,
-    private val appReviewManager: AppReviewManager
+    private val appReviewManager: AppReviewManager,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    @MainDispatcher private val mainDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(RemoteScreenUiState())
@@ -47,7 +51,7 @@ class RemoteScreenViewModel @Inject constructor(
     /** Whether the bound service last reported that audio is playing through the phone. */
     private var privateListeningActive = false
 
-    private val keyboardRelay = KeyboardRelay(viewModelScope) { key ->
+    private val keyboardRelay = KeyboardRelay(viewModelScope, ioDispatcher) { key ->
         KeyPressRequest(commandHelper.getDeviceURL(), key).send()
     }
 
@@ -116,7 +120,7 @@ class RemoteScreenViewModel @Inject constructor(
      * thread on every broadcast.
      */
     private fun onDeviceChanged() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             var deviceName = ""
             var showVolumeControls = true
             var isDeviceConnected = true
@@ -177,7 +181,7 @@ class RemoteScreenViewModel @Inject constructor(
     private fun onPowerClicked() {
         val request = QueryDeviceInfoRequest(commandHelper.getDeviceURL())
 
-        request.sendAsync(ResponseCallbackWrapper(object :
+        request.sendAsync(ResponseCallbackWrapper(mainDispatcher, object :
             ResponseCallback<com.wseemann.ecp.model.Device> {
             override fun onSuccess(data: com.wseemann.ecp.model.Device?) {
                 if (data == null) {
@@ -209,7 +213,7 @@ class RemoteScreenViewModel @Inject constructor(
     }
 
     private fun wakeDevice() {
-        WakeOnLan.wakeAsync(context, preferenceUtils) { result ->
+        WakeOnLan.wakeAsync(context, preferenceUtils, ioDispatcher, mainDispatcher) { result ->
             val messageResId = when (result) {
                 is WakeOnLan.WakeResult.Sent -> R.string.waking_device
                 is WakeOnLan.WakeResult.NoMacAddress -> R.string.wake_no_mac

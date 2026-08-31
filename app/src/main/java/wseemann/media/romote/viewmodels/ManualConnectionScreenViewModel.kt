@@ -8,12 +8,14 @@ import com.wseemann.ecp.model.Device
 import com.wseemann.ecp.request.QueryDeviceInfoRequest
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import wseemann.media.romote.di.IoDispatcher
+import wseemann.media.romote.di.MainDispatcher
 import wseemann.media.romote.event.ManualConnectionScreenUiEvent
 import wseemann.media.romote.model.ManualConnectionScreenUiState
 import wseemann.media.romote.tasks.ResponseCallbackWrapper
@@ -24,7 +26,9 @@ import javax.inject.Inject
 @HiltViewModel
 class ManualConnectionScreenViewModel @Inject constructor(
     @ApplicationContext val context: Context,
-    private val preferenceUtils: PreferenceUtils
+    private val preferenceUtils: PreferenceUtils,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    @MainDispatcher private val mainDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ManualConnectionScreenUiState())
@@ -48,7 +52,7 @@ class ManualConnectionScreenViewModel @Inject constructor(
         _uiState.update { it.copy(isLoading = true, hasError = false) }
 
         val queryDeviceInfoRequest = QueryDeviceInfoRequest(host)
-        queryDeviceInfoRequest.sendAsync(ResponseCallbackWrapper(object :
+        queryDeviceInfoRequest.sendAsync(ResponseCallbackWrapper(mainDispatcher, object :
             ResponseCallback<Device?> {
             override fun onSuccess(data: Device?) {
                 if (data == null) {
@@ -78,7 +82,7 @@ class ManualConnectionScreenViewModel @Inject constructor(
      * the preference commit go to the IO dispatcher before the screen is told it is done.
      */
     private fun storeDevice(device: wseemann.media.romote.data.Device) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             DBUtils.insertDevice(context, device)
             preferenceUtils.setConnectedDevice(device.serialNumber)
 

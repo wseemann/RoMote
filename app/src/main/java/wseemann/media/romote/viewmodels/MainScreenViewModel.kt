@@ -8,7 +8,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import wseemann.media.romote.data.Device
 import wseemann.media.romote.data.DeviceDiscovery
+import wseemann.media.romote.di.IoDispatcher
 import wseemann.media.romote.event.MainScreenUiEvent
 import wseemann.media.romote.model.MainScreenUiState
 import wseemann.media.romote.utils.BroadcastUtils
@@ -28,7 +29,8 @@ import javax.inject.Inject
 class MainScreenViewModel @Inject constructor(
     @ApplicationContext val context: Context,
     private val preferenceUtils: PreferenceUtils,
-    private val deviceDiscovery: DeviceDiscovery
+    private val deviceDiscovery: DeviceDiscovery,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainScreenUiState())
@@ -65,7 +67,7 @@ class MainScreenViewModel @Inject constructor(
     private fun onRefresh() {
         val generation = scanGeneration.incrementAndGet()
 
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             _uiState.update { it.copy(isLoading = true) }
 
             try {
@@ -165,7 +167,7 @@ class MainScreenViewModel @Inject constructor(
      * also did stay with DevicesTab, which needs its own Context for them.
      */
     private fun onDeviceSelected(device: Device) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             DBUtils.insertDevice(context, device)
             preferenceUtils.setConnectedDevice(device.serialNumber)
 
@@ -189,7 +191,7 @@ class MainScreenViewModel @Inject constructor(
      * secondary device silently disconnected the active one.
      */
     private fun onForgetDevice(serialNumber: String) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             DBUtils.removeDevice(context, serialNumber)
 
             val connectedSerialNumber = connectedSerialNumber()
@@ -241,7 +243,7 @@ class MainScreenViewModel @Inject constructor(
 
         _uiState.update { it.copy(renameTarget = null) }
 
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             DBUtils.getDevice(context, target.serialNumber)?.let { device ->
                 device.setCustomUserDeviceName(name)
                 DBUtils.updateDevice(context, device)

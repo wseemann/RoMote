@@ -28,10 +28,12 @@ import com.wseemann.ecp.request.QueryIconRequest;
 import java.util.List;
 import java.util.Random;
 import javax.inject.Inject;
+import kotlinx.coroutines.CoroutineDispatcher;
 import dagger.hilt.android.AndroidEntryPoint;
 import timber.log.Timber;
 import wseemann.media.romote.R;
 import wseemann.media.romote.data.Device;
+import wseemann.media.romote.di.MainDispatcher;
 import wseemann.media.romote.preferences.AppPreferences;
 import wseemann.media.romote.tasks.ResponseCallbackWrapper;
 import wseemann.media.romote.utils.CommandHelper;
@@ -55,6 +57,10 @@ public class NotificationService extends Service {
 
     @Inject
     protected PreferenceUtils preferenceUtils;
+
+    @Inject
+    @MainDispatcher
+    protected CoroutineDispatcher mainDispatcher;
 
     public static final int NOTIFICATION = 100;
 
@@ -185,7 +191,7 @@ public class NotificationService extends Service {
         String url = commandHelper.getDeviceURL();
 
         QueryActiveAppRequest queryActiveAppRequest = new QueryActiveAppRequest(url);
-        queryActiveAppRequest.sendAsync(new ResponseCallbackWrapper<>(new ResponseCallback<List<Channel>>() {
+        queryActiveAppRequest.sendAsync(new ResponseCallbackWrapper<>(mainDispatcher, new ResponseCallback<List<Channel>>() {
             @Override
             public void onSuccess(@Nullable List<Channel> channels) {
                 if (channels.size() > 0) {
@@ -205,7 +211,7 @@ public class NotificationService extends Service {
         String url = commandHelper.getDeviceURL();
 
         QueryIconRequest queryIconRequest = new QueryIconRequest(url, appId);
-        queryIconRequest.sendAsync(new ResponseCallbackWrapper<>(new ResponseCallback<byte[]>() {
+        queryIconRequest.sendAsync(new ResponseCallbackWrapper<>(mainDispatcher, new ResponseCallback<byte[]>() {
             @Override
             public void onSuccess(@Nullable byte[] bytes) {
                 try {

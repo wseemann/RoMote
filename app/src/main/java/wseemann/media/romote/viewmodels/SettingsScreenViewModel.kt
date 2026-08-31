@@ -6,12 +6,13 @@ import com.wseemann.ecp.api.ResponseCallback
 import com.wseemann.ecp.core.KeyPressKeyValues
 import com.wseemann.ecp.request.KeyPressRequest
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import wseemann.media.romote.di.IoDispatcher
 import wseemann.media.romote.event.SettingsScreenUiEvent
 import wseemann.media.romote.model.SettingsScreenUiState
 import wseemann.media.romote.utils.CommandHelper
@@ -23,7 +24,8 @@ import wseemann.media.romote.preferences.AppPreferences
 class SettingsScreenViewModel @Inject constructor(
     private val commandHelper: CommandHelper,
     private val preferenceUtils: PreferenceUtils,
-    private val appPreferences: AppPreferences
+    private val appPreferences: AppPreferences,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(
@@ -36,7 +38,7 @@ class SettingsScreenViewModel @Inject constructor(
     val uiState = _uiState.asStateFlow()
 
     init {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             val supported = deviceSupportsFindRemote()
             _uiState.update { it.copy(findRemoteSupported = supported) }
         }

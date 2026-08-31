@@ -9,7 +9,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.toPersistentList
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -17,6 +17,7 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import wseemann.media.romote.data.Device
 import wseemann.media.romote.data.Device.Companion.fromDevice
+import wseemann.media.romote.di.IoDispatcher
 import wseemann.media.romote.model.DeviceInfoScreenUiState
 import wseemann.media.romote.data.Entry
 import wseemann.media.romote.utils.CommandHelper
@@ -27,7 +28,8 @@ import javax.inject.Inject
 class DeviceInfoScreenViewModel @Inject constructor(
     @ApplicationContext val context: Context,
     val commandHelper: CommandHelper,
-    savedStateHandle: SavedStateHandle
+    savedStateHandle: SavedStateHandle,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DeviceInfoScreenUiState())
@@ -44,7 +46,7 @@ class DeviceInfoScreenViewModel @Inject constructor(
     }
 
     private fun onLoadDeviceInfo(serialNumber: String?, host: String?) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             _uiState.update { it.copy(isLoading = true) }
 
             // Paint what was stored when the device was paired, so there is something on screen

@@ -8,7 +8,7 @@ import com.wseemann.ecp.request.LaunchAppRequest
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -16,12 +16,16 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import wseemann.media.romote.event.ChannelScreenUiEvent
 import wseemann.media.romote.data.ChannelItem
+import wseemann.media.romote.di.IoDispatcher
 import wseemann.media.romote.model.ChannelScreenUiState
 import wseemann.media.romote.utils.CommandHelper
 import javax.inject.Inject
 
 @HiltViewModel
-class ChannelScreenViewModel @Inject constructor(private val commandHelper: CommandHelper) : ViewModel() {
+class ChannelScreenViewModel @Inject constructor(
+    private val commandHelper: CommandHelper,
+    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ChannelScreenUiState())
     val uiState = _uiState.asStateFlow()
@@ -41,7 +45,7 @@ class ChannelScreenViewModel @Inject constructor(private val commandHelper: Comm
     }
 
     private fun onLoadChannels() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             val deviceUrl = commandHelper.getDeviceURL()
 
             // Nothing is paired, so there is no request worth making: queryAppsRequest("") only
@@ -97,7 +101,7 @@ class ChannelScreenViewModel @Inject constructor(private val commandHelper: Comm
      * because the load drives the pull-to-refresh indicator, made the indicator appear on taps.
      */
     private fun onDeviceChanged() {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(ioDispatcher) {
             // getDeviceURL() reads SQLite behind PreferenceUtils, hence the IO dispatcher.
             if (commandHelper.getDeviceURL() != loadedDeviceUrl ||
                 _uiState.value.channels.isEmpty()
