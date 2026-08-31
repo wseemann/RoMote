@@ -91,7 +91,7 @@ object SsdpDiscovery {
 
                     try {
                         socket.receive(packet)
-                    } catch (ex: SocketTimeoutException) {
+                    } catch (ignored: SocketTimeoutException) {
                         // Nothing arrived in this window; keep listening until the deadline.
                         continue
                     }

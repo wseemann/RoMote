@@ -75,7 +75,7 @@ class ConnectivityDialogHost(private val activity: ComponentActivity) {
         try {
             // In some cases, a matching Activity may not exist, so ensure you safeguard against this.
             activity.startActivity(Intent(Settings.ACTION_WIFI_SETTINGS))
-        } catch (ex: ActivityNotFoundException) {
+        } catch (ignored: ActivityNotFoundException) {
             activity.startActivity(Intent(Settings.ACTION_SETTINGS))
         }
     }

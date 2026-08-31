@@ -13,6 +13,7 @@ plugins {
     id 'com.google.devtools.ksp' version '2.3.6' apply false
     id 'org.jetbrains.kotlin.plugin.compose' version '2.3.20' apply false
     alias(libs.plugins.aboutlibraries.android) apply false
+    alias(libs.plugins.detekt) apply false
     alias(libs.plugins.hilt) apply false
 
     // NOTE: Do not place your application dependencies here; they belong

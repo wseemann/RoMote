@@ -3,6 +3,7 @@ apply plugin: 'com.google.devtools.ksp'
 apply plugin: 'com.mikepenz.aboutlibraries.plugin.android'
 apply plugin: 'com.google.dagger.hilt.android'
 apply plugin: 'org.jetbrains.kotlin.plugin.compose'
+apply plugin: 'dev.detekt'
 
 android {
     namespace = "wseemann.media.romote"
@@ -51,6 +52,27 @@ aboutLibraries {
     collect.fetchRemoteLicense = false
     collect.fetchRemoteFunding = false
     export.excludeFields = ["generated", "developers", "funding"]
+}
+
+detekt {
+    config.setFrom(files("$rootDir/config/detekt/detekt.yml"))
+    buildUponDefaultConfig = true
+    parallel = true
+}
+
+// `check` otherwise only picks up the plain `detekt` task, which has no sources on Android.
+// These are the variant-aware tasks that run with type resolution.
+tasks.named('check') {
+    dependsOn('detektMain', 'detektTest')
+}
+
+tasks.withType(dev.detekt.gradle.Detekt).configureEach {
+    reports {
+        html.required = true
+        sarif.required = true
+        checkstyle.required = false
+        markdown.required = false
+    }
 }
 
 dependencies {

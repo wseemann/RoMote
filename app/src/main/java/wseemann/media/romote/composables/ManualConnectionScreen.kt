@@ -40,9 +40,6 @@ import wseemann.media.romote.composables.theme.RomoteTheme
 import wseemann.media.romote.event.ManualConnectionScreenUiEvent
 import wseemann.media.romote.model.ManualConnectionScreenUiState
 
-/** The 64dp the connect MaterialButton was fixed at in fragment_manual_connection.xml. */
-private val ConnectButtonHeight = 64.dp
-
 /** Matches the 14dp corner radius of @drawable/buttonshape, the button's old background. */
 private val ConnectButtonCornerRadius = 14.dp
 

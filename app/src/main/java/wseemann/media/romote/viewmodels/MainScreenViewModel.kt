@@ -154,7 +154,7 @@ class MainScreenViewModel @Inject constructor(
     /** Reads SQLite, so every caller is already on the IO dispatcher. */
     private fun connectedSerialNumber(): String? = try {
         preferenceUtils.connectedDevice.serialNumber
-    } catch (ex: Exception) {
+    } catch (ignored: Exception) {
         // connectedDevice throws rather than returning null when nothing is paired.
         null
     }

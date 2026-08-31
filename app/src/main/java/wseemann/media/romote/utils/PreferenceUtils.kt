@@ -19,17 +19,14 @@ class PreferenceUtils(
     @get:Throws(Exception::class)
     val connectedDevice: Device
         get() {
-            val device: Device
-
             val serialNumber = sharedPreferences.getString("serial_number", null)
 
-            device = DBUtils.getDevice(context, serialNumber)
+            // DBUtils is Java and unannotated, so this is a platform type. It really does return
+            // null when nothing is paired -- typing it non-null made the guard below dead code
+            // and turned "not connected" into an NPE at the assignment instead.
+            val device: Device? = DBUtils.getDevice(context, serialNumber)
 
-            if (device == null) {
-                throw Exception("Device not connected")
-            }
-
-            return device
+            return device ?: error("Device not connected")
         }
 
     fun shouldProvideHapticFeedback(): Boolean {

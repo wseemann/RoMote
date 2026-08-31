@@ -14,6 +14,7 @@ import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.Inet4Address
 import java.net.InetAddress
+import java.util.Locale
 import androidx.core.net.toUri
 
 /**
@@ -22,10 +23,10 @@ import androidx.core.net.toUri
  */
 class WakeOnLan {
 
-    sealed class WakeResult {
-        data object Sent : WakeResult()
-        data object NoMacAddress : WakeResult()
-        data class Failed(val exception: Exception) : WakeResult()
+    sealed interface WakeResult {
+        data object Sent : WakeResult
+        data object NoMacAddress : WakeResult
+        data class Failed(val exception: Exception) : WakeResult
     }
 
     fun interface WakeCallback {
@@ -38,6 +39,23 @@ class WakeOnLan {
         private val PORTS = intArrayOf(9, 7)
         private const val REPEAT_COUNT = 3
         private const val REPEAT_DELAY_MILLIS = 100L
+
+        /** A MAC address is six bytes, written as twelve hex digits. */
+        private const val MAC_BYTES = 6
+        private const val HEX_DIGITS_PER_BYTE = 2
+        private const val HEX_RADIX = 16
+        private const val MAC_HEX_DIGITS = MAC_BYTES * HEX_DIGITS_PER_BYTE
+
+        /** The magic packet repeats the target MAC sixteen times after the 0xFF header. */
+        private const val MAGIC_PACKET_MAC_REPEATS = 16
+
+        private const val IPV4_OCTETS = 4
+        private const val BITS_PER_OCTET = 8
+        private const val IPV4_BITS = IPV4_OCTETS * BITS_PER_OCTET
+        private const val MAX_OCTET_VALUE = 255
+
+        /** /0 covers every address and /32 is a single host, so neither has a useful broadcast. */
+        private val USABLE_PREFIX_LENGTHS = 1..<IPV4_BITS
 
         /**
          * Resolves the connected device, builds a magic packet for it and broadcasts it on the
@@ -117,13 +135,14 @@ class WakeOnLan {
         internal fun parseMac(mac: String?): ByteArray? {
             val digits = mac?.replace(":", "")?.replace("-", "")?.trim() ?: return null
 
-            if (digits.length != 12) {
+            if (digits.length != MAC_HEX_DIGITS) {
                 return null
             }
 
             return try {
-                ByteArray(6) { i ->
-                    digits.substring(i * 2, i * 2 + 2).toInt(16).toByte()
+                ByteArray(MAC_BYTES) { i ->
+                    val start = i * HEX_DIGITS_PER_BYTE
+                    digits.substring(start, start + HEX_DIGITS_PER_BYTE).toInt(HEX_RADIX).toByte()
                 }
             } catch (ex: NumberFormatException) {
                 Timber.e(ex, "Malformed MAC address")
@@ -135,14 +154,14 @@ class WakeOnLan {
          * A magic packet is six 0xFF bytes followed by the target MAC repeated sixteen times.
          */
         internal fun buildMagicPacket(mac: ByteArray): ByteArray {
-            val packet = ByteArray(6 + 16 * mac.size)
+            val packet = ByteArray(MAC_BYTES + MAGIC_PACKET_MAC_REPEATS * mac.size)
 
-            for (i in 0 until 6) {
+            for (i in 0 until MAC_BYTES) {
                 packet[i] = 0xFF.toByte()
             }
 
-            for (i in 0 until 16) {
-                mac.copyInto(packet, 6 + i * mac.size)
+            for (i in 0 until MAGIC_PACKET_MAC_REPEATS) {
+                mac.copyInto(packet, MAC_BYTES + i * mac.size)
             }
 
             return packet
@@ -178,13 +197,13 @@ class WakeOnLan {
          * 192.168.1.42/24 becomes 192.168.1.255. Returns null for anything that isn't IPv4.
          */
         internal fun broadcastAddressFor(address: String, prefixLength: Int): InetAddress? {
-            if (prefixLength !in 1..31) {
+            if (prefixLength !in USABLE_PREFIX_LENGTHS) {
                 return null
             }
 
             val octets = address.split(".")
 
-            if (octets.size != 4) {
+            if (octets.size != IPV4_OCTETS) {
                 return null
             }
 
@@ -194,23 +213,21 @@ class WakeOnLan {
                 for (octet in octets) {
                     val value = octet.toInt()
 
-                    if (value !in 0..255) {
+                    if (value !in 0..MAX_OCTET_VALUE) {
                         return null
                     }
 
-                    ip = (ip shl 8) or value
+                    ip = (ip shl BITS_PER_OCTET) or value
                 }
 
-                val netmask = -1 shl (32 - prefixLength)
+                val netmask = -1 shl (IPV4_BITS - prefixLength)
                 val broadcast = ip or netmask.inv()
 
                 InetAddress.getByAddress(
-                    byteArrayOf(
-                        (broadcast ushr 24).toByte(),
-                        (broadcast ushr 16).toByte(),
-                        (broadcast ushr 8).toByte(),
-                        broadcast.toByte()
-                    )
+                    ByteArray(IPV4_OCTETS) { index ->
+                        val shift = BITS_PER_OCTET * (IPV4_OCTETS - 1 - index)
+                        (broadcast ushr shift).toByte()
+                    }
                 )
             } catch (ex: Exception) {
                 Timber.e(ex, "Failed to derive broadcast address for %s/%s", address, prefixLength)
@@ -253,7 +270,7 @@ class WakeOnLan {
         }
 
         private fun formatMac(mac: ByteArray): String {
-            return mac.joinToString(":") { String.format("%02x", it) }
+            return mac.joinToString(":") { String.format(Locale.ROOT, "%02x", it) }
         }
     }
 }
