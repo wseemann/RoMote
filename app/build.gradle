@@ -1,7 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.devtools.ksp'
 apply plugin: 'com.mikepenz.aboutlibraries.plugin.android'
-apply plugin: 'dagger.hilt.android.plugin'
+apply plugin: 'com.google.dagger.hilt.android'
 apply plugin: 'org.jetbrains.kotlin.plugin.compose'
 
 android {
