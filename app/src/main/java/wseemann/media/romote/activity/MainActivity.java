@@ -45,9 +45,6 @@ public class MainActivity extends ConnectivityActivity implements
     @Inject
     protected AppPreferences appPreferences;
 
-    private SectionsPagerAdapter mSectionsPagerAdapter;
-    private ViewPager mViewPager;
-
     boolean mBound = false;
 
     private ChannelFragment mChannelFragment;
@@ -85,13 +82,13 @@ public class MainActivity extends ConnectivityActivity implements
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
-        mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+        SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
         // Set up the ViewPager with the sections adapter.
-        mViewPager = findViewById(R.id.container);
-        mViewPager.setAdapter(mSectionsPagerAdapter);
-        mViewPager.setOffscreenPageLimit(3);
-        mViewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+        ViewPager viewPager = findViewById(R.id.container);
+        viewPager.setAdapter(sectionsPagerAdapter);
+        viewPager.setOffscreenPageLimit(3);
+        viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
             public void onPageScrollStateChanged(int state) {}
             public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {}
             public void onPageSelected(int position) {
@@ -102,11 +99,11 @@ public class MainActivity extends ConnectivityActivity implements
         });
 
         if (!commandHelper.getDeviceURL().isEmpty()) {
-            mViewPager.setCurrentItem(1);
+            viewPager.setCurrentItem(1);
         }
 
         TabLayout tabLayout = findViewById(R.id.tabs);
-        tabLayout.setupWithViewPager(mViewPager);
+        tabLayout.setupWithViewPager(viewPager);
 
         // Bind to NotificationService
         Intent intent1 = new Intent(this, NotificationService.class);
@@ -114,7 +111,7 @@ public class MainActivity extends ConnectivityActivity implements
     }
 
     @Override
-    protected void onNewIntent(Intent intent) {
+    protected void onNewIntent(@NonNull Intent intent) {
         super.onNewIntent(intent);
     }
 

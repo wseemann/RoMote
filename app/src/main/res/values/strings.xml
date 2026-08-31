@@ -87,4 +87,22 @@
     <string name="download_private_listening">Private listening is experimental and support may be discontinued at
         any time. In order to enable private listening please download and install the companion plugin.</string>
     <string name="download">Download</string>
+    <!-- Spoken labels for the remote's buttons, which as ImageButtons had none. -->
+    <string name="remote_back">Back</string>
+    <string name="remote_options">Options</string>
+    <string name="remote_home">Home</string>
+    <string name="remote_power">Power</string>
+    <string name="remote_up">Up</string>
+    <string name="remote_left">Left</string>
+    <string name="remote_select">Select</string>
+    <string name="remote_right">Right</string>
+    <string name="remote_down">Down</string>
+    <string name="remote_rewind">Rewind</string>
+    <string name="remote_play_pause">Play or pause</string>
+    <string name="remote_fast_forward">Fast forward</string>
+    <string name="remote_instant_replay">Instant replay</string>
+    <string name="remote_private_listening">Private listening</string>
+    <string name="remote_volume_mute">Mute</string>
+    <string name="remote_volume_down">Volume down</string>
+    <string name="remote_volume_up">Volume up</string>
 </resources>
