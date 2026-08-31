@@ -119,6 +119,7 @@ class RemoteScreenViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             var deviceName = ""
             var showVolumeControls = true
+            var isDeviceConnected = true
 
             try {
                 val device = preferenceUtils.connectedDevice
@@ -133,12 +134,17 @@ class RemoteScreenViewModel @Inject constructor(
                 deviceSupportsPrivateListening = device.supportsPrivateListening.toBoolean()
             } catch (ex: Exception) {
                 Timber.tag(TAG).e(ex, "Error reading the newly connected device")
+                // connectedDevice throws both when nothing is paired and when the read itself
+                // fails. The remote has no device to drive either way, which is the same call
+                // CommandHelper makes by handing back an empty url.
+                isDeviceConnected = false
                 deviceSupportsPrivateListening = false
             }
 
             _uiState.update {
                 it.copy(
                     deviceName = deviceName,
+                    isDeviceConnected = isDeviceConnected,
                     showVolumeControls = showVolumeControls,
                     privateListening = resolvePrivateListening()
                 )

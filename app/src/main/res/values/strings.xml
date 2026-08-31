@@ -5,6 +5,7 @@
     <string name="paired_devices">Paired devices</string>
     <string name="available_devices">Available devices</string>
     <string name="empty_channel_list">No channels detected</string>
+    <string name="no_device_connected">No device connected</string>
     <string name="action_refresh">Refresh</string>
     <string name="action_info">Info</string>
     <string name="action_unpair">Unpair</string>

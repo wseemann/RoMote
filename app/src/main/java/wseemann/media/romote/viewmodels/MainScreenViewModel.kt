@@ -196,6 +196,12 @@ class MainScreenViewModel @Inject constructor(
 
             if (connectedSerialNumber == null || connectedSerialNumber == serialNumber) {
                 preferenceUtils.setConnectedDevice("")
+
+                // Nothing else announces this: onRefresh below reaches refreshConnectedDevice,
+                // which now returns early because there is no connected device left to refresh.
+                // Without the broadcast the remote and channels tabs keep showing the device that
+                // was just unpaired until the process restarts.
+                BroadcastUtils.sendUpdateDeviceBroadcast(context)
             }
 
             _uiState.update {

@@ -5,6 +5,13 @@ import androidx.annotation.StringRes
 data class RemoteScreenUiState(
     val deviceName: String = "",
     /**
+     * Whether there is a device for the buttons to drive. [wseemann.media.romote.utils.PreferenceUtils]
+     * signals "nothing paired" by throwing rather than returning null, so this is set from the catch
+     * that read the device. It starts out true so the remote isn't blanked out before that read has
+     * happened.
+     */
+    val isDeviceConnected: Boolean = true,
+    /**
      * The old updateVolumeControls() only touched the row's visibility when the device reported a
      * `tv` flag, so a device that never reports one - or a read that throws - left the row on
      * screen. Defaulting to true keeps that.

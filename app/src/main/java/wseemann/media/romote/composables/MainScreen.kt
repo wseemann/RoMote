@@ -31,7 +31,6 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.Composable
@@ -107,37 +106,37 @@ fun MainScreen(
     onEvent: (MainScreenUiEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // Surface paints colorScheme.background - the same background the activity's window already
-    // has - and supplies the matching content color, which MaterialTheme alone would leave black
-    // and unreadable in dark mode.
-    Surface(modifier = modifier.fillMaxSize()) {
-        // The app is edge-to-edge, so keep the list and the button clear of the navigation bar.
-        Box(modifier = Modifier.fillMaxSize().navigationBarsPadding()) {
-            Column(modifier = Modifier.fillMaxSize()) {
-                if (uiState.isLoading) {
-                    DiscoveringDevicesHeader()
-                }
-
-                PullToRefreshBox(
-                    isRefreshing = uiState.isLoading,
-                    onRefresh = { onEvent(MainScreenUiEvent.RefreshEvent) },
-                    modifier = Modifier.weight(1f)
-                ) {
-                    DeviceList(uiState = uiState, onEvent = onEvent)
-                }
+    // No background of its own: MainActivity's Scaffold already paints colorScheme.background and
+    // supplies the matching content color, which is what every other tab draws on. A Surface here
+    // would paint colorScheme.surface over it - the one role RomoteTheme leaves at the Material 3
+    // default - so the devices tab alone came out a shade off the channels grid beside it.
+    //
+    // The app is edge-to-edge, so keep the list and the button clear of the navigation bar.
+    Box(modifier = modifier.fillMaxSize().navigationBarsPadding()) {
+        Column(modifier = Modifier.fillMaxSize()) {
+            if (uiState.isLoading) {
+                DiscoveringDevicesHeader()
             }
 
-            FloatingActionButton(
-                onClick = { onEvent(MainScreenUiEvent.AddDeviceClickedEvent) },
-                containerColor = Purple,
-                contentColor = Color.White,
-                modifier = Modifier.align(Alignment.BottomEnd).padding(FabMargin)
+            PullToRefreshBox(
+                isRefreshing = uiState.isLoading,
+                onRefresh = { onEvent(MainScreenUiEvent.RefreshEvent) },
+                modifier = Modifier.weight(1f)
             ) {
-                Icon(
-                    imageVector = Icons.Default.Add,
-                    contentDescription = stringResource(R.string.connect_manually)
-                )
+                DeviceList(uiState = uiState, onEvent = onEvent)
             }
+        }
+
+        FloatingActionButton(
+            onClick = { onEvent(MainScreenUiEvent.AddDeviceClickedEvent) },
+            containerColor = Purple,
+            contentColor = Color.White,
+            modifier = Modifier.align(Alignment.BottomEnd).padding(FabMargin)
+        ) {
+            Icon(
+                imageVector = Icons.Default.Add,
+                contentDescription = stringResource(R.string.connect_manually)
+            )
         }
     }
 

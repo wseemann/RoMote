@@ -29,7 +29,9 @@ import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRowDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -59,7 +61,6 @@ import wseemann.media.romote.composables.theme.OnPurple
 import wseemann.media.romote.composables.theme.Purple
 import wseemann.media.romote.composables.theme.RomoteTheme
 import wseemann.media.romote.event.ChannelScreenUiEvent
-import wseemann.media.romote.fragment.InstallChannelDialog
 import wseemann.media.romote.inappreview.AppReviewManager
 import wseemann.media.romote.service.NotificationService
 import wseemann.media.romote.utils.Constants
@@ -74,12 +75,9 @@ import javax.inject.Inject
  * v1 ViewPager driven by a FragmentPagerAdapter - around four fragments that were themselves only
  * ComposeViews. The chrome is now a Scaffold with a TopAppBar, a SecondaryTabRow and a HorizontalPager,
  * and the fragments are the tab composables in MainTabs.kt.
- *
- * It stays an AppCompatActivity (through [ConnectivityActivity] and ShakeActivity) because the one
- * remaining DialogFragment, [InstallChannelDialog], still needs a FragmentManager.
  */
 @AndroidEntryPoint
-class MainActivity : ConnectivityActivity(), InstallChannelDialog.InstallChannelListener {
+class MainActivity : ConnectivityActivity() {
 
     @Inject
     lateinit var appReviewManager: AppReviewManager
@@ -91,23 +89,31 @@ class MainActivity : ConnectivityActivity(), InstallChannelDialog.InstallChannel
 
     private var isBound = false
 
+    /** Gates the splash screen; see [onCreate]. */
+    private var isContentReady = false
+
     override fun onCreate(savedInstanceState: Bundle?) {
-        installSplashScreen()
+        val splashScreen = installSplashScreen()
         super.onCreate(savedInstanceState)
 
+        // Without this the splash comes down at the window's first frame, which is only
+        // AppTheme.NoActionBar's windowBackground - a flat white or #121212 rectangle where the
+        // purple app bar and tab strip are about to be. Holding it until the first composition
+        // makes the handoff splash -> content, with no bare window in between. The flag is flipped
+        // from inside setContent below, so it is always eventually released.
+        splashScreen.setKeepOnScreenCondition { !isContentReady }
+
         appReviewManager.onAppSessionStarted()
-
-        intent?.data?.path?.let { path ->
-            val channelCode = path.replace("/install/", "")
-
-            InstallChannelDialog.getInstance(this, channelCode)
-                .show(supportFragmentManager, InstallChannelDialog::class.java.name)
-        }
 
         setContent {
             RomoteTheme {
                 MainContent()
             }
+
+            // Runs on the main thread once the first composition is done, before the frame it
+            // belongs to is drawn - so the splash is released exactly when there is something
+            // behind it.
+            LaunchedEffect(Unit) { isContentReady = true }
         }
 
         // Bind to NotificationService
@@ -176,6 +182,15 @@ class MainActivity : ConnectivityActivity(), InstallChannelDialog.InstallChannel
             appPreferences.setRemoteAccessHelpSeen()
         }
 
+        // Every tab has to stay composed - that is what keeps the store's WebView and the remote's
+        // service binding alive across a swipe, the way viewPager.setOffscreenPageLimit(3) did.
+        // But building them all during the first composition puts creating the process's first
+        // WebView, which loads the WebView APK on the main thread, in front of the first frame.
+        // Starting at 0 and widening a frame later keeps the behavior and takes it off the
+        // critical path; beyondViewportPageCount only ever adds pages, so nothing is torn down.
+        var offscreenPages by remember { mutableIntStateOf(0) }
+        LaunchedEffect(Unit) { offscreenPages = PAGE_COUNT - 1 }
+
         Scaffold(
             topBar = {
                 Column {
@@ -195,9 +210,7 @@ class MainActivity : ConnectivityActivity(), InstallChannelDialog.InstallChannel
         ) { contentPadding ->
             HorizontalPager(
                 state = pagerState,
-                // Was viewPager.setOffscreenPageLimit(3): every tab stays alive, which is what
-                // keeps the store's WebView and the remote's service binding around.
-                beyondViewportPageCount = PAGE_COUNT - 1,
+                beyondViewportPageCount = offscreenPages,
                 modifier = Modifier.padding(contentPadding)
             ) { page ->
                 when (page) {
@@ -342,14 +355,6 @@ class MainActivity : ConnectivityActivity(), InstallChannelDialog.InstallChannel
         override fun onServiceDisconnected(className: ComponentName?) {
             isBound = false
         }
-    }
-
-    override fun onDialogCancelled(dialog: DialogFragment) {
-        dialog.dismiss()
-    }
-
-    override fun onInstallSelected(dialog: DialogFragment) {
-        dialog.dismiss()
     }
 
     private companion object {

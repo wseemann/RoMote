@@ -77,13 +77,22 @@ fun ChannelScreen(
                 modifier = Modifier.fillMaxSize().navigationBarsPadding()
             ) {
                 if (uiState.channels.isEmpty() && !uiState.isLoading) {
+                    // An empty grid means one of two different things, and saying "no channels"
+                    // when there is no device to have channels on sends the user looking in the
+                    // wrong place - the Roku isn't missing its apps, the app has nothing paired.
+                    val emptyMessage = if (uiState.isDeviceConnected) {
+                        R.string.empty_channel_list
+                    } else {
+                        R.string.no_device_connected
+                    }
+
                     item(span = { GridItemSpan(maxLineSpan) }) {
                         Box(
                             contentAlignment = Alignment.Center,
                             modifier = Modifier.fillMaxWidth().height(viewportHeight)
                         ) {
                             Text(
-                                text = stringResource(R.string.empty_channel_list),
+                                text = stringResource(emptyMessage),
                                 style = MaterialTheme.typography.bodyMedium
                             )
                         }
@@ -144,6 +153,17 @@ private fun ChannelScreenEmptyPreview() {
     RomoteTheme {
         ChannelScreen(
             uiState = ChannelScreenUiState(),
+            onEvent = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun ChannelScreenNoDevicePreview() {
+    RomoteTheme {
+        ChannelScreen(
+            uiState = ChannelScreenUiState(isDeviceConnected = false),
             onEvent = {}
         )
     }

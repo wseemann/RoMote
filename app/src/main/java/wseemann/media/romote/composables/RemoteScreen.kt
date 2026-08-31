@@ -32,6 +32,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalTextStyle
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -129,128 +130,151 @@ fun RemoteScreen(
     Box(
         modifier = modifier
             .fillMaxSize()
-            // A View background bitmap is stretched to the view's bounds, not letterboxed.
-            .paint(painterResource(R.drawable.remote_bg), contentScale = ContentScale.FillBounds)
+            // The artwork is the frame around the buttons, so it is only drawn when there are
+            // buttons to frame; the empty state below sits on the plain window background the way
+            // the channels grid's does. A View background bitmap is stretched to the view's
+            // bounds, not letterboxed.
+            .then(
+                if (uiState.isDeviceConnected) {
+                    Modifier.paint(
+                        painterResource(R.drawable.remote_bg),
+                        contentScale = ContentScale.FillBounds
+                    )
+                } else {
+                    Modifier
+                }
+            )
     ) {
-        // The app is edge-to-edge, so keep the bottom row clear of the navigation bar.
-        Column(modifier = Modifier.fillMaxSize().navigationBarsPadding()) {
+        if (!uiState.isDeviceConnected) {
+            // Deliberately the same centered bodyMedium in the scheme's own content color that
+            // ChannelScreen draws its empty states with - off the artwork, white would be black on
+            // black in the day theme.
             Text(
-                text = uiState.deviceName,
-                color = Color.White,
-                fontSize = DeviceNameFontSize,
-                textAlign = TextAlign.Center,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(DeviceNameHeight)
-                    .padding(horizontal = 30.dp)
-                    .padding(top = 6.dp)
+                text = stringResource(R.string.no_device_connected),
+                style = MaterialTheme.typography.bodyMedium,
+                modifier = Modifier.align(Alignment.Center)
             )
+        } else {
+            // The app is edge-to-edge, so keep the bottom row clear of the navigation bar.
+            Column(modifier = Modifier.fillMaxSize().navigationBarsPadding()) {
+                Text(
+                    text = uiState.deviceName,
+                    color = Color.White,
+                    fontSize = DeviceNameFontSize,
+                    textAlign = TextAlign.Center,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(DeviceNameHeight)
+                        .padding(horizontal = 30.dp)
+                        .padding(top = 6.dp)
+                )
 
-            RemoteButtonRow(modifier = Modifier.padding(top = RowSpacing)) {
-                RemoteButton(
-                    icon = R.mipmap.remote_back,
-                    contentDescription = stringResource(R.string.remote_back),
-                    onClick = { onEvent(keyPressed(KeyPressKeyValues.BACK)) },
-                    modifier = Modifier.weight(1f).fillMaxHeight()
-                )
-                RemoteButton(
-                    icon = R.mipmap.remote_options,
-                    contentDescription = stringResource(R.string.remote_options),
-                    onClick = { onEvent(keyPressed(KeyPressKeyValues.INFO)) },
-                    modifier = Modifier.weight(1f).fillMaxHeight()
-                )
-                RemoteButton(
-                    icon = R.mipmap.remote_home,
-                    contentDescription = stringResource(R.string.remote_home),
-                    onClick = { onEvent(keyPressed(KeyPressKeyValues.HOME)) },
-                    modifier = Modifier.weight(1f).fillMaxHeight()
-                )
-                RemoteButton(
-                    icon = R.mipmap.remote_power,
-                    contentDescription = stringResource(R.string.remote_power),
-                    onClick = { onEvent(RemoteScreenUiEvent.PowerClickedEvent) },
-                    // scaleType="center": the icon keeps its natural size in the square button.
-                    contentScale = ContentScale.None,
-                    modifier = Modifier.size(PowerButtonSize)
-                )
-            }
-
-            DPad(
-                onEvent = onEvent,
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth()
-                    .padding(horizontal = 30.dp)
-                    .padding(top = RowSpacing)
-            )
-
-            RemoteButtonRow(modifier = Modifier.padding(top = RowSpacing)) {
-                RemoteButton(
-                    icon = R.mipmap.remote_rw,
-                    contentDescription = stringResource(R.string.remote_rewind),
-                    onClick = { onEvent(keyPressed(KeyPressKeyValues.REV)) },
-                    modifier = Modifier.weight(1f).fillMaxHeight()
-                )
-                RemoteButton(
-                    icon = R.mipmap.remote_playpause,
-                    contentDescription = stringResource(R.string.remote_play_pause),
-                    onClick = { onEvent(keyPressed(KeyPressKeyValues.PLAY)) },
-                    modifier = Modifier.weight(1f).fillMaxHeight()
-                )
-                RemoteButton(
-                    icon = R.mipmap.remote_ff,
-                    contentDescription = stringResource(R.string.remote_fast_forward),
-                    onClick = { onEvent(keyPressed(KeyPressKeyValues.FWD)) },
-                    modifier = Modifier.weight(1f).fillMaxHeight()
-                )
-            }
-
-            RemoteButtonRow(
-                modifier = Modifier.padding(top = RowSpacing, bottom = RowSpacing)
-            ) {
-                RemoteButton(
-                    icon = R.mipmap.remote_replay,
-                    contentDescription = stringResource(R.string.remote_instant_replay),
-                    onClick = { onEvent(keyPressed(KeyPressKeyValues.INTANT_REPLAY)) },
-                    modifier = Modifier.weight(1f).fillMaxHeight()
-                )
-                RemoteButton(
-                    icon = R.mipmap.remote_keyboard_2,
-                    contentDescription = stringResource(R.string.keyboard),
-                    onClick = { onEvent(RemoteScreenUiEvent.KeyboardEvent.ClickedEvent) },
-                    modifier = Modifier.weight(1f).fillMaxHeight(),
-                    active = uiState.keyboardActive
-                )
-                RemoteButton(
-                    icon = uiState.privateListening.icon(),
-                    contentDescription = stringResource(R.string.remote_private_listening),
-                    onClick = { onEvent(RemoteScreenUiEvent.PrivateListeningClickedEvent) },
-                    modifier = Modifier.weight(1f).fillMaxHeight()
-                )
-            }
-
-            if (uiState.showVolumeControls) {
-                RemoteButtonRow(modifier = Modifier.padding(bottom = RowSpacing)) {
+                RemoteButtonRow(modifier = Modifier.padding(top = RowSpacing)) {
                     RemoteButton(
-                        icon = R.mipmap.remote_vol_mute,
-                        contentDescription = stringResource(R.string.remote_volume_mute),
-                        onClick = { onEvent(keyPressed(KeyPressKeyValues.VOLUME_MUTE)) },
+                        icon = R.mipmap.remote_back,
+                        contentDescription = stringResource(R.string.remote_back),
+                        onClick = { onEvent(keyPressed(KeyPressKeyValues.BACK)) },
                         modifier = Modifier.weight(1f).fillMaxHeight()
                     )
                     RemoteButton(
-                        icon = R.mipmap.remote_vol_down,
-                        contentDescription = stringResource(R.string.remote_volume_down),
-                        onClick = { onEvent(keyPressed(KeyPressKeyValues.VOLUME_DOWN)) },
+                        icon = R.mipmap.remote_options,
+                        contentDescription = stringResource(R.string.remote_options),
+                        onClick = { onEvent(keyPressed(KeyPressKeyValues.INFO)) },
                         modifier = Modifier.weight(1f).fillMaxHeight()
                     )
                     RemoteButton(
-                        icon = R.mipmap.remote_vol_up,
-                        contentDescription = stringResource(R.string.remote_volume_up),
-                        onClick = { onEvent(keyPressed(KeyPressKeyValues.VOLUME_UP)) },
+                        icon = R.mipmap.remote_home,
+                        contentDescription = stringResource(R.string.remote_home),
+                        onClick = { onEvent(keyPressed(KeyPressKeyValues.HOME)) },
                         modifier = Modifier.weight(1f).fillMaxHeight()
                     )
+                    RemoteButton(
+                        icon = R.mipmap.remote_power,
+                        contentDescription = stringResource(R.string.remote_power),
+                        onClick = { onEvent(RemoteScreenUiEvent.PowerClickedEvent) },
+                        // scaleType="center": the icon keeps its natural size in the square button.
+                        contentScale = ContentScale.None,
+                        modifier = Modifier.size(PowerButtonSize)
+                    )
+                }
+
+                DPad(
+                    onEvent = onEvent,
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth()
+                        .padding(horizontal = 30.dp)
+                        .padding(top = RowSpacing)
+                )
+
+                RemoteButtonRow(modifier = Modifier.padding(top = RowSpacing)) {
+                    RemoteButton(
+                        icon = R.mipmap.remote_rw,
+                        contentDescription = stringResource(R.string.remote_rewind),
+                        onClick = { onEvent(keyPressed(KeyPressKeyValues.REV)) },
+                        modifier = Modifier.weight(1f).fillMaxHeight()
+                    )
+                    RemoteButton(
+                        icon = R.mipmap.remote_playpause,
+                        contentDescription = stringResource(R.string.remote_play_pause),
+                        onClick = { onEvent(keyPressed(KeyPressKeyValues.PLAY)) },
+                        modifier = Modifier.weight(1f).fillMaxHeight()
+                    )
+                    RemoteButton(
+                        icon = R.mipmap.remote_ff,
+                        contentDescription = stringResource(R.string.remote_fast_forward),
+                        onClick = { onEvent(keyPressed(KeyPressKeyValues.FWD)) },
+                        modifier = Modifier.weight(1f).fillMaxHeight()
+                    )
+                }
+
+                RemoteButtonRow(
+                    modifier = Modifier.padding(top = RowSpacing, bottom = RowSpacing)
+                ) {
+                    RemoteButton(
+                        icon = R.mipmap.remote_replay,
+                        contentDescription = stringResource(R.string.remote_instant_replay),
+                        onClick = { onEvent(keyPressed(KeyPressKeyValues.INTANT_REPLAY)) },
+                        modifier = Modifier.weight(1f).fillMaxHeight()
+                    )
+                    RemoteButton(
+                        icon = R.mipmap.remote_keyboard_2,
+                        contentDescription = stringResource(R.string.keyboard),
+                        onClick = { onEvent(RemoteScreenUiEvent.KeyboardEvent.ClickedEvent) },
+                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                        active = uiState.keyboardActive
+                    )
+                    RemoteButton(
+                        icon = uiState.privateListening.icon(),
+                        contentDescription = stringResource(R.string.remote_private_listening),
+                        onClick = { onEvent(RemoteScreenUiEvent.PrivateListeningClickedEvent) },
+                        modifier = Modifier.weight(1f).fillMaxHeight()
+                    )
+                }
+
+                if (uiState.showVolumeControls) {
+                    RemoteButtonRow(modifier = Modifier.padding(bottom = RowSpacing)) {
+                        RemoteButton(
+                            icon = R.mipmap.remote_vol_mute,
+                            contentDescription = stringResource(R.string.remote_volume_mute),
+                            onClick = { onEvent(keyPressed(KeyPressKeyValues.VOLUME_MUTE)) },
+                            modifier = Modifier.weight(1f).fillMaxHeight()
+                        )
+                        RemoteButton(
+                            icon = R.mipmap.remote_vol_down,
+                            contentDescription = stringResource(R.string.remote_volume_down),
+                            onClick = { onEvent(keyPressed(KeyPressKeyValues.VOLUME_DOWN)) },
+                            modifier = Modifier.weight(1f).fillMaxHeight()
+                        )
+                        RemoteButton(
+                            icon = R.mipmap.remote_vol_up,
+                            contentDescription = stringResource(R.string.remote_volume_up),
+                            onClick = { onEvent(keyPressed(KeyPressKeyValues.VOLUME_UP)) },
+                            modifier = Modifier.weight(1f).fillMaxHeight()
+                        )
+                    }
                 }
             }
         }
@@ -519,6 +543,17 @@ private fun RemoteScreenStickPreview() {
                 showVolumeControls = false,
                 privateListening = PrivateListening.ACTIVE
             ),
+            onEvent = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun RemoteScreenNoDevicePreview() {
+    RomoteTheme {
+        RemoteScreen(
+            uiState = RemoteScreenUiState(isDeviceConnected = false),
             onEvent = {}
         )
     }

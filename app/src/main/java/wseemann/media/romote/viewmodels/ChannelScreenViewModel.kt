@@ -42,9 +42,26 @@ class ChannelScreenViewModel @Inject constructor(private val commandHelper: Comm
 
     private fun onLoadChannels() {
         viewModelScope.launch(Dispatchers.IO) {
-            _uiState.update { it.copy(isLoading = true) }
-
             val deviceUrl = commandHelper.getDeviceURL()
+
+            // Nothing is paired, so there is no request worth making: queryAppsRequest("") only
+            // throws its way into the catch below after a round trip that was never going to
+            // reach anything. loadedDeviceUrl is cleared for the same reason the catch clears it -
+            // nothing was loaded, so the next broadcast should retry rather than trust the state.
+            if (deviceUrl.isEmpty()) {
+                loadedDeviceUrl = null
+                _uiState.update {
+                    it.copy(
+                        channels = persistentListOf(),
+                        isLoading = false,
+                        isDeviceConnected = false
+                    )
+                }
+
+                return@launch
+            }
+
+            _uiState.update { it.copy(isLoading = true, isDeviceConnected = true) }
 
             try {
                 val channels = QueryRequests.queryAppsRequest(deviceUrl)
