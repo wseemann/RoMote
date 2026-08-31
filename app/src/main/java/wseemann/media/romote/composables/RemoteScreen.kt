@@ -2,32 +2,64 @@ package wseemann.media.romote.composables
 
 import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.ime
+import androidx.compose.foundation.layout.isImeVisible
+import androidx.compose.foundation.layout.navigationBars
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.union
+import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.paint
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -52,9 +84,15 @@ private val RowSpacing = 10.dp
 /** The power button was a fixed 52dip square rather than sharing the row's weight. */
 private val PowerButtonSize = 52.dp
 
+/** The height of the bar that rides on top of the soft keyboard. */
+private val KeyboardBarHeight = 48.dp
+
+/** @drawable/remote_button_bg's flat fill, so the keyboard bar sits on the same black as the buttons. */
+private val KeyboardBarBackground = Color(0xFF151218)
+
 /**
- * The remote tab. A pure function of [uiState] - the private listening service binding and the
- * keyboard dialog belong to RemoteTab, which intercepts those events before they get here.
+ * The remote tab. A pure function of [uiState] - the private listening service binding belongs to
+ * RemoteTab, which intercepts those events before they get here.
  */
 @Composable
 fun RemoteScreen(
@@ -63,6 +101,21 @@ fun RemoteScreen(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    val softwareKeyboard = LocalSoftwareKeyboardController.current
+
+    // Removing the bar takes focus off its field, which is normally enough to send the IME away.
+    // Asking for it explicitly covers the keyboard button, which puts the keyboard down while the
+    // user is still typing into it. Only on the way out of keyboard mode, so that the tab being
+    // composed does not swipe away a keyboard something else raised.
+    var keyboardWasActive by remember { mutableStateOf(false) }
+
+    LaunchedEffect(uiState.keyboardActive) {
+        if (uiState.keyboardActive) {
+            keyboardWasActive = true
+        } else if (keyboardWasActive) {
+            softwareKeyboard?.hide()
+        }
+    }
 
     // Wake-on-LAN reports back long after the button was released, so the result arrives as a
     // one-shot message in the state rather than as a return value.
@@ -166,8 +219,9 @@ fun RemoteScreen(
                 RemoteButton(
                     icon = R.mipmap.remote_keyboard_2,
                     contentDescription = stringResource(R.string.keyboard),
-                    onClick = { onEvent(RemoteScreenUiEvent.KeyboardClickedEvent) },
-                    modifier = Modifier.weight(1f).fillMaxHeight()
+                    onClick = { onEvent(RemoteScreenUiEvent.KeyboardEvent.ClickedEvent) },
+                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                    active = uiState.keyboardActive
                 )
                 RemoteButton(
                     icon = uiState.privateListening.icon(),
@@ -199,6 +253,14 @@ fun RemoteScreen(
                     )
                 }
             }
+        }
+
+        if (uiState.keyboardActive) {
+            KeyboardBar(
+                text = uiState.typedText,
+                onEvent = onEvent,
+                modifier = Modifier.align(Alignment.BottomCenter)
+            )
         }
     }
 
@@ -245,6 +307,109 @@ fun RemoteScreen(
                 }
             }
         )
+    }
+}
+
+/**
+ * The strip that rides on top of the soft keyboard while the remote is relaying what is typed.
+ *
+ * It exists because there is nothing else to look at: the keys go straight to the device, and the
+ * ECP gives no way to read the device's field back, so this is the only record of what was sent.
+ *
+ * Its text field is what holds the IME up - Android will not raise a keyboard without a focused
+ * view that owns an InputConnection - and reporting the field's whole contents on every edit is
+ * what [wseemann.media.romote.keyboard.KeyboardRelay] turns into key presses.
+ */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+private fun KeyboardBar(
+    text: String,
+    onEvent: (RemoteScreenUiEvent) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val focusRequester = remember { FocusRequester() }
+    val imeVisible = WindowInsets.isImeVisible
+
+    LaunchedEffect(Unit) {
+        focusRequester.requestFocus()
+    }
+
+    // The system back gesture takes the keyboard down without touching focus, so the insets are the
+    // only sign of it. The bar is composed a frame before the IME animates in, hence waiting for it
+    // to have been up at least once before reading its absence as a dismissal.
+    var imeWasVisible by remember { mutableStateOf(false) }
+
+    LaunchedEffect(imeVisible) {
+        if (imeVisible) {
+            imeWasVisible = true
+        } else if (imeWasVisible) {
+            onEvent(RemoteScreenUiEvent.KeyboardEvent.DismissedEvent)
+        }
+    }
+
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = modifier
+            .fillMaxWidth()
+            .windowInsetsPadding(WindowInsets.ime.union(WindowInsets.navigationBars))
+            .height(KeyboardBarHeight)
+            .background(KeyboardBarBackground)
+            .padding(start = 16.dp, end = 4.dp)
+    ) {
+        Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
+            BasicTextField(
+                value = text,
+                onValueChange = { onEvent(RemoteScreenUiEvent.KeyboardEvent.TextChangedEvent(it)) },
+                singleLine = true,
+                textStyle = LocalTextStyle.current.copy(color = Color.White),
+                cursorBrush = SolidColor(Color.White),
+                // Suggestions and auto-capitalisation would rewrite words after the fact, and every
+                // rewrite costs a run of backspaces on the device. Ascii keeps the IME from
+                // composing, which is the other source of text that changes under you.
+                keyboardOptions = KeyboardOptions(
+                    autoCorrectEnabled = false,
+                    capitalization = KeyboardCapitalization.None,
+                    keyboardType = KeyboardType.Ascii,
+                    imeAction = ImeAction.Done
+                ),
+                keyboardActions = KeyboardActions(
+                    onDone = { onEvent(RemoteScreenUiEvent.KeyboardEvent.DoneEvent) }
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .focusRequester(focusRequester)
+                    // An empty field has nothing to delete, so its backspaces produce no edit to
+                    // diff. Forwarding them keeps deleting on the device, which still has text.
+                    .onKeyEvent { keyEvent ->
+                        val isBackspace = keyEvent.type == KeyEventType.KeyDown &&
+                            keyEvent.key == Key.Backspace
+
+                        if (isBackspace && text.isEmpty()) {
+                            onEvent(RemoteScreenUiEvent.KeyboardEvent.BackspaceEvent)
+                            true
+                        } else {
+                            false
+                        }
+                    }
+            )
+
+            if (text.isEmpty()) {
+                Text(
+                    text = stringResource(R.string.keyboard_hint),
+                    color = Color.White.copy(alpha = 0.5f),
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            }
+        }
+
+        IconButton(onClick = { onEvent(RemoteScreenUiEvent.KeyboardEvent.BackspaceEvent) }) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                contentDescription = stringResource(R.string.keyboard_backspace),
+                tint = Color.White
+            )
+        }
     }
 }
 
@@ -353,6 +518,21 @@ private fun RemoteScreenStickPreview() {
                 deviceName = "Bedroom Stick",
                 showVolumeControls = false,
                 privateListening = PrivateListening.ACTIVE
+            ),
+            onEvent = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun RemoteScreenKeyboardPreview() {
+    RomoteTheme {
+        RemoteScreen(
+            uiState = RemoteScreenUiState(
+                deviceName = "Living Room TV",
+                keyboardActive = true,
+                typedText = "breaking bad"
             ),
             onEvent = {}
         )

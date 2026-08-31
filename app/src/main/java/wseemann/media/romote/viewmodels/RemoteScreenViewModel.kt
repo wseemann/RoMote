@@ -23,6 +23,7 @@ import wseemann.media.romote.event.RemoteScreenUiEvent
 import wseemann.media.romote.model.RemoteScreenUiState
 import wseemann.media.romote.model.RemoteScreenUiState.PrivateListening
 import wseemann.media.romote.inappreview.AppReviewManager
+import wseemann.media.romote.keyboard.KeyboardRelay
 import wseemann.media.romote.tasks.ResponseCallbackWrapper
 import wseemann.media.romote.utils.CommandHelper
 import wseemann.media.romote.utils.PreferenceUtils
@@ -46,6 +47,20 @@ class RemoteScreenViewModel @Inject constructor(
     /** Whether the bound service last reported that audio is playing through the phone. */
     private var privateListeningActive = false
 
+    private val keyboardRelay = KeyboardRelay(viewModelScope) { key ->
+        KeyPressRequest(commandHelper.getDeviceURL(), key).send()
+    }
+
+    init {
+        viewModelScope.launch {
+            keyboardRelay.state.collect { keyboard ->
+                _uiState.update {
+                    it.copy(keyboardActive = keyboard.isActive, typedText = keyboard.text)
+                }
+            }
+        }
+    }
+
     fun onHandleEvent(event: RemoteScreenUiEvent) {
         when (event) {
             is RemoteScreenUiEvent.KeyPressedEvent -> onKeyPressed(event.key)
@@ -60,8 +75,18 @@ class RemoteScreenViewModel @Inject constructor(
                 onInstallPrivateListeningClosed()
             is RemoteScreenUiEvent.DeviceChangedEvent -> onDeviceChanged()
             is RemoteScreenUiEvent.MessageShownEvent -> onMessageShown()
-            // The remote tab handles this one: showing a DialogFragment needs a FragmentManager.
-            is RemoteScreenUiEvent.KeyboardClickedEvent -> Unit
+            is RemoteScreenUiEvent.KeyboardEvent -> onKeyboardEvent(event)
+        }
+    }
+
+    private fun onKeyboardEvent(event: RemoteScreenUiEvent.KeyboardEvent) {
+        when (event) {
+            is RemoteScreenUiEvent.KeyboardEvent.ClickedEvent -> keyboardRelay.toggle()
+            is RemoteScreenUiEvent.KeyboardEvent.TextChangedEvent ->
+                keyboardRelay.onTextChanged(event.text)
+            is RemoteScreenUiEvent.KeyboardEvent.BackspaceEvent -> keyboardRelay.backspace()
+            is RemoteScreenUiEvent.KeyboardEvent.DoneEvent -> keyboardRelay.done()
+            is RemoteScreenUiEvent.KeyboardEvent.DismissedEvent -> keyboardRelay.dismiss()
         }
     }
 

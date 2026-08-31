@@ -13,6 +13,8 @@
     <string name="action_search">Search</string>
     <string name="navigate_up_content_description">Navigate up</string>
     <string name="keyboard">Keyboard</string>
+    <string name="keyboard_hint">Type to send to your Roku</string>
+    <string name="keyboard_backspace">Backspace</string>
     <string name="device_options_content_description">Device options</string>
     <string name="more_options_content_description">More options</string>
 

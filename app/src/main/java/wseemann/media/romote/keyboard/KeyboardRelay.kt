@@ -1,0 +1,142 @@
+package wseemann.media.romote.keyboard
+
+import com.wseemann.ecp.core.KeyPressKeyValues
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import timber.log.Timber
+
+/**
+ * Relays what the user types on the phone's soft keyboard to the device, one ECP key press at a
+ * time.
+ *
+ * The screen hands over the whole contents of its text field after every edit rather than
+ * individual keystrokes, because that is all an IME gives it: printable characters are committed
+ * through the InputConnection, not delivered as key events, and a paste, a swipe-typed word or an
+ * autocorrect replacement arrives as a single change. [onTextChanged] turns each of those into keys
+ * by backspacing to the longest common prefix and re-typing the rest. The device's caret is always
+ * at the end of its own field, so replaying the tail is also what repairs it when the user edits
+ * the middle of the text on the phone.
+ *
+ * The device's field cannot be read back over the ECP, so [text] is only this app's picture of it,
+ * and it starts empty every time the keyboard is raised.
+ *
+ * @param sendKey sends one raw ECP key and blocks until the device answers.
+ */
+class KeyboardRelay(
+    scope: CoroutineScope,
+    dispatcher: CoroutineDispatcher = Dispatchers.IO,
+    private val sendKey: (String) -> Unit
+) {
+
+    private val _state = MutableStateFlow(State())
+    val state = _state.asStateFlow()
+
+    /**
+     * Keys waiting to go out. Typing is the one place order matters - ECPRequest.sendAsync starts a
+     * fresh thread per request, so characters posted back to back can reach the device in the wrong
+     * order - and draining them through a single consumer is what keeps them in sequence.
+     */
+    private val keyQueue = Channel<String>(Channel.UNLIMITED)
+
+    init {
+        scope.launch(dispatcher) {
+            for (key in keyQueue) {
+                try {
+                    sendKey(key)
+                } catch (ex: Exception) {
+                    Timber.tag(TAG).e(ex, "Failed to relay a typed key")
+                }
+            }
+        }
+    }
+
+    /** Raises the keyboard if it is down, puts it away if it is up. */
+    fun toggle() {
+        if (_state.value.isActive) dismiss() else _state.update { State(isActive = true) }
+    }
+
+    /** The keyboard went away - by gesture, by leaving the tab, or by the app pausing. */
+    fun dismiss() {
+        if (_state.value.isActive) {
+            _state.update { State() }
+        }
+    }
+
+    /** The IME's Done action: commits with Enter and puts the keyboard away. */
+    fun done() {
+        enqueue(KeyPressKeyValues.ENTER.value)
+        dismiss()
+    }
+
+    /**
+     * The keyboard bar's own backspace, which is also the way to delete text the device already had
+     * before the keyboard was raised - so it always sends, even once [text] has run empty.
+     */
+    fun backspace() {
+        enqueue(KeyPressKeyValues.BACKSPACE.value)
+
+        _state.update { current ->
+            if (current.text.isEmpty()) current else current.copy(text = current.text.dropLastCodePoint())
+        }
+    }
+
+    fun onTextChanged(text: String) {
+        val previous = _state.value.text
+
+        if (text == previous) {
+            return
+        }
+
+        val common = commonPrefixLength(previous, text)
+
+        repeat(previous.codePointCount(common, previous.length)) {
+            enqueue(KeyPressKeyValues.BACKSPACE.value)
+        }
+
+        // Walk by code point so an emoji goes out as one Lit_ key rather than as the two halves of
+        // a surrogate pair, neither of which is a character on its own.
+        var index = common
+        while (index < text.length) {
+            val codePoint = text.codePointAt(index)
+            enqueue(KeyPressKeyValues.LIT_.value + String(Character.toChars(codePoint)))
+            index += Character.charCount(codePoint)
+        }
+
+        _state.update { it.copy(text = text) }
+    }
+
+    private fun enqueue(key: String) {
+        keyQueue.trySend(key)
+    }
+
+    data class State(
+        val isActive: Boolean = false,
+        val text: String = ""
+    )
+
+    private companion object {
+        const val TAG = "KeyboardRelay"
+
+        /**
+         * Never splits a surrogate pair: two strings that share a high surrogate but differ in the
+         * low one differ in that character, they do not share it.
+         */
+        fun commonPrefixLength(first: String, second: String): Int {
+            val shared = first.commonPrefixWith(second)
+
+            return if (shared.isNotEmpty() && shared.last().isHighSurrogate()) {
+                shared.length - 1
+            } else {
+                shared.length
+            }
+        }
+
+        fun String.dropLastCodePoint(): String = substring(0, offsetByCodePoints(length, -1))
+    }
+}

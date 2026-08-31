@@ -49,9 +49,9 @@ style:
   LoopWithTooManyJumpStatements:
     maxJumpCount: 3
 
-# Deliberately NOT tuned, and currently failing `detektMain` with 34 findings:
+# Deliberately NOT tuned, and currently failing `detektMain` with 35 findings:
 #
-#   TooGenericExceptionCaught (22) -- `catch (ex: Exception)` around ECP/network calls. Narrowing
+#   TooGenericExceptionCaught (23) -- `catch (ex: Exception)` around ECP/network calls. Narrowing
 #     these means enumerating what the Roku ECP client actually throws, which is a behavior change
 #     rather than a lint fix.
 #   InjectDispatcher (12) -- hardcoded Dispatchers.IO in the ViewModels, WakeOnLan and

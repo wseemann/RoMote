@@ -6,7 +6,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.widget.Toast
-import androidx.activity.compose.LocalActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.Composable
@@ -18,7 +17,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.LifecycleEventEffect
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -29,7 +27,6 @@ import wseemann.media.romote.activity.ManualConnectionActivity
 import wseemann.media.romote.event.ChannelScreenUiEvent
 import wseemann.media.romote.event.MainScreenUiEvent
 import wseemann.media.romote.event.RemoteScreenUiEvent
-import wseemann.media.romote.fragment.TextInputDialog
 import wseemann.media.romote.service.RemoteAudioConnection
 import wseemann.media.romote.utils.BroadcastUtils
 import wseemann.media.romote.utils.Constants
@@ -113,17 +110,27 @@ fun DevicesTab(
 }
 
 /**
- * The remote tab. Owns the private listening binding, the keyboard dialog, and the broadcast that
- * tells the other tabs the device moved on.
+ * The remote tab. Owns the private listening binding and the broadcast that tells the other tabs
+ * the device moved on.
+ *
+ * [isCurrentPage] is what takes the soft keyboard down when the user swipes away. The pager keeps
+ * this page composed either side of the one on screen, so without it the keyboard would stay up and
+ * keep relaying what was typed on another tab.
  */
 @Composable
 fun RemoteTab(
     viewModel: RemoteScreenViewModel,
+    isCurrentPage: Boolean,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
-    val activity = LocalActivity.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
+    LaunchedEffect(isCurrentPage) {
+        if (!isCurrentPage) {
+            viewModel.onHandleEvent(RemoteScreenUiEvent.KeyboardEvent.DismissedEvent)
+        }
+    }
 
     val remoteAudio = remember(context) {
         RemoteAudioConnection(context) { isActive ->
@@ -161,6 +168,11 @@ fun RemoteTab(
         viewModel.onHandleEvent(RemoteScreenUiEvent.DeviceChangedEvent)
     }
 
+    // Leaving the app takes the keyboard with it, so keyboard mode has to end with it.
+    LifecycleEventEffect(Lifecycle.Event.ON_PAUSE) {
+        viewModel.onHandleEvent(RemoteScreenUiEvent.KeyboardEvent.DismissedEvent)
+    }
+
     RemoteScreen(
         uiState = uiState,
         onEvent = { event ->
@@ -171,16 +183,6 @@ fun RemoteTab(
                     }
 
                     viewModel.onHandleEvent(event)
-                }
-
-                is RemoteScreenUiEvent.KeyboardClickedEvent -> {
-                    // The ViewModel has nothing to do with this one.
-                    (activity as? FragmentActivity)?.let {
-                        TextInputDialog().show(
-                            it.supportFragmentManager,
-                            TextInputDialog::class.java.name
-                        )
-                    }
                 }
 
                 is RemoteScreenUiEvent.PrivateListeningClickedEvent -> {

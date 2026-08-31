@@ -68,9 +68,8 @@ import javax.inject.Inject
  * ComposeViews. The chrome is now a Scaffold with a TopAppBar, a SecondaryTabRow and a HorizontalPager,
  * and the fragments are the tab composables in MainTabs.kt.
  *
- * It stays an AppCompatActivity (through [ConnectivityActivity] and ShakeActivity) because the two
- * remaining DialogFragments - [InstallChannelDialog] here and TextInputDialog on the remote tab -
- * still need a FragmentManager.
+ * It stays an AppCompatActivity (through [ConnectivityActivity] and ShakeActivity) because the one
+ * remaining DialogFragment, [InstallChannelDialog], still needs a FragmentManager.
  */
 @AndroidEntryPoint
 class MainActivity : ConnectivityActivity(), InstallChannelDialog.InstallChannelListener {
@@ -186,7 +185,10 @@ class MainActivity : ConnectivityActivity(), InstallChannelDialog.InstallChannel
                 when (page) {
                     DEVICES_PAGE -> DevicesTab(viewModel = mainScreenViewModel)
 
-                    REMOTE_PAGE -> RemoteTab(viewModel = remoteScreenViewModel)
+                    REMOTE_PAGE -> RemoteTab(
+                        viewModel = remoteScreenViewModel,
+                        isCurrentPage = pagerState.currentPage == REMOTE_PAGE
+                    )
 
                     CHANNELS_PAGE -> ChannelsTab(
                         viewModel = channelScreenViewModel,

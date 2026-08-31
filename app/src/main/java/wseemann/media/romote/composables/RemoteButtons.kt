@@ -26,12 +26,14 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
+import wseemann.media.romote.composables.theme.PurpleButton
 import wseemann.media.romote.utils.ViewUtils
 
 /** The 52dip every button row in fragment_remote.xml was fixed at. */
@@ -88,6 +90,9 @@ fun RemoteButtonRow(
  * Replaces VibratingImageButton on @drawable/remote_button_bg. The haptics still run through
  * [ViewUtils.provideHapticFeedback] so the user's "vibrate" preference keeps gating them, and there
  * is no ripple because the ImageButton this replaced never showed one.
+ *
+ * [active] tints the icon, for the one button that stays switched on after it is tapped: the
+ * keyboard, which holds the soft keyboard up until it is tapped again.
  */
 @Composable
 fun RemoteButton(
@@ -95,7 +100,8 @@ fun RemoteButton(
     contentDescription: String?,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    contentScale: ContentScale = ContentScale.Fit
+    contentScale: ContentScale = ContentScale.Fit,
+    active: Boolean = false
 ) {
     val view = LocalView.current
 
@@ -119,6 +125,7 @@ fun RemoteButton(
             painter = painterResource(icon),
             contentDescription = contentDescription,
             contentScale = contentScale,
+            colorFilter = if (active) ColorFilter.tint(PurpleButton) else null,
             modifier = Modifier.fillMaxSize()
         )
     }
