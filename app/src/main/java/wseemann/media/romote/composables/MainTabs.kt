@@ -35,29 +35,11 @@ import wseemann.media.romote.viewmodels.MainScreenViewModel
 import wseemann.media.romote.viewmodels.RemoteScreenViewModel
 import wseemann.media.romote.viewmodels.StoreScreenViewModel
 
-/**
- * The four pages of MainActivity's pager. Each was a Fragment until the activity moved to Compose;
- * what is left of them here is only the work the Screen composables can't do on their own - the
- * activities they start, the broadcasts they listen for, the service they bind, and the two
- * DialogFragments the app has yet to migrate.
- *
- * Each keeps its Fragment's `handleEvent` shape: intercept the events that need a Context or a
- * FragmentManager, then forward everything untouched to the ViewModel.
- */
-
-/**
- * The devices tab. The first scan now runs from [MainScreenViewModel]'s init block rather than from
- * here, so paging away and back doesn't restart it.
- */
 @Composable
 fun DevicesTab(viewModel: MainScreenViewModel, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    /**
-     * Pairing by IP address. A device paired that way is not in the results of the scan that is on
-     * screen, so the list is scanned again once the activity reports back.
-     */
     val manualConnectionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.StartActivityForResult(),
     ) { result ->
@@ -83,7 +65,6 @@ fun DevicesTab(viewModel: MainScreenViewModel, modifier: Modifier = Modifier) {
                 }
 
                 is MainScreenUiEvent.DeviceInfoClickedEvent -> {
-                    // The ViewModel has nothing to do with this one.
                     context.startActivity(
                         Intent(context, DeviceInfoActivity::class.java).apply {
                             putExtra("serial_number", event.serialNumber)
@@ -93,7 +74,6 @@ fun DevicesTab(viewModel: MainScreenViewModel, modifier: Modifier = Modifier) {
                 }
 
                 is MainScreenUiEvent.AddDeviceClickedEvent -> {
-                    // Nor this one.
                     manualConnectionLauncher.launch(
                         Intent(context, ManualConnectionActivity::class.java),
                     )

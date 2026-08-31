@@ -67,8 +67,6 @@ tasks.named('check') {
 }
 
 tasks.withType(dev.detekt.gradle.Detekt).configureEach {
-    // Rewrites sources in place for every rule that supports it -- in practice the `ktlint`
-    // ruleset below. Note that `check` depends on the detekt tasks, so `check` reformats too.
     autoCorrect = true
 
     reports {

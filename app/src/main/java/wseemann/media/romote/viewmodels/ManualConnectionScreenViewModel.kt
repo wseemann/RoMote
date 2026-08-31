@@ -57,24 +57,24 @@ class ManualConnectionScreenViewModel @Inject constructor(
             ResponseCallbackWrapper(
                 mainDispatcher,
                 object :
-            ResponseCallback<Device?> {
-            override fun onSuccess(data: Device?) {
-                if (data == null) {
-                    onConnectionFailed(null)
-                    return
-                }
+                    ResponseCallback<Device?> {
+                    override fun onSuccess(data: Device?) {
+                        if (data == null) {
+                            onConnectionFailed(null)
+                            return
+                        }
 
-                // The device only knows the host it was reached at because we tell it: the
-                // response itself carries no address.
-                data.host = host
-                storeDevice(wseemann.media.romote.data.Device.fromDevice(data))
-            }
+                        // The device only knows the host it was reached at because we tell it: the
+                        // response itself carries no address.
+                        data.host = host
+                        storeDevice(wseemann.media.romote.data.Device.fromDevice(data))
+                    }
 
-            override fun onError(ex: Exception) {
-                onConnectionFailed(ex)
-            }
-        }
-            )
+                    override fun onError(ex: Exception) {
+                        onConnectionFailed(ex)
+                    }
+                },
+            ),
         )
     }
 
