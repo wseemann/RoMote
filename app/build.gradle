@@ -76,15 +76,11 @@ tasks.withType(dev.detekt.gradle.Detekt).configureEach {
 }
 
 dependencies {
-    implementation fileTree(dir: 'src/main/libs', include: ['*.aar', '*.jar'], exclude: [])
     implementation(libs.aboutlibraries.compose.m3)
     implementation(platform(libs.compose.bom))
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.appcompat)
-    implementation(libs.androidx.legacy)
-    implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.androidx.lifecycle.runtime.compose)
-    implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.preference)
     implementation(libs.androidx.splashscreen)
