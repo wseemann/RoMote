@@ -215,7 +215,8 @@ fun RemoteTab(
  *
  * The grid loads the first time the tab is selected, which is what MainActivity's
  * OnPageChangeListener used to drive through ChannelFragment.refresh(). The other caller of that
- * method, a wifi reconnect, is handled by MainActivity.onWifiConnected().
+ * method, a reconnect, is handled by MainActivity, which reloads the grid when
+ * ConnectivityViewModel reports the phone is back on a local network.
  */
 @Composable
 fun ChannelsTab(

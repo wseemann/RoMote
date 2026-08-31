@@ -44,9 +44,10 @@
     <string name="title_connect_manually">Connect manually</string>
     <string name="title_romote_widget">RoMote Widget</string>
 
-    <string name="connectivity_dialog_title">No Wifi</string>
-    <string name="connectivity_dialog_message">A Wifi connection is not available. Please connect to a Wifi network.</string>
+    <string name="connectivity_dialog_title">No local network</string>
+    <string name="connectivity_dialog_message">This phone isn\'t on a Wi-Fi or wired network, so it can\'t reach your Roku. Mobile data can\'t reach it either.</string>
     <string name="connectivity_dialog_button">Go to settings</string>
+    <string name="connectivity_dialog_dismiss_button">Dismiss</string>
 
     <string name="remote_access_dialog_title">Enable remote control</string>
     <string name="remote_access_dialog_message">Roku blocks third-party remotes by default. To let RoMote control your device:</string>

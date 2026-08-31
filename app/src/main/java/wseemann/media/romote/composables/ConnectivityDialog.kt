@@ -7,38 +7,35 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.window.DialogProperties
 import wseemann.media.romote.R
 import wseemann.media.romote.composables.theme.RomoteTheme
 
 /**
- * The "no Wifi" dialog ConnectivityActivity puts up whenever the device drops off the network,
- * replacing the ConnectivityDialog DialogFragment.
+ * The "no local network" dialog, shown whenever this phone has no transport a Roku could answer on.
  *
- * The dialog it replaced was setCancelable(false) - there is nothing to do in this app without a
- * network, so the only way out is to fix the connection - which is what the DialogProperties below
- * say. The old dialog offered "Go to settings" as a neutral button; Material 3's AlertDialog has no
- * neutral slot, so it becomes the confirm button and sits on the right of the button row instead of
- * the left.
+ * The dialog this grew out of was setCancelable(false), on the reasoning that there is nothing to
+ * do in the app without a network. It is dismissible now: the check behind it used to insist on
+ * wifi specifically and trapped anyone who was hardwired, and while the rule has been fixed, a
+ * wrong answer should cost a dialog rather than the app.
  */
 @Composable
 fun ConnectivityDialog(
     onOpenSettingsClick: () -> Unit,
+    onDismiss: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     AlertDialog(
-        // Dismissal is the network's to decide, not the user's: ConnectivityActivity takes the
-        // dialog down when wifi comes back.
-        onDismissRequest = {},
-        properties = DialogProperties(
-            dismissOnBackPress = false,
-            dismissOnClickOutside = false
-        ),
+        onDismissRequest = onDismiss,
         title = { Text(text = stringResource(R.string.connectivity_dialog_title)) },
         text = { Text(text = stringResource(R.string.connectivity_dialog_message)) },
         confirmButton = {
             TextButton(onClick = onOpenSettingsClick) {
                 Text(text = stringResource(R.string.connectivity_dialog_button))
+            }
+        },
+        dismissButton = {
+            TextButton(onClick = onDismiss) {
+                Text(text = stringResource(R.string.connectivity_dialog_dismiss_button))
             }
         },
         modifier = modifier
@@ -49,6 +46,6 @@ fun ConnectivityDialog(
 @Composable
 private fun ConnectivityDialogPreview() {
     RomoteTheme {
-        ConnectivityDialog(onOpenSettingsClick = {})
+        ConnectivityDialog(onOpenSettingsClick = {}, onDismiss = {})
     }
 }

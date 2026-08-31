@@ -1,82 +1,50 @@
 package wseemann.media.romote.composables
 
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
 import android.provider.Settings
-import android.view.ViewGroup
-import androidx.activity.ComponentActivity
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.platform.ComposeView
-import androidx.compose.ui.platform.ViewCompositionStrategy
-import wseemann.media.romote.composables.theme.RomoteTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import wseemann.media.romote.event.ConnectivityUiEvent
+import wseemann.media.romote.viewmodels.ConnectivityViewModel
 
 /**
- * Puts ConnectivityDialog on screen for ConnectivityActivity, which is still Java and has no
- * content view of its own - it is the base class of every screen in the app (MainActivity,
- * DeviceInfoActivity, ManualConnectionActivity), all of which now set their content with Compose.
+ * Puts [ConnectivityDialog] on screen for whichever screen includes it.
  *
- * show()/dismiss()/isShowing() stand in for the DialogFragment the activity used to hold, so its
- * network monitoring is untouched. A Compose dialog opens a window of its own, so the ComposeView
- * this attaches measures 0x0 and never disturbs whatever the subclass set as its content.
+ * This replaced a shim that lazily addContentView'd a ComposeView onto the activity, which existed
+ * only because ConnectivityActivity was Java and had no composition of its own. Every screen that
+ * shows the dialog now sets its content with Compose, so it is just another composable in the tree.
  */
-class ConnectivityDialogHost(private val activity: ComponentActivity) {
+@Composable
+fun ConnectivityDialogHost(
+    viewModel: ConnectivityViewModel,
+    modifier: Modifier = Modifier
+) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val context = LocalContext.current
 
-    private val visible = mutableStateOf(false)
-
-    private var composeView: ComposeView? = null
-
-    fun show() {
-        if (composeView == null) {
-            attach()
-        }
-
-        visible.value = true
-    }
-
-    fun dismiss() {
-        visible.value = false
-    }
-
-    fun isShowing(): Boolean = visible.value
-
-    private fun attach() {
-        val view = ComposeView(activity).apply {
-            setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setContent {
-                RomoteTheme {
-                    if (visible.value) {
-                        ConnectivityDialog(
-                            onOpenSettingsClick = {
-                                // The platform dialog dismissed itself when its button was
-                                // tapped; keep that.
-                                visible.value = false
-                                openWifiSettings()
-                            }
-                        )
-                    }
-                }
-            }
-        }
-
-        // Attached lazily rather than in onCreate, because the first show() comes from onResume -
-        // by which point the subclass has installed its own content view.
-        activity.addContentView(
-            view,
-            ViewGroup.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
-            )
+    if (uiState.isDialogVisible) {
+        ConnectivityDialog(
+            onOpenSettingsClick = {
+                // The dialog dismissed itself when its button was tapped; keep that.
+                viewModel.onHandleEvent(ConnectivityUiEvent.DismissedEvent)
+                context.openWifiSettings()
+            },
+            onDismiss = { viewModel.onHandleEvent(ConnectivityUiEvent.DismissedEvent) },
+            modifier = modifier
         )
-
-        composeView = view
     }
+}
 
-    private fun openWifiSettings() {
-        try {
-            // In some cases, a matching Activity may not exist, so ensure you safeguard against this.
-            activity.startActivity(Intent(Settings.ACTION_WIFI_SETTINGS))
-        } catch (ignored: ActivityNotFoundException) {
-            activity.startActivity(Intent(Settings.ACTION_SETTINGS))
-        }
+private fun Context.openWifiSettings() {
+    try {
+        // In some cases, a matching Activity may not exist, so ensure you safeguard against this.
+        startActivity(Intent(Settings.ACTION_WIFI_SETTINGS))
+    } catch (ignored: ActivityNotFoundException) {
+        startActivity(Intent(Settings.ACTION_SETTINGS))
     }
 }

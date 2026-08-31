@@ -51,6 +51,7 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import wseemann.media.romote.R
 import wseemann.media.romote.composables.ChannelsTab
+import wseemann.media.romote.composables.ConnectivityDialogHost
 import wseemann.media.romote.composables.DevicesTab
 import wseemann.media.romote.composables.RemoteAccessHelpDialog
 import wseemann.media.romote.composables.RemoteTab
@@ -65,6 +66,7 @@ import wseemann.media.romote.inappreview.AppReviewManager
 import wseemann.media.romote.service.NotificationService
 import wseemann.media.romote.utils.Constants
 import wseemann.media.romote.viewmodels.ChannelScreenViewModel
+import wseemann.media.romote.viewmodels.ConnectivityViewModel
 import wseemann.media.romote.viewmodels.MainScreenViewModel
 import wseemann.media.romote.viewmodels.RemoteScreenViewModel
 import wseemann.media.romote.viewmodels.StoreScreenViewModel
@@ -77,7 +79,7 @@ import javax.inject.Inject
  * and the fragments are the tab composables in MainTabs.kt.
  */
 @AndroidEntryPoint
-class MainActivity : ConnectivityActivity() {
+class MainActivity : ShakeActivity() {
 
     @Inject
     lateinit var appReviewManager: AppReviewManager
@@ -86,6 +88,7 @@ class MainActivity : ConnectivityActivity() {
     private val remoteScreenViewModel: RemoteScreenViewModel by viewModels()
     private val channelScreenViewModel: ChannelScreenViewModel by viewModels()
     private val storeScreenViewModel: StoreScreenViewModel by viewModels()
+    private val connectivityViewModel: ConnectivityViewModel by viewModels()
 
     private var isBound = false
 
@@ -147,17 +150,6 @@ class MainActivity : ConnectivityActivity() {
         }
     }
 
-    /**
-     * Reloads the channels grid, which can't have loaded while the device was unreachable. The
-     * ViewModel is held here rather than by a fragment, so this no longer has to reach for a
-     * fragment instance the pager may not have created yet.
-     */
-    override fun onWifiConnected() {
-        if (channelScreenViewModel.uiState.value.channels.isEmpty()) {
-            channelScreenViewModel.onHandleEvent(ChannelScreenUiEvent.LoadChannelsEvent)
-        }
-    }
-
     @Composable
     private fun MainContent() {
         val scope = rememberCoroutineScope()
@@ -190,6 +182,26 @@ class MainActivity : ConnectivityActivity() {
         // critical path; beyondViewportPageCount only ever adds pages, so nothing is torn down.
         var offscreenPages by remember { mutableIntStateOf(0) }
         LaunchedEffect(Unit) { offscreenPages = PAGE_COUNT - 1 }
+
+        // What ConnectivityActivity.onWifiConnected() did: the channels grid can't have loaded
+        // while the device was unreachable, so reload it once the phone is back on a local
+        // network. Only a *return* to the network counts - the grid's first load belongs to
+        // ChannelsTab, which does it when the tab is first selected. The ViewModel is held by this
+        // activity rather than by a fragment, so this no longer has to reach for a fragment
+        // instance the pager may not have created yet.
+        LaunchedEffect(Unit) {
+            var wasAvailable = connectivityViewModel.uiState.value.isLocalNetworkAvailable
+
+            connectivityViewModel.uiState.collect { state ->
+                if (state.isLocalNetworkAvailable && !wasAvailable &&
+                    channelScreenViewModel.uiState.value.channels.isEmpty()
+                ) {
+                    channelScreenViewModel.onHandleEvent(ChannelScreenUiEvent.LoadChannelsEvent)
+                }
+
+                wasAvailable = state.isLocalNetworkAvailable
+            }
+        }
 
         Scaffold(
             topBar = {
@@ -244,6 +256,8 @@ class MainActivity : ConnectivityActivity() {
                 onDismiss = { isSearchDialogVisible = false }
             )
         }
+
+        ConnectivityDialogHost(viewModel = connectivityViewModel)
 
         if (isRemoteAccessHelpVisible) {
             RemoteAccessHelpDialog(

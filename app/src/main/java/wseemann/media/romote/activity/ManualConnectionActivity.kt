@@ -12,8 +12,10 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import wseemann.media.romote.composables.ConnectivityDialogHost
 import wseemann.media.romote.composables.ManualConnectionScreen
 import wseemann.media.romote.composables.theme.RomoteTheme
+import wseemann.media.romote.viewmodels.ConnectivityViewModel
 import wseemann.media.romote.viewmodels.ManualConnectionScreenViewModel
 
 /**
@@ -21,9 +23,10 @@ import wseemann.media.romote.viewmodels.ManualConnectionScreenViewModel
  * result by DevicesTab, which refreshes its device list on RESULT_OK.
  */
 @AndroidEntryPoint
-class ManualConnectionActivity : ConnectivityActivity() {
+class ManualConnectionActivity : ShakeActivity() {
 
     private val manualConnectionScreenViewModel: ManualConnectionScreenViewModel by viewModels()
+    private val connectivityViewModel: ConnectivityViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -40,6 +43,8 @@ class ManualConnectionActivity : ConnectivityActivity() {
                     onEvent = manualConnectionScreenViewModel::onHandleEvent,
                     onBackClick = { finish() }
                 )
+
+                ConnectivityDialogHost(viewModel = connectivityViewModel)
             }
         }
 
