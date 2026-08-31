@@ -16,10 +16,7 @@
     <string name="device_options_content_description">Device options</string>
     <string name="more_options_content_description">More options</string>
 
-    <string name="roku_devices">Roku Devices</string>
-    <string name="select_a_device">Select a device ...</string>
     <string name="discovering_devices">Discovering devices ...</string>
-    <string name="select_help">Make sure your device is turned on and connected to the same network.</string>
     <string name="connect_manually">Connect Manually</string>
     <string name="connect_help">Enter your Roku device\'s complete IP address</string>
     <string name="ip_address_hint" translatable="false">192.168.1.100</string>

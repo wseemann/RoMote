@@ -77,12 +77,6 @@
             android:theme="@style/AppTheme.NoActionBar" />
 
         <activity
-            android:name="wseemann.media.romote.activity.ConfigureDeviceActivity"
-            android:configChanges="orientation|keyboardHidden"
-            android:screenOrientation="portrait"
-            android:theme="@style/AppTheme.NoActionBar" />
-
-        <activity
             android:name="wseemann.media.romote.activity.ManualConnectionActivity"
             android:configChanges="orientation|keyboardHidden"
             android:label="@string/title_connect_manually"

@@ -18,7 +18,6 @@ import wseemann.media.romote.data.Device
 import wseemann.media.romote.data.DeviceDiscovery
 import wseemann.media.romote.event.MainScreenUiEvent
 import wseemann.media.romote.model.MainScreenUiState
-import wseemann.media.romote.preferences.AppPreferences
 import wseemann.media.romote.utils.BroadcastUtils
 import wseemann.media.romote.utils.DBUtils
 import wseemann.media.romote.utils.PreferenceUtils
@@ -29,7 +28,6 @@ import javax.inject.Inject
 class MainScreenViewModel @Inject constructor(
     @ApplicationContext val context: Context,
     private val preferenceUtils: PreferenceUtils,
-    private val appPreferences: AppPreferences,
     private val deviceDiscovery: DeviceDiscovery
 ) : ViewModel() {
 
@@ -170,7 +168,6 @@ class MainScreenViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             DBUtils.insertDevice(context, device)
             preferenceUtils.setConnectedDevice(device.serialNumber)
-            appPreferences.setFirstUse(false)
 
             BroadcastUtils.sendUpdateDeviceBroadcast(context)
 

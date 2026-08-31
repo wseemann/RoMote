@@ -3,20 +3,14 @@
 package wseemann.media.romote.utils
 
 import android.graphics.Color
-import android.view.View
 import androidx.activity.ComponentActivity
 import androidx.activity.SystemBarStyle
 import androidx.activity.enableEdgeToEdge
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
 
 /**
- * Edge-to-edge helpers. The app draws behind the system bars (see [enableRomoteEdgeToEdge]), so
- * the status bar itself is transparent and the purple has to come from the app bar extending
- * underneath it.
- *
- * The padding helpers capture the view's padding up front - the listener fires again on every
- * inset change - and return the insets unconsumed so children still see them.
+ * Edge-to-edge helper. The app draws behind the system bars (see [enableRomoteEdgeToEdge]), so the
+ * status bar itself is transparent and the purple has to come from the app bar extending underneath
+ * it.
  */
 
 /** Scrims androidx uses for the navigation bar on API levels that can't render it transparent. */
@@ -38,30 +32,4 @@ fun enableRomoteEdgeToEdge(activity: ComponentActivity) {
             NAVIGATION_BAR_DARK_SCRIM
         )
     )
-}
-
-/** Pads [view] down by the status bar height so its background fills the status bar area. */
-fun applyStatusBarTopPadding(view: View) {
-    val initialTopPadding = view.paddingTop
-
-    ViewCompat.setOnApplyWindowInsetsListener(view) { v, windowInsets ->
-        val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-        v.setPadding(v.paddingLeft, initialTopPadding + insets.top, v.paddingRight, v.paddingBottom)
-        windowInsets
-    }
-
-    ViewCompat.requestApplyInsets(view)
-}
-
-/** Pads [view] up by the navigation bar height so content isn't hidden behind the gesture bar. */
-fun applyNavigationBarBottomPadding(view: View) {
-    val initialBottomPadding = view.paddingBottom
-
-    ViewCompat.setOnApplyWindowInsetsListener(view) { v, windowInsets ->
-        val insets = windowInsets.getInsets(WindowInsetsCompat.Type.systemBars())
-        v.setPadding(v.paddingLeft, v.paddingTop, v.paddingRight, initialBottomPadding + insets.bottom)
-        windowInsets
-    }
-
-    ViewCompat.requestApplyInsets(view)
 }

@@ -12,8 +12,8 @@ import wseemann.media.romote.composables.theme.RomoteTheme
 
 /**
  * Puts ConnectivityDialog on screen for ConnectivityActivity, which is still Java and has no
- * content view of its own - it is the base class of both the XML activities (MainActivity,
- * ConfigureDeviceActivity) and the Compose ones (DeviceInfoActivity, ManualConnectionActivity).
+ * content view of its own - it is the base class of every screen in the app (MainActivity,
+ * DeviceInfoActivity, ManualConnectionActivity), all of which now set their content with Compose.
  *
  * show()/dismiss()/isShowing() stand in for the DialogFragment the activity used to hold, so its
  * network monitoring is untouched. A Compose dialog opens a window of its own, so the ComposeView

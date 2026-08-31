@@ -58,10 +58,6 @@
         <item name="tabTextColor">@android:color/white</item>
     </style>
 
-    <style name="AppTheme.AppBarOverlay" parent="ThemeOverlay.MaterialComponents.Dark.ActionBar" />
-
-    <style name="AppTheme.PopupOverlay" parent="ThemeOverlay.MaterialComponents.Light" />
-
     <style name="ToolbarStyle" parent ="Widget.MaterialComponents.Toolbar">
         <item name="android:background">@color/purple</item>
         <item name="titleTextColor">@color/on_purple</item>

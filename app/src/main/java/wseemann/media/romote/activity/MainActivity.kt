@@ -89,14 +89,7 @@ class MainActivity : ConnectivityActivity(), InstallChannelDialog.InstallChannel
         installSplashScreen()
         super.onCreate(savedInstanceState)
 
-        if (appPreferences.isFirstUse()) {
-            startActivity(Intent(this, ConfigureDeviceActivity::class.java))
-            finish()
-        } else {
-            // The review prompt measures the app's age from the first real session, so the
-            // configure-device detour on first launch isn't what starts its clock.
-            appReviewManager.onAppSessionStarted()
-        }
+        appReviewManager.onAppSessionStarted()
 
         intent?.data?.path?.let { path ->
             val channelCode = path.replace("/install/", "")

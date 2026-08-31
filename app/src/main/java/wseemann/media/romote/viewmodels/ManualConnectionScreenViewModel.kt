@@ -16,7 +16,6 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import wseemann.media.romote.event.ManualConnectionScreenUiEvent
 import wseemann.media.romote.model.ManualConnectionScreenUiState
-import wseemann.media.romote.preferences.AppPreferences
 import wseemann.media.romote.tasks.ResponseCallbackWrapper
 import wseemann.media.romote.utils.DBUtils
 import wseemann.media.romote.utils.PreferenceUtils
@@ -25,8 +24,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ManualConnectionScreenViewModel @Inject constructor(
     @ApplicationContext val context: Context,
-    private val preferenceUtils: PreferenceUtils,
-    private val appPreferences: AppPreferences
+    private val preferenceUtils: PreferenceUtils
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ManualConnectionScreenUiState())
@@ -77,14 +75,12 @@ class ManualConnectionScreenViewModel @Inject constructor(
 
     /**
      * [ResponseCallbackWrapper] hands the response back on the main thread, so the SQLite write and
-     * the two preference commits go to the IO dispatcher before the screen is told it is done.
+     * the preference commit go to the IO dispatcher before the screen is told it is done.
      */
     private fun storeDevice(device: wseemann.media.romote.data.Device) {
         viewModelScope.launch(Dispatchers.IO) {
             DBUtils.insertDevice(context, device)
             preferenceUtils.setConnectedDevice(device.serialNumber)
-
-            appPreferences.setFirstUse(false)
 
             _uiState.update { it.copy(isLoading = false, isConnected = true) }
         }
