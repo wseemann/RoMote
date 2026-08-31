@@ -20,6 +20,12 @@ internal val OnPurple = Color(0xFFEBEBEB)
 internal val PurpleButton = Color(0xFFA865F3)
 
 /**
+ * @color/semi_transparent, the dot the device list draws beside a device that is not the connected
+ * one. The connected device's dot is [Purple].
+ */
+internal val SemiTransparentBlack = Color(0x66000000)
+
+/**
  * Window backgrounds. The XML screens take these from Theme.MaterialComponents.DayNight rather than
  * from colors.xml, so they are spelled out here to keep the Compose screens on the same surface.
  */

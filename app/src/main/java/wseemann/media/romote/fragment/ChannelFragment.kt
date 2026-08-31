@@ -8,7 +8,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.compose.runtime.getValue
@@ -93,16 +92,6 @@ class ChannelFragment : Fragment() {
     @Deprecated("Superseded by MenuProvider, which the rest of the app has yet to adopt")
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         inflater.inflate(R.menu.main_menu, menu)
-    }
-
-    @Deprecated("Superseded by MenuProvider, which the rest of the app has yet to adopt")
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (item.itemId == R.id.action_refresh) {
-            channelScreenViewModel.onHandleEvent(ChannelScreenUiEvent.LoadChannelsEvent)
-            return true
-        }
-
-        return false
     }
 
     /**

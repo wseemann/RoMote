@@ -2,7 +2,6 @@ package wseemann.media.romote.viewmodels
 
 import android.content.Context
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -19,6 +18,7 @@ import wseemann.media.romote.data.Device
 import wseemann.media.romote.data.DeviceDiscovery
 import wseemann.media.romote.event.MainScreenUiEvent
 import wseemann.media.romote.model.MainScreenUiState
+import wseemann.media.romote.preferences.AppPreferences
 import wseemann.media.romote.utils.BroadcastUtils
 import wseemann.media.romote.utils.DBUtils
 import wseemann.media.romote.utils.PreferenceUtils
@@ -28,13 +28,13 @@ import javax.inject.Inject
 @HiltViewModel
 class MainScreenViewModel @Inject constructor(
     @ApplicationContext val context: Context,
-    val preferenceUtils: PreferenceUtils,
+    private val preferenceUtils: PreferenceUtils,
+    private val appPreferences: AppPreferences,
     private val deviceDiscovery: DeviceDiscovery
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainScreenUiState())
     val uiState = _uiState.asStateFlow()
-    val uiStateLiveData = uiState.asLiveData()
 
     /**
      * Incremented for every scan. A scan only publishes its results if it is still the newest
@@ -46,11 +46,14 @@ class MainScreenViewModel @Inject constructor(
     fun onHandleEvent(event: MainScreenUiEvent) {
         when (event) {
             is MainScreenUiEvent.RefreshEvent -> onRefresh()
-            is MainScreenUiEvent.LoadPairedDevicesEvent -> onLoadPairedDevices()
+            is MainScreenUiEvent.DeviceSelectedEvent -> onDeviceSelected(event.device)
             is MainScreenUiEvent.ForgetDeviceEvent -> onForgetDevice(event.serialNumber)
             is MainScreenUiEvent.RenameDeviceClickedEvent -> onRenameDeviceClicked(event)
             is MainScreenUiEvent.RenameDeviceConfirmedEvent -> onRenameDeviceConfirmed(event.name)
             is MainScreenUiEvent.RenameDeviceDismissedEvent -> onRenameDeviceDismissed()
+            // The fragment handles these two: starting an activity needs its Context.
+            is MainScreenUiEvent.DeviceInfoClickedEvent,
+            is MainScreenUiEvent.AddDeviceClickedEvent -> Unit
         }
     }
 
@@ -81,6 +84,7 @@ class MainScreenViewModel @Inject constructor(
                             .filterNot { device -> device.serialNumber in pairedSerialNumbers }
                             .toPersistentList(),
                         pairedDevices = pairedDevices.toPersistentList(),
+                        connectedSerialNumber = connectedSerialNumber(),
                         isLoading = false
                     )
                 }
@@ -106,10 +110,9 @@ class MainScreenViewModel @Inject constructor(
      * a second one alongside it.
      */
     private fun refreshConnectedDevice(discovered: List<Device>) {
-        val connectedSerialNumber = try {
-            preferenceUtils.connectedDevice.serialNumber
-        } catch (ex: Exception) {
-            // getConnectedDevice() throws rather than returning null when nothing is paired.
+        val connectedSerialNumber = connectedSerialNumber()
+
+        if (connectedSerialNumber == null) {
             Timber.tag(TAG).d("No connected device to update")
             return
         }
@@ -120,10 +123,35 @@ class MainScreenViewModel @Inject constructor(
         }
     }
 
-    private fun onLoadPairedDevices() {
+    /** Reads SQLite, so every caller is already on the IO dispatcher. */
+    private fun connectedSerialNumber(): String? = try {
+        preferenceUtils.connectedDevice.serialNumber
+    } catch (ex: Exception) {
+        // connectedDevice throws rather than returning null when nothing is paired.
+        null
+    }
+
+    /**
+     * Pairs with the tapped device and makes it the connected one. This ran on the main thread
+     * from the list's click listener, database writes and all; the toast and the widget update it
+     * also did stay with the fragment, which needs its own Context for them.
+     */
+    private fun onDeviceSelected(device: Device) {
         viewModelScope.launch(Dispatchers.IO) {
+            DBUtils.insertDevice(context, device)
+            preferenceUtils.setConnectedDevice(device.serialNumber)
+            appPreferences.setFirstUse(false)
+
+            BroadcastUtils.sendUpdateDeviceBroadcast(context)
+
+            // A device that was just paired belongs under "Paired devices" and nowhere else, so
+            // the available list is dropped rather than filtered - the next scan repopulates it.
             _uiState.update {
-                it.copy(pairedDevices = DBUtils.getAllDevices(context).toPersistentList())
+                it.copy(
+                    availableDevices = persistentListOf(),
+                    pairedDevices = DBUtils.getAllDevices(context).toPersistentList(),
+                    connectedSerialNumber = device.serialNumber
+                )
             }
         }
     }
@@ -137,18 +165,17 @@ class MainScreenViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             DBUtils.removeDevice(context, serialNumber)
 
-            val connectedSerialNumber = try {
-                preferenceUtils.connectedDevice.serialNumber
-            } catch (ex: Exception) {
-                null
-            }
+            val connectedSerialNumber = connectedSerialNumber()
 
             if (connectedSerialNumber == null || connectedSerialNumber == serialNumber) {
                 preferenceUtils.setConnectedDevice("")
             }
 
             _uiState.update {
-                it.copy(pairedDevices = DBUtils.getAllDevices(context).toPersistentList())
+                it.copy(
+                    pairedDevices = DBUtils.getAllDevices(context).toPersistentList(),
+                    connectedSerialNumber = connectedSerialNumber()
+                )
             }
 
             // Only rescan once the row is gone, so the scan can see the device as unpaired.

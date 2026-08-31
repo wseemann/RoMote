@@ -2,6 +2,8 @@
     <string name="app_name">RoMote</string>
 
     <string name="empty_list">No devices detected</string>
+    <string name="paired_devices">Paired devices</string>
+    <string name="available_devices">Available devices</string>
     <string name="empty_channel_list">No channels detected</string>
     <string name="action_refresh">Refresh</string>
     <string name="action_info">Info</string>
@@ -11,6 +13,7 @@
     <string name="action_search">Search</string>
     <string name="navigate_up_content_description">Navigate up</string>
     <string name="keyboard">Keyboard</string>
+    <string name="device_options_content_description">Device options</string>
 
     <string name="roku_devices">Roku Devices</string>
     <string name="select_a_device">Select a device ...</string>
@@ -25,6 +28,8 @@
     <string name="checking_ip_address">Checking IP Address ...</string>
     <string name="no_roku_device">No Roku device could be found at this IP Address. Please check the IP address and try again.</string>
     <string name="connected">Connected</string>
+    <string name="serial_number">SN: %1$s</string>
+    <string name="device_connected">Device %1$s connected</string>
     <string name="not_connected">Not connected</string>
     <string name="device_name">Device name</string>
     <string name="device_name_help">Enter a device name:</string>
