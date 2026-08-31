@@ -18,7 +18,7 @@ import wseemann.media.romote.viewmodels.ManualConnectionScreenViewModel
 
 /**
  * Pairing with a device by typing its IP address, for the devices discovery misses. Started for a
- * result by MainFragment and ConfigureDeviceFragment, both of which refresh their device lists on
+ * result by DevicesTab and ConfigureDeviceFragment, both of which refresh their device lists on
  * RESULT_OK.
  */
 @AndroidEntryPoint

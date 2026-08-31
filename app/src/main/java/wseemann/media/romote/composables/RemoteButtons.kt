@@ -43,7 +43,7 @@ private val RemoteButtonSpacing = 20.dp
 /** The duration VibratingImageButton and RepeatingImageButton both vibrated for. */
 private const val VibrateDurationMillis = 100
 
-/** The interval RemoteFragment passed to setRepeatListener. */
+/** The interval the old XML remote passed to RepeatingImageButton.setRepeatListener. */
 private const val RepeatIntervalMillis = 400L
 
 /** The 15dp corner radius of every shape in @drawable/remote_button_bg. */

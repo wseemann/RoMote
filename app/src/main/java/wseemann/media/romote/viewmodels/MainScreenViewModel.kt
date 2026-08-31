@@ -43,6 +43,13 @@ class MainScreenViewModel @Inject constructor(
      */
     private val scanGeneration = AtomicInteger()
 
+    init {
+        // Nothing else kicks off the first scan. MainFragment used to do this from onCreate, behind
+        // a guard against re-scanning after a rotation; the ViewModel is created once for the
+        // screen either way, so the scan belongs here and the guard is no longer needed.
+        onRefresh()
+    }
+
     fun onHandleEvent(event: MainScreenUiEvent) {
         when (event) {
             is MainScreenUiEvent.RefreshEvent -> onRefresh()
@@ -51,7 +58,7 @@ class MainScreenViewModel @Inject constructor(
             is MainScreenUiEvent.RenameDeviceClickedEvent -> onRenameDeviceClicked(event)
             is MainScreenUiEvent.RenameDeviceConfirmedEvent -> onRenameDeviceConfirmed(event.name)
             is MainScreenUiEvent.RenameDeviceDismissedEvent -> onRenameDeviceDismissed()
-            // The fragment handles these two: starting an activity needs its Context.
+            // DevicesTab handles these two: starting an activity needs its Context.
             is MainScreenUiEvent.DeviceInfoClickedEvent,
             is MainScreenUiEvent.AddDeviceClickedEvent -> Unit
         }
@@ -157,7 +164,7 @@ class MainScreenViewModel @Inject constructor(
     /**
      * Pairs with the tapped device and makes it the connected one. This ran on the main thread
      * from the list's click listener, database writes and all; the toast and the widget update it
-     * also did stay with the fragment, which needs its own Context for them.
+     * also did stay with DevicesTab, which needs its own Context for them.
      */
     private fun onDeviceSelected(device: Device) {
         viewModelScope.launch(Dispatchers.IO) {

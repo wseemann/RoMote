@@ -16,7 +16,7 @@ sealed interface MainScreenUiEvent {
     data class ForgetDeviceEvent(val serialNumber: String) : MainScreenUiEvent
 
     /**
-     * Handled by MainFragment, which starts DeviceInfoActivity. It carries the host as well as the
+     * Handled by DevicesTab, which starts DeviceInfoActivity. It carries the host as well as the
      * serial number because that is what the activity is started with.
      */
     data class DeviceInfoClickedEvent(
@@ -24,7 +24,7 @@ sealed interface MainScreenUiEvent {
         val host: String
     ) : MainScreenUiEvent
 
-    /** The floating action button. Handled by MainFragment, which starts ManualConnectionActivity. */
+    /** The floating action button. Handled by DevicesTab, which starts ManualConnectionActivity. */
     data object AddDeviceClickedEvent : MainScreenUiEvent
 
     data class RenameDeviceClickedEvent(

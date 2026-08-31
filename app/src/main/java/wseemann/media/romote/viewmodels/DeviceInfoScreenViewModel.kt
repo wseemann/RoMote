@@ -106,7 +106,7 @@ class DeviceInfoScreenViewModel @Inject constructor(
     }
 
     companion object {
-        /** Intent extras DeviceInfoActivity is started with; see MainFragment. */
+        /** Intent extras DeviceInfoActivity is started with; see DevicesTab. */
         const val EXTRA_SERIAL_NUMBER = "serial_number"
         const val EXTRA_HOST = "host"
     }

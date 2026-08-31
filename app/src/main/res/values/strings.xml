@@ -14,6 +14,7 @@
     <string name="navigate_up_content_description">Navigate up</string>
     <string name="keyboard">Keyboard</string>
     <string name="device_options_content_description">Device options</string>
+    <string name="more_options_content_description">More options</string>
 
     <string name="roku_devices">Roku Devices</string>
     <string name="select_a_device">Select a device ...</string>

@@ -54,7 +54,7 @@ private val PowerButtonSize = 52.dp
 
 /**
  * The remote tab. A pure function of [uiState] - the private listening service binding and the
- * keyboard dialog belong to RemoteFragment, which intercepts those events before they get here.
+ * keyboard dialog belong to RemoteTab, which intercepts those events before they get here.
  */
 @Composable
 fun RemoteScreen(

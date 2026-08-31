@@ -95,7 +95,7 @@ private val ListBottomInset = 88.dp
  * connects to it, and each row's overflow menu renames, describes or unpairs it.
  *
  * A pure function of [uiState] - starting DeviceInfoActivity and ManualConnectionActivity needs a
- * Context, so MainFragment intercepts those two events before they get here.
+ * Context, so DevicesTab intercepts those two events before they get here.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

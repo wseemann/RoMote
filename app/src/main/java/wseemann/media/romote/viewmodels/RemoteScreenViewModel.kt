@@ -58,12 +58,12 @@ class RemoteScreenViewModel @Inject constructor(
                 onInstallPrivateListeningClosed()
             is RemoteScreenUiEvent.DeviceChangedEvent -> onDeviceChanged()
             is RemoteScreenUiEvent.MessageShownEvent -> onMessageShown()
-            // The fragment handles this one: showing a DialogFragment needs a FragmentManager.
+            // The remote tab handles this one: showing a DialogFragment needs a FragmentManager.
             is RemoteScreenUiEvent.KeyboardClickedEvent -> Unit
         }
     }
 
-    /** Whether the private listening companion app is installed, for the fragment's bind decision. */
+    /** Whether the private listening companion app is installed, for the tab's bind decision. */
     fun isPrivateListeningInstalled(): Boolean {
         val intent = Intent().apply { component = REMOTE_AUDIO_COMPONENT }
 
@@ -73,8 +73,19 @@ class RemoteScreenViewModel @Inject constructor(
     }
 
     /**
+     * The address the private listening service should stream from. Read here rather than in the
+     * remote tab so that PreferenceUtils - and the SQLite read behind it - stays out of the UI.
+     */
+    fun connectedDeviceHost(): String? = try {
+        preferenceUtils.connectedDevice.host
+    } catch (ex: Exception) {
+        Timber.tag(TAG).e(ex, "Error reading the connected device")
+        null
+    }
+
+    /**
      * Re-reads the connected device. This goes to the IO dispatcher because
-     * [PreferenceUtils.connectedDevice] reads SQLite - the fragment used to do it on the main
+     * [PreferenceUtils.connectedDevice] reads SQLite - RemoteFragment used to do it on the main
      * thread on every broadcast.
      */
     private fun onDeviceChanged() {
@@ -177,7 +188,7 @@ class RemoteScreenViewModel @Inject constructor(
     }
 
     /**
-     * Only reaches the ViewModel when the companion app isn't installed - the fragment owns the
+     * Only reaches the ViewModel when the companion app isn't installed - the remote tab owns the
      * binding, so it handles the click itself in every other case.
      */
     private fun onPrivateListeningClicked() {

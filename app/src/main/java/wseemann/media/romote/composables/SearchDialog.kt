@@ -34,7 +34,7 @@ import wseemann.media.romote.composables.theme.RomoteTheme
  * The dialog it replaced reached its caller through a listener held in a static field on the
  * companion object, set by casting the Activity in newInstance(). That reference outlived the
  * fragment and was never re-established after the system recreated the dialog, so "Go" could fire
- * against a stale activity. This composable only reports the text the user typed; SearchDialogHost
+ * against a stale activity. This composable only reports the text the user typed; MainActivity
  * decides what to do with it.
  *
  * Its two MaterialButtons were tinted #a865f3 by hand; as AlertDialog text buttons they take their
