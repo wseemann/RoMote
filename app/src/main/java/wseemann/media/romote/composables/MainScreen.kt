@@ -19,6 +19,9 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -41,7 +44,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -132,7 +134,7 @@ fun MainScreen(
                 modifier = Modifier.align(Alignment.BottomEnd).padding(FabMargin)
             ) {
                 Icon(
-                    painter = painterResource(android.R.drawable.ic_input_add),
+                    imageVector = Icons.Default.Add,
                     contentDescription = stringResource(R.string.connect_manually)
                 )
             }
@@ -369,7 +371,7 @@ private fun DeviceOverflowMenu(
     Box(modifier = modifier) {
         IconButton(onClick = { isExpanded = true }) {
             Icon(
-                painter = painterResource(R.drawable.ic_more_vert),
+                imageVector = Icons.Default.MoreVert,
                 contentDescription = stringResource(R.string.device_options_content_description)
             )
         }

@@ -15,6 +15,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -33,7 +36,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.core.net.toUri
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -253,14 +255,14 @@ class MainActivity : ConnectivityActivity(), InstallChannelDialog.InstallChannel
 
         IconButton(onClick = onSearchClick) {
             Icon(
-                painter = painterResource(R.drawable.ic_action_search),
+                imageVector = Icons.Default.Search,
                 contentDescription = stringResource(R.string.action_search)
             )
         }
 
         IconButton(onClick = { isOverflowExpanded = true }) {
             Icon(
-                painter = painterResource(R.drawable.ic_more_vert),
+                imageVector = Icons.Default.MoreVert,
                 contentDescription = stringResource(R.string.more_options_content_description)
             )
         }
