@@ -2,7 +2,6 @@
 aboutlibraries = "14.2.1"
 androidx-activity-compose = "1.13.0"
 androidx-appcompat = "1.7.1"
-androidx-constraintlayout = "2.2.1"
 androidx-legacy = "1.0.0"
 androidx-lifecycle = "2.8.7"
 androidx-preference = "1.2.1"
@@ -11,14 +10,11 @@ android-material = "1.12.0"
 coil = "3.3.0"
 compose-bom = "2026.06.01"
 detekt = "2.0.0-alpha.6"
-glide = "4.16.0"
 hilt = "2.60.1"
 jdom = "2.0.6"
-kotlinx-collections-immutable = "0.5.1"
+kotlinx-collections-immutable = "0.5.2"
 play-review = "2.0.2"
 roku-ecp-wrapper-kotlin = "1.5.0"
-rxjava-android = "2.1.1"
-rxjava = "2.2.21"
 timber = "5.0.1"
 junit = "4.13.2"
 
@@ -26,7 +22,6 @@ junit = "4.13.2"
 aboutlibraries-compose-m3 = { module = "com.mikepenz:aboutlibraries-compose-m3", version.ref = "aboutlibraries" }
 androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity-compose" }
 androidx-appcompat = { module = "androidx.appcompat:appcompat", version.ref = "androidx-appcompat" }
-androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "androidx-constraintlayout" }
 androidx-legacy = { module = "androidx.legacy:legacy-support-v4", version.ref = "androidx-legacy" }
 androidx-lifecycle-livedata-ktx = { module = "androidx.lifecycle:lifecycle-livedata-ktx", version.ref = "androidx-lifecycle" }
 androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
@@ -43,7 +38,6 @@ compose-material3 = { module = "androidx.compose.material3:material3" }
 compose-ui = { module = "androidx.compose.ui:ui" }
 compose-ui-tooling = { module = "androidx.compose.ui:ui-tooling" }
 compose-ui-tooling-preview = { module = "androidx.compose.ui:ui-tooling-preview" }
-glide = { module = "com.github.bumptech.glide:glide", version.ref = "glide" }
 hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt" }
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }
 jdom = { module = "org.jdom:jdom2", version.ref = "jdom" }

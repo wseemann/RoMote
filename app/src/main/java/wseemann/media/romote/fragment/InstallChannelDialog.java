@@ -13,8 +13,6 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 
-import com.bumptech.glide.Glide;
-
 import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
@@ -66,9 +64,9 @@ public class InstallChannelDialog extends DialogFragment {
         View view = inflater.inflate(R.layout.fragment_install_channel, null);
         ImageView imageView = view.findViewById(android.R.id.icon);
 
-        Glide.with(this)
+        /*Glide.with(this)
                 .load(Uri.parse(commandHelper.getIconURL(mChannelCode)))
-                .into(imageView);
+                .into(imageView);*/
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setView(view);
