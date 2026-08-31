@@ -28,7 +28,7 @@ class CommandReceiver : BroadcastReceiver() {
 
         val keypressKeyValues = intent.getSerializableExtra("keypress") as? KeyPressKeyValues
         if (keypressKeyValues == null) {
-            Timber.w("Received intent without a valid 'keypress' extra; ignoring")
+            Timber.w("Received intent without a valid 'keypress' extra, ignoring")
             return
         }
 
