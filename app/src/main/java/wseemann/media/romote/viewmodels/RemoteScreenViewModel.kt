@@ -102,8 +102,8 @@ class RemoteScreenViewModel @Inject constructor(
                     ?.takeIf { it.isNotEmpty() }
                     ?: device.userDeviceName.orEmpty()
 
-                device.tv?.let { showVolumeControls = it.toBoolean() }
-                device.supportsAudioGuide?.let { showVolumeControls = it.toBoolean() }
+                showVolumeControls =
+                    (device.supportsAudioGuide ?: device.tv)?.toBoolean() ?: showVolumeControls
 
                 deviceSupportsPrivateListening = device.supportsPrivateListening.toBoolean()
             } catch (ex: Exception) {
