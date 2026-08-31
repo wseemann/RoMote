@@ -1,3 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The RoMote wordmark in white, for the splash screen only - it is drawn over
+     @color/purple as windowSplashScreenAnimatedIcon (see styles.xml).
+
+     This is NOT part of the launcher icon. The adaptive icon's layers are
+     ic_launcher_foreground / _background / _monochrome, which share this
+     geometry but are sized and coloured for a 108dp icon layer. Was previously
+     named ic_launcher_adaptive_fore, which wrongly implied otherwise. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="432dp"
     android:height="432dp"

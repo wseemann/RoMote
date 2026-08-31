@@ -2,9 +2,9 @@
 <!-- Adaptive icon foreground: the RoMote wordmark.
 
      The viewport is 432 units = the 108dp adaptive layer at 4x, so 1dp = 4 units.
-     The paths are copied verbatim from ic_launcher_adaptive_fore.xml, which was
-     already drawn to this spec; only the fill colour differs (that file stays
-     white because the splash screen draws it over @color/purple).
+     The paths are copied verbatim from ic_splash_wordmark.xml, which was already
+     drawn to this spec; only the fill colour differs (that file stays white
+     because the splash screen draws it over @color/purple).
 
      The wordmark is centred at x=54.00dp and its furthest inked corner sits
      30.45dp from centre - inside the 33dp radius every launcher mask is

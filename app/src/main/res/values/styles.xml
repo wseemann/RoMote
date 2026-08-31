@@ -29,7 +29,7 @@
 
         <!-- Use windowSplashScreenAnimatedIcon to add either a drawable or an
              animated drawable. One of these is required. -->
-        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_launcher_adaptive_fore</item>
+        <item name="windowSplashScreenAnimatedIcon">@drawable/ic_splash_wordmark</item>
         <!-- Required for animated icons -->
         <item name="windowSplashScreenAnimationDuration">200</item>
 
