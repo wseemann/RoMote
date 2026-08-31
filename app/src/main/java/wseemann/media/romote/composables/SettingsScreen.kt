@@ -1,5 +1,12 @@
 package wseemann.media.romote.composables
 
+import android.Manifest
+import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,10 +24,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import wseemann.media.romote.R
 import wseemann.media.romote.composables.theme.RomoteTheme
 import wseemann.media.romote.event.SettingsScreenUiEvent
@@ -72,9 +81,7 @@ fun SettingsScreen(
                 title = stringResource(R.string.notification_title_checkbox_preference),
                 summary = stringResource(R.string.notification_to_pause_summary_checkbox_preference),
                 checked = uiState.notificationWidgetEnabled,
-                onCheckedChange = {
-                    onEvent(SettingsScreenUiEvent.NotificationWidgetToggledEvent(it))
-                }
+                onCheckedChange = rememberNotificationWidgetToggle(onEvent)
             )
 
             SettingsSwitchRow(
@@ -113,6 +120,54 @@ fun SettingsScreen(
         }
     }
 }
+
+/**
+ * The notification widget switch, wrapped in the POST_NOTIFICATIONS request API 33 introduced.
+ *
+ * The switch is only allowed to latch on once the permission is actually held: NotificationService
+ * posts through NotificationManager, which drops everything silently while the permission is
+ * missing, so a switch that turned on regardless would be advertising a notification that never
+ * arrives.
+ *
+ * @return the onCheckedChange to hand the switch.
+ */
+@Composable
+private fun rememberNotificationWidgetToggle(
+    onEvent: (SettingsScreenUiEvent) -> Unit
+): (Boolean) -> Unit {
+    val context = LocalContext.current
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        if (granted) {
+            onEvent(SettingsScreenUiEvent.NotificationWidgetToggledEvent(true))
+        } else {
+            // A second refusal, or a refusal the user made permanently, comes straight back here
+            // without a dialog ever appearing, so say why the switch didn't move.
+            Toast.makeText(
+                context,
+                R.string.notification_permission_denied,
+                Toast.LENGTH_LONG
+            ).show()
+        }
+    }
+
+    return { enabled ->
+        // Turning the preference off never needs the permission, and neither does anything below
+        // API 33, where it is granted at install time.
+        if (!enabled || hasNotificationPermission(context)) {
+            onEvent(SettingsScreenUiEvent.NotificationWidgetToggledEvent(enabled))
+        } else {
+            permissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
+    }
+}
+
+private fun hasNotificationPermission(context: Context): Boolean =
+    Build.VERSION.SDK_INT < Build.VERSION_CODES.TIRAMISU ||
+        ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) ==
+        PackageManager.PERMISSION_GRANTED
 
 /**
  * Stands in for PreferenceCategory, which drew its title in the accent color above the group.

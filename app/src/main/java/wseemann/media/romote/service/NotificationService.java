@@ -19,6 +19,7 @@ import android.os.IBinder;
 import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.NotificationManagerCompat;
 import androidx.core.content.ContextCompat;
 import com.wseemann.ecp.api.ResponseCallback;
 import com.wseemann.ecp.model.Channel;
@@ -114,11 +115,31 @@ public class NotificationService extends Service {
             if (enableNotification && mDevice != null) {
                 notification = NotificationUtils.buildNotification(NotificationService.this, null, null, null, mediaSession.getSessionToken());
 
-                mNM.notify(NOTIFICATION, notification);
-                sendStatusCommand();
+                if (postNotification()) {
+                    sendStatusCommand();
+                }
             }
         } catch (Exception ex) {
         }
+    }
+
+    /**
+     * Posts the playback notification, unless the user has notifications turned off.
+     *
+     * NotificationManager drops these silently when POST_NOTIFICATIONS is missing (API 33+) or the
+     * channel has been blocked, so asking first keeps the service from polling the Roku for
+     * artwork nobody is going to see.
+     *
+     * @return true when the notification actually went out.
+     */
+    private boolean postNotification() {
+        if (!NotificationManagerCompat.from(this).areNotificationsEnabled()) {
+            Timber.tag(TAG).d("Notifications are disabled; not posting the playback notification");
+            return false;
+        }
+
+        mNM.notify(NOTIFICATION, notification);
+        return true;
     }
 
     @Override
@@ -198,7 +219,7 @@ public class NotificationService extends Service {
                             mChannel.getTitle(),
                             bitmap,
                             mediaSession.getSessionToken());
-                    mNM.notify(NOTIFICATION, notification);
+                    postNotification();
                 } catch (Exception ex) {
                 }
             }
@@ -218,8 +239,7 @@ public class NotificationService extends Service {
             if (enableNotification) {
                 notification = NotificationUtils.buildNotification(NotificationService.this, null, null, null, mediaSession.getSessionToken());
 
-                if (enableNotification && mDevice != null) {
-                    mNM.notify(NOTIFICATION, notification);
+                if (enableNotification && mDevice != null && postNotification()) {
                     sendStatusCommand();
                 } else {
                     mNM.cancel(NOTIFICATION);
@@ -239,8 +259,7 @@ public class NotificationService extends Service {
                     notification = NotificationUtils.buildNotification(NotificationService.this, null, null, null, mediaSession.getSessionToken());
                 }
 
-                if (enableNotification && mDevice != null) {
-                    mNM.notify(NOTIFICATION, notification);
+                if (enableNotification && mDevice != null && postNotification()) {
                     sendStatusCommand();
                 } else {
                     mNM.cancel(NOTIFICATION);

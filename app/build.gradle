@@ -20,7 +20,7 @@ android {
     defaultConfig {
         applicationId "wseemann.media.romote"
         minSdkVersion 26
-        targetSdk 35
+        targetSdk 36
         compileSdk 36
         versionCode 29
         versionName "1.0.29"

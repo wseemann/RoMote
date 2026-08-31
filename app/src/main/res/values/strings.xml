@@ -72,6 +72,7 @@
 
     <string name="notification_title_checkbox_preference">Enable notification widget</string>
     <string name="notification_to_pause_summary_checkbox_preference">Enable the ability to control playback using a notification widget</string>
+    <string name="notification_permission_denied">RoMote needs notification permission to show the playback widget. You can grant it in Settings &gt; Apps &gt; RoMote &gt; Notifications.</string>
 
     <string name="haptic_feedback_title_checkbox_preference">Provide haptic feedback</string>
     <string name="haptic_feedback_summary_checkbox_preference">Provide haptic feedback (vibrate) on remote button taps</string>

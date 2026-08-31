@@ -22,65 +22,18 @@ import java.io.IOException;
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.util.ArrayList;
-
 import android.content.Context;
-import android.content.Intent;
-import android.net.Uri;
-import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.Build;
-import android.provider.Settings;
 import android.util.Log;
-
 import wseemann.media.romote.data.ClientScanResult;
 import wseemann.media.romote.utils.Constants.WIFI_AP_STATE;
 
 public class WifiApManager {
     private final WifiManager mWifiManager;
-    private Context context;
 
     public WifiApManager(Context context) {
-        this.context = context;
-        mWifiManager = (WifiManager) this.context.getSystemService(Context.WIFI_SERVICE);
-    }
-
-    /**
-     * Show write permission settings page to user if necessary or forced
-     * @param force show settings page even when rights are already granted
-     */
-    public void showWritePermissionSettings(boolean force) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (force || !Settings.System.canWrite(this.context)) {
-                Intent intent = new Intent(android.provider.Settings.ACTION_MANAGE_WRITE_SETTINGS);
-                intent.setData(Uri.parse("package:" + this.context.getPackageName()));
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                this.context.startActivity(intent);
-            }
-        }
-    }
-
-    /**
-     * Start AccessPoint mode with the specified
-     * configuration. If the radio is already running in
-     * AP mode, update the new configuration
-     * Note that starting in access point mode disables station
-     * mode operation
-     *
-     * @param wifiConfig SSID, security and channel details as part of WifiConfiguration
-     * @return {@code true} if the operation succeeds, {@code false} otherwise
-     */
-    public boolean setWifiApEnabled(WifiConfiguration wifiConfig, boolean enabled) {
-        try {
-            if (enabled) { // disable WiFi in any case
-                mWifiManager.setWifiEnabled(false);
-            }
-
-            Method method = mWifiManager.getClass().getMethod("setWifiApEnabled", WifiConfiguration.class, boolean.class);
-            return (Boolean) method.invoke(mWifiManager, wifiConfig, enabled);
-        } catch (Exception e) {
-            Log.e(this.getClass().toString(), "", e);
-            return false;
-        }
+        mWifiManager = (WifiManager) context.getSystemService(Context.WIFI_SERVICE);
     }
 
     /**
@@ -90,6 +43,14 @@ public class WifiApManager {
      * @see #isWifiApEnabled()
      */
     public WIFI_AP_STATE getWifiApState() {
+        // getWifiApState is a hidden API behind ACCESS_WIFI_STATE, and the manifest stops asking
+        // for that permission above API 27 because the non-SDK interface restrictions block the
+        // call there anyway. Without this the reflection still runs and the platform answers with
+        // a SecurityException stack trace on every scan.
+        if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O_MR1) {
+            return WIFI_AP_STATE.WIFI_AP_STATE_FAILED;
+        }
+
         try {
             Method method = mWifiManager.getClass().getMethod("getWifiApState");
 
@@ -116,46 +77,6 @@ public class WifiApManager {
      */
     public boolean isWifiApEnabled() {
         return getWifiApState() == WIFI_AP_STATE.WIFI_AP_STATE_ENABLED;
-    }
-
-    /**
-     * Gets the Wi-Fi AP Configuration.
-     *
-     * @return AP details in {@link WifiConfiguration}
-     */
-    public WifiConfiguration getWifiApConfiguration() {
-        try {
-            Method method = mWifiManager.getClass().getMethod("getWifiApConfiguration");
-            return (WifiConfiguration) method.invoke(mWifiManager);
-        } catch (Exception e) {
-            Log.e(this.getClass().toString(), "", e);
-            return null;
-        }
-    }
-
-    /**
-     * Sets the Wi-Fi AP Configuration.
-     *
-     * @return {@code true} if the operation succeeded, {@code false} otherwise
-     */
-    public boolean setWifiApConfiguration(WifiConfiguration wifiConfig) {
-        try {
-            Method method = mWifiManager.getClass().getMethod("setWifiApConfiguration", WifiConfiguration.class);
-            return (Boolean) method.invoke(mWifiManager, wifiConfig);
-        } catch (Exception e) {
-            Log.e(this.getClass().toString(), "", e);
-            return false;
-        }
-    }
-
-    /**
-     * Gets a list of the clients connected to the Hotspot, reachable timeout is 300
-     *
-     * @param onlyReachables  {@code false} if the list should contain unreachable (probably disconnected) clients, {@code true} otherwise
-     * @param finishListener, Interface called when the scan method finishes
-     */
-    public ArrayList<ClientScanResult> getClientList(boolean onlyReachables) {
-        return getClientList(onlyReachables, 300);
     }
 
     /**

@@ -4,7 +4,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.PackageManager;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import androidx.core.content.ContextCompat;
@@ -12,8 +11,6 @@ import wseemann.media.romote.composables.ConnectivityDialogHost;
 import wseemann.media.romote.utils.NetworkMonitor;
 
 public class ConnectivityActivity extends ShakeActivity {
-
-    private static final int MY_PERMISSIONS_ACCESS_NETWORK_STATE = 100;
 
     private ConnectivityDialogHost mDialogHost;
 
@@ -24,7 +21,7 @@ public class ConnectivityActivity extends ShakeActivity {
         super.onCreate(savedInstanceState);
 
         mDialogHost = new ConnectivityDialogHost(this);
-        mNetworkMonitor = new NetworkMonitor(this, MY_PERMISSIONS_ACCESS_NETWORK_STATE);
+        mNetworkMonitor = new NetworkMonitor(this);
     }
 
     @Override
@@ -52,29 +49,6 @@ public class ConnectivityActivity extends ShakeActivity {
         dismissDialog();
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode,
-                                           String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case MY_PERMISSIONS_ACCESS_NETWORK_STATE: {
-                // If request is cancelled, the result arrays are empty.
-                if (grantResults.length > 0
-                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
-                    mNetworkMonitor = new NetworkMonitor(this, MY_PERMISSIONS_ACCESS_NETWORK_STATE);
-                } else {
-
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
-                }
-                return;
-            }
-
-            // other 'case' lines to check for other
-            // permissions this app might request
-        }
-    }
-
     private synchronized void showDialog() {
         mDialogHost.show();
     }
@@ -99,7 +73,7 @@ public class ConnectivityActivity extends ShakeActivity {
 
                 if (!isConnected &&
                         !mNetworkMonitor.isMobileAccessPointOn() &&
-                        !mDialogHost.isShowing()) { //!mNetworkMonitor.isConnectedToiWiFi() && !mDialogHost.isShowing()) {
+                        !mDialogHost.isShowing()) {
                     showDialog();
                     onWifiDisconnected();
                 }
