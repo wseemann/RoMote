@@ -14,5 +14,5 @@ enum class NetworkTransport {
     CELLULAR,
     VPN,
     BLUETOOTH,
-    OTHER
+    OTHER,
 }

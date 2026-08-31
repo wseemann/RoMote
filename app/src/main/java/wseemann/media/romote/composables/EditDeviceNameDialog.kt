@@ -42,7 +42,7 @@ fun EditDeviceNameDialog(
     initialName: String,
     onConfirm: (String) -> Unit,
     onDismiss: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     val focusRequester = remember { FocusRequester() }
 
@@ -73,12 +73,12 @@ fun EditDeviceNameDialog(
                     label = { Text(text = stringResource(R.string.device_name)) },
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                     keyboardActions = KeyboardActions(
-                        onDone = { onConfirm(deviceNameValue.text) }
+                        onDone = { onConfirm(deviceNameValue.text) },
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 8.dp)
-                        .focusRequester(focusRequester)
+                        .focusRequester(focusRequester),
                 )
             }
         },
@@ -92,7 +92,7 @@ fun EditDeviceNameDialog(
                 Text(text = stringResource(android.R.string.cancel))
             }
         },
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -103,7 +103,7 @@ private fun EditDeviceNameDialogPreview() {
         EditDeviceNameDialog(
             initialName = "Living Room",
             onConfirm = {},
-            onDismiss = {}
+            onDismiss = {},
         )
     }
 }

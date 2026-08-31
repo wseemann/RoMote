@@ -28,6 +28,9 @@ style:
     excludeGuardClauses: true
   LoopWithTooManyJumpStatements:
     maxJumpCount: 3
+  # Superseded by ktlint>FinalNewline, which autocorrects instead of just reporting.
+  NewLineAtEndOfFile:
+    active: false
 
 # Deliberately NOT tuned, and currently failing `detektMain` with 35 findings:
 #

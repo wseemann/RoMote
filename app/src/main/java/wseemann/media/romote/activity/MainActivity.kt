@@ -41,12 +41,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.core.net.toUri
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
-import com.wseemann.ecp.api.ResponseCallback
-import com.wseemann.ecp.request.SearchRequest
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import timber.log.Timber
 import wseemann.media.romote.R
 import wseemann.media.romote.composables.ChannelsTab
 import wseemann.media.romote.composables.ConnectivityDialogHost
@@ -70,12 +67,6 @@ import wseemann.media.romote.viewmodels.RemoteScreenViewModel
 import wseemann.media.romote.viewmodels.StoreScreenViewModel
 import javax.inject.Inject
 
-/**
- * The app's four tabs. This was an XML shell - an AppBarLayout with a Toolbar and a TabLayout over a
- * v1 ViewPager driven by a FragmentPagerAdapter - around four fragments that were themselves only
- * ComposeViews. The chrome is now a Scaffold with a TopAppBar, a SecondaryTabRow and a HorizontalPager,
- * and the fragments are the tab composables in MainTabs.kt.
- */
 @AndroidEntryPoint
 class MainActivity : ShakeActivity() {
 
@@ -121,15 +112,10 @@ class MainActivity : ShakeActivity() {
         bindService(
             Intent(this, NotificationService::class.java),
             connection,
-            Context.BIND_AUTO_CREATE
+            Context.BIND_AUTO_CREATE,
         )
     }
 
-    /**
-     * Offers the Play in-app review card, if this user has driven a Roku often enough and long
-     * enough for it to be worth asking. AppReviewManager decides that, and only tries once per
-     * process, so coming back from settings doesn't ask again.
-     */
     override fun onResume() {
         super.onResume()
 
@@ -141,7 +127,6 @@ class MainActivity : ShakeActivity() {
     override fun onDestroy() {
         super.onDestroy()
 
-        // Unbind from the service
         if (isBound) {
             unbindService(connection)
             isBound = false
@@ -155,8 +140,8 @@ class MainActivity : ShakeActivity() {
         // Opens on the remote when there is already a device to drive, the way
         // viewPager.setCurrentItem(1) used to.
         val pagerState = rememberPagerState(
-            initialPage = if (commandHelper.deviceURL.isNotEmpty()) REMOTE_PAGE else DEVICES_PAGE,
-            pageCount = { PAGE_COUNT }
+            initialPage = if (deviceManager.getConnectedDevice() != null) REMOTE_PAGE else DEVICES_PAGE,
+            pageCount = { PAGE_COUNT },
         )
 
         var isSearchDialogVisible by rememberSaveable { mutableStateOf(false) }
@@ -208,7 +193,7 @@ class MainActivity : ShakeActivity() {
                         title = stringResource(R.string.app_name),
                         actions = {
                             MainActions { isSearchDialogVisible = true }
-                        }
+                        },
                     )
 
                     MainTabRow(pagerState = pagerState, scope = scope)
@@ -216,29 +201,29 @@ class MainActivity : ShakeActivity() {
             },
             // The screens apply navigationBarsPadding() themselves - they had to, hanging off a
             // ViewPager - so letting the Scaffold inset the content too would pad the bottom twice.
-            contentWindowInsets = WindowInsets(0)
+            contentWindowInsets = WindowInsets(0),
         ) { contentPadding ->
             HorizontalPager(
                 state = pagerState,
                 beyondViewportPageCount = offscreenPages,
-                modifier = Modifier.padding(contentPadding)
+                modifier = Modifier.padding(contentPadding),
             ) { page ->
                 when (page) {
                     DEVICES_PAGE -> DevicesTab(viewModel = mainScreenViewModel)
 
                     REMOTE_PAGE -> RemoteTab(
                         viewModel = remoteScreenViewModel,
-                        isCurrentPage = pagerState.currentPage == REMOTE_PAGE
+                        isCurrentPage = pagerState.currentPage == REMOTE_PAGE,
                     )
 
                     CHANNELS_PAGE -> ChannelsTab(
                         viewModel = channelScreenViewModel,
-                        isCurrentPage = pagerState.currentPage == CHANNELS_PAGE
+                        isCurrentPage = pagerState.currentPage == CHANNELS_PAGE,
                     )
 
                     else -> StoreTab(
                         viewModel = storeScreenViewModel,
-                        isCurrentPage = pagerState.currentPage == STORE_PAGE
+                        isCurrentPage = pagerState.currentPage == STORE_PAGE,
                     )
                 }
             }
@@ -251,7 +236,7 @@ class MainActivity : ShakeActivity() {
                     isSearchDialogVisible = false
                     performSearch(searchText)
                 },
-                onDismiss = { isSearchDialogVisible = false }
+                onDismiss = { isSearchDialogVisible = false },
             )
         }
 
@@ -263,10 +248,10 @@ class MainActivity : ShakeActivity() {
                     dismissRemoteAccessHelp()
 
                     startActivity(
-                        Intent(Intent.ACTION_VIEW, Constants.ROKU_MOBILE_APP_SETUP_URL.toUri())
+                        Intent(Intent.ACTION_VIEW, Constants.ROKU_MOBILE_APP_SETUP_URL.toUri()),
                     )
                 },
-                onDismiss = { dismissRemoteAccessHelp() }
+                onDismiss = { dismissRemoteAccessHelp() },
             )
         }
     }
@@ -281,27 +266,27 @@ class MainActivity : ShakeActivity() {
         IconButton(onClick = onSearchClick) {
             Icon(
                 imageVector = Icons.Default.Search,
-                contentDescription = stringResource(R.string.action_search)
+                contentDescription = stringResource(R.string.action_search),
             )
         }
 
         IconButton(onClick = { isOverflowExpanded = true }) {
             Icon(
                 imageVector = Icons.Default.MoreVert,
-                contentDescription = stringResource(R.string.more_options_content_description)
+                contentDescription = stringResource(R.string.more_options_content_description),
             )
         }
 
         DropdownMenu(
             expanded = isOverflowExpanded,
-            onDismissRequest = { isOverflowExpanded = false }
+            onDismissRequest = { isOverflowExpanded = false },
         ) {
             DropdownMenuItem(
                 text = { Text(text = stringResource(R.string.action_settings)) },
                 onClick = {
                     isOverflowExpanded = false
                     startActivity(Intent(this@MainActivity, SettingsActivity::class.java))
-                }
+                },
             )
         }
     }
@@ -313,11 +298,9 @@ class MainActivity : ShakeActivity() {
             stringResource(R.string.title_devices),
             stringResource(R.string.title_remote),
             stringResource(R.string.title_channels),
-            stringResource(R.string.title_store)
+            stringResource(R.string.title_store),
         )
 
-        // Secondary rather than Primary: the Material 3 primary indicator is a short pill under the
-        // label, where AppTheme.TabLayout's ran the full width of the tab.
         SecondaryTabRow(
             selectedTabIndex = pagerState.currentPage,
             // The brand purple by name, matching RomoteTopAppBar above it; the dark scheme's
@@ -327,37 +310,27 @@ class MainActivity : ShakeActivity() {
             indicator = {
                 TabRowDefaults.SecondaryIndicator(
                     modifier = Modifier.tabIndicatorOffset(pagerState.currentPage),
-                    color = MaterialTheme.colorScheme.tertiary
+                    color = MaterialTheme.colorScheme.tertiary,
                 )
             },
-            divider = {}
+            divider = {},
         ) {
             titles.forEachIndexed { index, title ->
                 Tab(
                     selected = pagerState.currentPage == index,
                     onClick = { scope.launch { pagerState.animateScrollToPage(index) } },
-                    text = { Text(text = title) }
+                    text = { Text(text = title) },
                 )
             }
         }
     }
 
     private fun performSearch(searchText: String) {
-        val request = SearchRequest(
-            commandHelper.deviceURL, searchText,
-            null, null, null, null, null, null, null, null, null
-        )
-
-        request.sendAsync(object : ResponseCallback<Void> {
-            override fun onSuccess(data: Void?) = Unit
-
-            override fun onError(ex: Exception) {
-                Timber.tag(TAG).e(ex, "Search failed")
-            }
-        })
+        lifecycleScope.launch(ioDispatcher) {
+            deviceManager.getConnectedDevice()?.performSearch(searchText)
+        }
     }
 
-    /** Defines callbacks for service binding, passed to bindService() */
     private val connection = object : ServiceConnection {
 
         override fun onServiceConnected(className: ComponentName?, service: IBinder?) {
@@ -370,8 +343,6 @@ class MainActivity : ShakeActivity() {
     }
 
     private companion object {
-        const val TAG = "MainActivity"
-
         const val DEVICES_PAGE = 0
         const val REMOTE_PAGE = 1
         const val CHANNELS_PAGE = 2

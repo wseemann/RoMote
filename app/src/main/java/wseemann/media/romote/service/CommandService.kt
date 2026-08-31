@@ -1,7 +1,6 @@
-package wseemann.media.romote.receiver
+package wseemann.media.romote.service
 
-import android.content.BroadcastReceiver
-import android.content.Context
+import android.app.IntentService
 import android.content.Intent
 import com.wseemann.ecp.core.KeyPressKeyValues
 import dagger.hilt.android.AndroidEntryPoint
@@ -14,7 +13,7 @@ import wseemann.media.romote.di.IoDispatcher
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class CommandReceiver : BroadcastReceiver() {
+class CommandService : IntentService(TAG) {
 
     @Inject
     @IoDispatcher
@@ -23,17 +22,22 @@ class CommandReceiver : BroadcastReceiver() {
     @Inject
     lateinit var deviceManager: DeviceManager
 
-    override fun onReceive(context: Context, intent: Intent?) {
-        if (intent == null) return
+    @Deprecated("Deprecated in Java")
+    override fun onHandleIntent(intent: Intent?) {
+        Timber.tag(TAG).d("onHandleIntent called")
 
-        val keypressKeyValues = intent.getSerializableExtra("keypress") as? KeyPressKeyValues
-        if (keypressKeyValues == null) {
-            Timber.w("Received intent without a valid 'keypress' extra; ignoring")
-            return
+        if (intent != null) {
+            performKeypress((intent.getSerializableExtra("keypress") as KeyPressKeyValues?)!!)
         }
+    }
 
+    private fun performKeypress(keypressKeyValue: KeyPressKeyValues) {
         CoroutineScope(ioDispatcher).launch {
-            deviceManager.getConnectedDevice()?.performKeyPress(keypressKeyValues)
+            deviceManager.getConnectedDevice()?.performKeyPress(keypressKeyValue)
         }
+    }
+
+    private companion object {
+        const val TAG: String = "CommandService"
     }
 }

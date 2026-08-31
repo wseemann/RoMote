@@ -72,17 +72,14 @@ private const val GlowRadiusFraction = 0.7f
  * between neighbours, and 20dp of margin at each end.
  */
 @Composable
-fun RemoteButtonRow(
-    modifier: Modifier = Modifier,
-    content: @Composable RowScope.() -> Unit
-) {
+fun RemoteButtonRow(modifier: Modifier = Modifier, content: @Composable RowScope.() -> Unit) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(RemoteButtonSpacing),
         modifier = modifier
             .fillMaxWidth()
             .height(RemoteButtonHeight)
             .padding(horizontal = 20.dp),
-        content = content
+        content = content,
     )
 }
 
@@ -101,7 +98,7 @@ fun RemoteButton(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     contentScale: ContentScale = ContentScale.Fit,
-    active: Boolean = false
+    active: Boolean = false,
 ) {
     val view = LocalView.current
 
@@ -115,8 +112,8 @@ fun RemoteButton(
                 onClick = {
                     ViewUtils.provideHapticFeedback(view, VibrateDurationMillis)
                     onClick()
-                }
-            )
+                },
+            ),
     ) {
         // fillMaxSize plus ContentScale.Fit is the ImageView's fitCenter default, which is what
         // scaled these icons to the row's height; ContentScale.None leaves the power button's icon
@@ -126,7 +123,7 @@ fun RemoteButton(
             contentDescription = contentDescription,
             contentScale = contentScale,
             colorFilter = if (active) ColorFilter.tint(PurpleButton) else null,
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
         )
     }
 }
@@ -146,7 +143,7 @@ fun DPadButton(
     onClick: () -> Unit,
     repeating: Boolean,
     modifier: Modifier = Modifier,
-    contentDescription: String? = null
+    contentDescription: String? = null,
 ) {
     val view = LocalView.current
     val interactionSource = remember { MutableInteractionSource() }
@@ -182,8 +179,8 @@ fun DPadButton(
                         brush = Brush.radialGradient(
                             colors = listOf(GlowColor, Color.Transparent),
                             center = center,
-                            radius = GlowRadiusFraction * size.minDimension
-                        )
+                            radius = GlowRadiusFraction * size.minDimension,
+                        ),
                     )
                 }
             }
@@ -194,8 +191,8 @@ fun DPadButton(
                 // Present only so a hold is treated as handled; the repeat effect above is what
                 // actually fires while the button is held.
                 onLongClick = if (repeating) ({}) else null,
-                onClick = { press() }
-            )
+                onClick = { press() },
+            ),
     )
 }
 
@@ -215,16 +212,16 @@ private fun Modifier.remoteButtonBackground(): Modifier = drawBehind {
         brush = Brush.verticalGradient(
             colors = listOf(ButtonGradientTop, ButtonGradientBottom),
             startY = 0f,
-            endY = outerSize.height
+            endY = outerSize.height,
         ),
         size = outerSize,
-        cornerRadius = cornerRadius
+        cornerRadius = cornerRadius,
     )
 
     drawRoundRect(
         color = ButtonFill,
         topLeft = Offset(highlight, highlight),
         size = Size(outerSize.width - highlight, outerSize.height - highlight),
-        cornerRadius = cornerRadius
+        cornerRadius = cornerRadius,
     )
 }

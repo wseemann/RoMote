@@ -29,7 +29,7 @@ fun enableRomoteEdgeToEdge(activity: ComponentActivity) {
         statusBarStyle = SystemBarStyle.dark(Color.TRANSPARENT),
         navigationBarStyle = SystemBarStyle.auto(
             NAVIGATION_BAR_LIGHT_SCRIM,
-            NAVIGATION_BAR_DARK_SCRIM
-        )
+            NAVIGATION_BAR_DARK_SCRIM,
+        ),
     )
 }

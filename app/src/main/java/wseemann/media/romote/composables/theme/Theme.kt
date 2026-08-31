@@ -31,7 +31,7 @@ private val LightColorScheme = lightColorScheme(
     onPrimary = OnPurple,
     secondary = PurpleAccent,
     tertiary = PurpleAccentTwo,
-    background = LightBackground
+    background = LightBackground,
 )
 
 private val DarkColorScheme = darkColorScheme(
@@ -39,16 +39,13 @@ private val DarkColorScheme = darkColorScheme(
     onPrimary = OnPurpleLight,
     secondary = PurpleAccent,
     tertiary = PurpleAccentTwo,
-    background = DarkBackground
+    background = DarkBackground,
 )
 
 @Composable
-fun RomoteTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    content: @Composable () -> Unit
-) {
+fun RomoteTheme(darkTheme: Boolean = isSystemInDarkTheme(), content: @Composable () -> Unit) {
     MaterialTheme(
         colorScheme = if (darkTheme) DarkColorScheme else LightColorScheme,
-        content = content
+        content = content,
     )
 }

@@ -16,21 +16,22 @@ import kotlinx.coroutines.launch
 import timber.log.Timber
 import wseemann.media.romote.data.Device
 import wseemann.media.romote.data.DeviceDiscovery
+import wseemann.media.romote.device.DeviceManager
+import wseemann.media.romote.device.DeviceRepository
 import wseemann.media.romote.di.IoDispatcher
 import wseemann.media.romote.event.MainScreenUiEvent
 import wseemann.media.romote.model.MainScreenUiState
 import wseemann.media.romote.utils.BroadcastUtils
-import wseemann.media.romote.database.DatabaseUtils
-import wseemann.media.romote.utils.PreferenceUtils
 import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
 
 @HiltViewModel
 class MainScreenViewModel @Inject constructor(
-    @ApplicationContext val context: Context,
-    private val preferenceUtils: PreferenceUtils,
+    @param:ApplicationContext val context: Context,
+    @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    private val deviceManager: DeviceManager,
+    private val deviceRepository: DeviceRepository,
     private val deviceDiscovery: DeviceDiscovery,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainScreenUiState())
@@ -53,14 +54,21 @@ class MainScreenViewModel @Inject constructor(
     fun onHandleEvent(event: MainScreenUiEvent) {
         when (event) {
             is MainScreenUiEvent.RefreshEvent -> onRefresh()
+
             is MainScreenUiEvent.DeviceSelectedEvent -> onDeviceSelected(event.device)
+
             is MainScreenUiEvent.ForgetDeviceEvent -> onForgetDevice(event.serialNumber)
+
             is MainScreenUiEvent.RenameDeviceClickedEvent -> onRenameDeviceClicked(event)
+
             is MainScreenUiEvent.RenameDeviceConfirmedEvent -> onRenameDeviceConfirmed(event.name)
+
             is MainScreenUiEvent.RenameDeviceDismissedEvent -> onRenameDeviceDismissed()
+
             // DevicesTab handles these two: starting an activity needs its Context.
             is MainScreenUiEvent.DeviceInfoClickedEvent,
-            is MainScreenUiEvent.AddDeviceClickedEvent -> Unit
+            is MainScreenUiEvent.AddDeviceClickedEvent,
+            -> Unit
         }
     }
 
@@ -75,7 +83,7 @@ class MainScreenViewModel @Inject constructor(
 
                 // Read what is paired *after* the scan: a device forgotten while the scan was
                 // running is no longer paired, and has to show up as available again.
-                val pairedDevices = DatabaseUtils.getAllDevices(context)
+                val pairedDevices = deviceRepository.getAllDevices()
                 val pairedSerialNumbers = pairedDevices.map { it.serialNumber }.toSet()
 
                 if (generation != scanGeneration.get()) {
@@ -93,7 +101,7 @@ class MainScreenViewModel @Inject constructor(
                             .toPersistentList(),
                         pairedDevices = pairedDevices.toPersistentList(),
                         connectedSerialNumber = connectedSerialNumber(),
-                        isLoading = false
+                        isLoading = false,
                     )
                 }
             } catch (ex: CancellationException) {
@@ -126,7 +134,7 @@ class MainScreenViewModel @Inject constructor(
         }
 
         discovered.firstOrNull { it.serialNumber == connectedSerialNumber }?.let { device ->
-            DatabaseUtils.updateDevice(context, device)
+            deviceRepository.updateDevice(device)
             BroadcastUtils.sendUpdateDeviceBroadcast(context)
         }
     }
@@ -148,14 +156,14 @@ class MainScreenViewModel @Inject constructor(
 
                 if (!imageUrl.isNullOrEmpty()) {
                     pairedDevice.deviceImageUrl = imageUrl
-                    DatabaseUtils.updateDevice(context, pairedDevice)
+                    deviceRepository.updateDevice(pairedDevice)
                 }
             }
     }
 
     /** Reads SQLite, so every caller is already on the IO dispatcher. */
     private fun connectedSerialNumber(): String? = try {
-        preferenceUtils.connectedDevice.serialNumber
+        deviceManager.getConnectedDevice()?.getDeviceInfo()?.serialNumber
     } catch (ignored: Exception) {
         // connectedDevice throws rather than returning null when nothing is paired.
         null
@@ -168,8 +176,8 @@ class MainScreenViewModel @Inject constructor(
      */
     private fun onDeviceSelected(device: Device) {
         viewModelScope.launch(ioDispatcher) {
-            DatabaseUtils.insertDevice(context, device)
-            preferenceUtils.setConnectedDevice(device.serialNumber)
+            deviceRepository.insertDevice(device)
+            deviceManager.setConnectedDevice(device.serialNumber)
 
             BroadcastUtils.sendUpdateDeviceBroadcast(context)
 
@@ -178,8 +186,8 @@ class MainScreenViewModel @Inject constructor(
             _uiState.update {
                 it.copy(
                     availableDevices = persistentListOf(),
-                    pairedDevices = DatabaseUtils.getAllDevices(context).toPersistentList(),
-                    connectedSerialNumber = device.serialNumber
+                    pairedDevices = deviceRepository.getAllDevices().toPersistentList(),
+                    connectedSerialNumber = device.serialNumber,
                 )
             }
         }
@@ -192,12 +200,12 @@ class MainScreenViewModel @Inject constructor(
      */
     private fun onForgetDevice(serialNumber: String) {
         viewModelScope.launch(ioDispatcher) {
-            DatabaseUtils.removeDevice(context, serialNumber)
+            deviceRepository.removeDevice(serialNumber)
 
             val connectedSerialNumber = connectedSerialNumber()
 
             if (connectedSerialNumber == null || connectedSerialNumber == serialNumber) {
-                preferenceUtils.setConnectedDevice("")
+                deviceManager.setConnectedDevice("")
 
                 // Nothing else announces this: onRefresh below reaches refreshConnectedDevice,
                 // which now returns early because there is no connected device left to refresh.
@@ -208,8 +216,8 @@ class MainScreenViewModel @Inject constructor(
 
             _uiState.update {
                 it.copy(
-                    pairedDevices = DatabaseUtils.getAllDevices(context).toPersistentList(),
-                    connectedSerialNumber = connectedSerialNumber()
+                    pairedDevices = deviceRepository.getAllDevices().toPersistentList(),
+                    connectedSerialNumber = connectedSerialNumber(),
                 )
             }
 
@@ -223,8 +231,8 @@ class MainScreenViewModel @Inject constructor(
             it.copy(
                 renameTarget = MainScreenUiState.RenameTarget(
                     serialNumber = event.serialNumber,
-                    currentName = event.currentName
-                )
+                    currentName = event.currentName,
+                ),
             )
         }
     }
@@ -244,9 +252,9 @@ class MainScreenViewModel @Inject constructor(
         _uiState.update { it.copy(renameTarget = null) }
 
         viewModelScope.launch(ioDispatcher) {
-            DatabaseUtils.getDevice(context, target.serialNumber)?.let { device ->
+            deviceRepository.getDevice(target.serialNumber)?.let { device ->
                 device.setCustomUserDeviceName(name)
-                DatabaseUtils.updateDevice(context, device)
+                deviceRepository.updateDevice(device)
                 BroadcastUtils.sendUpdateDeviceBroadcast(context)
             }
 
@@ -255,7 +263,7 @@ class MainScreenViewModel @Inject constructor(
             _uiState.update {
                 it.copy(
                     availableDevices = persistentListOf(),
-                    pairedDevices = DatabaseUtils.getAllDevices(context).toPersistentList()
+                    pairedDevices = deviceRepository.getAllDevices().toPersistentList(),
                 )
             }
         }

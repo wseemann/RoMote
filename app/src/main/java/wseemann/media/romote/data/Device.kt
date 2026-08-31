@@ -55,9 +55,7 @@ class Device : com.wseemann.ecp.model.Device() {
         }
     }
 
-    fun getCustomUserDeviceName(): String? {
-        return customUserDeviceName
-    }
+    fun getCustomUserDeviceName(): String? = customUserDeviceName
 
     fun setCustomUserDeviceName(customUserDeviceName: String?) {
         this.customUserDeviceName = customUserDeviceName

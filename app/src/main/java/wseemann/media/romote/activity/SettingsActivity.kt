@@ -6,15 +6,15 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.compose.runtime.getValue
+import androidx.core.net.toUri
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import dagger.hilt.android.AndroidEntryPoint
 import wseemann.media.romote.composables.SettingsScreen
 import wseemann.media.romote.composables.theme.RomoteTheme
 import wseemann.media.romote.utils.Constants
-import wseemann.media.romote.utils.openPlayStoreListing
 import wseemann.media.romote.utils.enableRomoteEdgeToEdge
+import wseemann.media.romote.utils.openPlayStoreListing
 import wseemann.media.romote.viewmodels.SettingsScreenViewModel
-import androidx.core.net.toUri
 
 @AndroidEntryPoint
 class SettingsActivity : ComponentActivity() {
@@ -38,10 +38,10 @@ class SettingsActivity : ComponentActivity() {
                     onRateClick = { openPlayStoreListing() },
                     onDonateClick = {
                         startActivity(
-                            Intent(Intent.ACTION_VIEW, Constants.PAYPAL_DONATION_LINK.toUri())
+                            Intent(Intent.ACTION_VIEW, Constants.PAYPAL_DONATION_LINK.toUri()),
                         )
                     },
-                    onBackClick = { finish() }
+                    onBackClick = { finish() },
                 )
             }
         }

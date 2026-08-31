@@ -19,7 +19,6 @@ object NetworkModule {
 
     @Singleton
     @Provides
-    fun provideLocalNetworkMonitor(@ApplicationContext context: Context): LocalNetworkMonitor {
-        return ConnectivityLocalNetworkMonitor(context)
-    }
+    fun provideLocalNetworkMonitor(@ApplicationContext context: Context): LocalNetworkMonitor =
+        ConnectivityLocalNetworkMonitor(context)
 }

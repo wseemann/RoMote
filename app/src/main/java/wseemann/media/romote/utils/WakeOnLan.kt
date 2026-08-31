@@ -3,6 +3,7 @@ package wseemann.media.romote.utils
 import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
+import androidx.core.net.toUri
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
@@ -10,12 +11,12 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import wseemann.media.romote.data.Device
+import wseemann.media.romote.device.DeviceManager
 import java.net.DatagramPacket
 import java.net.DatagramSocket
 import java.net.Inet4Address
 import java.net.InetAddress
 import java.util.Locale
-import androidx.core.net.toUri
 
 /**
  * Sends a Wake-on-LAN magic packet to the connected device. Used as a fallback when the device
@@ -64,16 +65,20 @@ class WakeOnLan {
         @JvmStatic
         fun wakeAsync(
             context: Context,
-            preferenceUtils: PreferenceUtils,
+            deviceManager: DeviceManager,
             ioDispatcher: CoroutineDispatcher,
             mainDispatcher: CoroutineDispatcher,
-            callback: WakeCallback
+            callback: WakeCallback,
         ) {
             CoroutineScope(ioDispatcher).launch {
                 val result = try {
                     // Reads SQLite and throws when nothing is paired, so it has to stay off the
                     // main thread.
-                    wake(context, preferenceUtils.connectedDevice)
+                    deviceManager.getConnectedDevice()?.getDeviceInfo()?.let { device ->
+                        wake(context, device)
+                    } ?: run {
+                        WakeResult.NoMacAddress
+                    }
                 } catch (ex: Exception) {
                     WakeResult.Failed(ex)
                 }
@@ -229,7 +234,7 @@ class WakeOnLan {
                     ByteArray(IPV4_OCTETS) { index ->
                         val shift = BITS_PER_OCTET * (IPV4_OCTETS - 1 - index)
                         (broadcast ushr shift).toByte()
-                    }
+                    },
                 )
             } catch (ex: Exception) {
                 Timber.e(ex, "Failed to derive broadcast address for %s/%s", address, prefixLength)
@@ -271,8 +276,6 @@ class WakeOnLan {
             }
         }
 
-        private fun formatMac(mac: ByteArray): String {
-            return mac.joinToString(":") { String.format(Locale.ROOT, "%02x", it) }
-        }
+        private fun formatMac(mac: ByteArray): String = mac.joinToString(":") { String.format(Locale.ROOT, "%02x", it) }
     }
 }

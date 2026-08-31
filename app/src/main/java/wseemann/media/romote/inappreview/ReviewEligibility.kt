@@ -5,11 +5,7 @@ import java.util.concurrent.TimeUnit
 /**
  * What the eligibility rules need to know, read out of AppPreferences by [AppReviewManager].
  */
-data class ReviewState(
-    val engagedSessionCount: Int,
-    val firstLaunchMillis: Long,
-    val lastPromptMillis: Long
-)
+data class ReviewState(val engagedSessionCount: Int, val firstLaunchMillis: Long, val lastPromptMillis: Long)
 
 /**
  * Decides whether the Play in-app review card is worth asking for.

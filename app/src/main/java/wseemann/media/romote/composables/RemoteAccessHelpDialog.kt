@@ -29,11 +29,7 @@ import wseemann.media.romote.composables.theme.RomoteTheme
  * "Got it". Nothing here is a decision the app needs an answer to.
  */
 @Composable
-fun RemoteAccessHelpDialog(
-    onLearnMoreClick: () -> Unit,
-    onDismiss: () -> Unit,
-    modifier: Modifier = Modifier
-) {
+fun RemoteAccessHelpDialog(onLearnMoreClick: () -> Unit, onDismiss: () -> Unit, modifier: Modifier = Modifier) {
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(text = stringResource(R.string.remote_access_dialog_title)) },
@@ -43,13 +39,13 @@ fun RemoteAccessHelpDialog(
         text = {
             Column(
                 verticalArrangement = Arrangement.spacedBy(4.dp),
-                modifier = Modifier.verticalScroll(rememberScrollState())
+                modifier = Modifier.verticalScroll(rememberScrollState()),
             ) {
                 Text(text = stringResource(R.string.remote_access_dialog_message))
 
                 Column(
                     verticalArrangement = Arrangement.spacedBy(4.dp),
-                    modifier = Modifier.padding(top = 4.dp)
+                    modifier = Modifier.padding(top = 4.dp),
                 ) {
                     Text(text = stringResource(R.string.remote_access_dialog_step_1))
                     Text(text = stringResource(R.string.remote_access_dialog_step_2))
@@ -61,7 +57,7 @@ fun RemoteAccessHelpDialog(
                 Text(
                     text = stringResource(R.string.remote_access_dialog_note),
                     style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(top = 4.dp)
+                    modifier = Modifier.padding(top = 4.dp),
                 )
             }
         },
@@ -77,7 +73,7 @@ fun RemoteAccessHelpDialog(
                 Text(text = stringResource(R.string.remote_access_dialog_learn_more))
             }
         },
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -87,7 +83,7 @@ private fun RemoteAccessHelpDialogPreview() {
     RomoteTheme {
         RemoteAccessHelpDialog(
             onLearnMoreClick = {},
-            onDismiss = {}
+            onDismiss = {},
         )
     }
 }

@@ -7,7 +7,7 @@ import kotlinx.coroutines.withContext
 
 class ResponseCallbackWrapper<T>(
     private val dispatcher: CoroutineDispatcher,
-    private val callback: ResponseCallback<T>
+    private val callback: ResponseCallback<T>,
 ) : ResponseCallback<T> {
     override fun onSuccess(data: T?) {
         runBlocking {

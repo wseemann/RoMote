@@ -6,10 +6,7 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wseemann.ecp.api.ResponseCallback
 import com.wseemann.ecp.core.KeyPressKeyValues
-import com.wseemann.ecp.request.KeyPressRequest
-import com.wseemann.ecp.request.QueryDeviceInfoRequest
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
@@ -19,27 +16,25 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import wseemann.media.romote.R
+import wseemann.media.romote.device.DeviceManager
 import wseemann.media.romote.di.IoDispatcher
 import wseemann.media.romote.di.MainDispatcher
 import wseemann.media.romote.event.RemoteScreenUiEvent
-import wseemann.media.romote.model.RemoteScreenUiState
-import wseemann.media.romote.model.RemoteScreenUiState.PrivateListening
 import wseemann.media.romote.inappreview.AppReviewManager
 import wseemann.media.romote.keyboard.KeyboardRelay
-import wseemann.media.romote.tasks.ResponseCallbackWrapper
-import wseemann.media.romote.utils.CommandHelper
+import wseemann.media.romote.model.RemoteScreenUiState
+import wseemann.media.romote.model.RemoteScreenUiState.PrivateListening
 import wseemann.media.romote.utils.PreferenceUtils
 import wseemann.media.romote.utils.WakeOnLan
 import javax.inject.Inject
 
 @HiltViewModel
 class RemoteScreenViewModel @Inject constructor(
-    @ApplicationContext private val context: Context,
-    private val commandHelper: CommandHelper,
-    private val preferenceUtils: PreferenceUtils,
+    @param:ApplicationContext private val context: Context,
+    @param:MainDispatcher private val mainDispatcher: CoroutineDispatcher,
+    @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    private val deviceManager: DeviceManager,
     private val appReviewManager: AppReviewManager,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-    @MainDispatcher private val mainDispatcher: CoroutineDispatcher
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(RemoteScreenUiState())
@@ -52,7 +47,12 @@ class RemoteScreenViewModel @Inject constructor(
     private var privateListeningActive = false
 
     private val keyboardRelay = KeyboardRelay(viewModelScope, ioDispatcher) { key ->
-        KeyPressRequest(commandHelper.getDeviceURL(), key).send()
+        val device = deviceManager.getConnectedDevice()
+
+        when (key) {
+            is KeyboardRelay.Key.Named -> device?.performKeyPress(key.value)
+            is KeyboardRelay.Key.Literal -> device?.performLiteralKeyPress(key.text)
+        }
     }
 
     init {
@@ -68,17 +68,27 @@ class RemoteScreenViewModel @Inject constructor(
     fun onHandleEvent(event: RemoteScreenUiEvent) {
         when (event) {
             is RemoteScreenUiEvent.KeyPressedEvent -> onKeyPressed(event.key)
+
             is RemoteScreenUiEvent.PowerClickedEvent -> onPowerClicked()
+
             is RemoteScreenUiEvent.PowerOffConfirmedEvent -> onPowerOffConfirmed()
+
             is RemoteScreenUiEvent.PowerOffDismissedEvent -> onPowerOffDismissed()
+
             is RemoteScreenUiEvent.PrivateListeningClickedEvent -> onPrivateListeningClicked()
+
             is RemoteScreenUiEvent.PrivateListeningChangedEvent ->
                 onPrivateListeningChanged(event.isActive)
+
             is RemoteScreenUiEvent.InstallPrivateListeningConfirmedEvent,
-            is RemoteScreenUiEvent.InstallPrivateListeningDismissedEvent ->
+            is RemoteScreenUiEvent.InstallPrivateListeningDismissedEvent,
+            ->
                 onInstallPrivateListeningClosed()
+
             is RemoteScreenUiEvent.DeviceChangedEvent -> onDeviceChanged()
+
             is RemoteScreenUiEvent.MessageShownEvent -> onMessageShown()
+
             is RemoteScreenUiEvent.KeyboardEvent -> onKeyboardEvent(event)
         }
     }
@@ -86,10 +96,14 @@ class RemoteScreenViewModel @Inject constructor(
     private fun onKeyboardEvent(event: RemoteScreenUiEvent.KeyboardEvent) {
         when (event) {
             is RemoteScreenUiEvent.KeyboardEvent.ClickedEvent -> keyboardRelay.toggle()
+
             is RemoteScreenUiEvent.KeyboardEvent.TextChangedEvent ->
                 keyboardRelay.onTextChanged(event.text)
+
             is RemoteScreenUiEvent.KeyboardEvent.BackspaceEvent -> keyboardRelay.backspace()
+
             is RemoteScreenUiEvent.KeyboardEvent.DoneEvent -> keyboardRelay.done()
+
             is RemoteScreenUiEvent.KeyboardEvent.DismissedEvent -> keyboardRelay.dismiss()
         }
     }
@@ -108,7 +122,7 @@ class RemoteScreenViewModel @Inject constructor(
      * remote tab so that PreferenceUtils - and the SQLite read behind it - stays out of the UI.
      */
     fun connectedDeviceHost(): String? = try {
-        preferenceUtils.connectedDevice.host
+        deviceManager.getConnectedDevice()?.getDeviceInfo()?.host
     } catch (ex: Exception) {
         Timber.tag(TAG).e(ex, "Error reading the connected device")
         null
@@ -126,16 +140,17 @@ class RemoteScreenViewModel @Inject constructor(
             var isDeviceConnected = true
 
             try {
-                val device = preferenceUtils.connectedDevice
+                val device = deviceManager.getConnectedDevice()
 
-                deviceName = device.getCustomUserDeviceName()
+                deviceName = device?.getDeviceInfo()?.getCustomUserDeviceName()
                     ?.takeIf { it.isNotEmpty() }
-                    ?: device.userDeviceName.orEmpty()
+                    ?: device?.getDeviceInfo()?.userDeviceName.orEmpty()
 
                 showVolumeControls =
-                    (device.supportsAudioGuide ?: device.tv)?.toBoolean() ?: showVolumeControls
+                    (device?.getDeviceInfo()?.supportsAudioGuide ?: device?.getDeviceInfo()?.tv)?.toBoolean()
+                        ?: showVolumeControls
 
-                deviceSupportsPrivateListening = device.supportsPrivateListening.toBoolean()
+                deviceSupportsPrivateListening = device?.getDeviceInfo()?.supportsPrivateListening.toBoolean()
             } catch (ex: Exception) {
                 Timber.tag(TAG).e(ex, "Error reading the newly connected device")
                 // connectedDevice throws both when nothing is paired and when the read itself
@@ -150,27 +165,16 @@ class RemoteScreenViewModel @Inject constructor(
                     deviceName = deviceName,
                     isDeviceConnected = isDeviceConnected,
                     showVolumeControls = showVolumeControls,
-                    privateListening = resolvePrivateListening()
+                    privateListening = resolvePrivateListening(),
                 )
             }
         }
     }
 
-    private fun onKeyPressed(key: KeyPressKeyValues) {
-        val url = commandHelper.getDeviceURL()
-
-        try {
-            KeyPressRequest(url, key.value).sendAsync(object : ResponseCallback<Void> {
-                // A key the device accepted is the one unambiguous sign the app is doing its job,
-                // which is what the in-app review prompt counts sessions by.
-                override fun onSuccess(data: Void?) = appReviewManager.onDeviceCommandSucceeded()
-
-                override fun onError(ex: Exception) {
-                    Timber.tag(TAG).e(ex, "Failed to execute command")
-                }
-            })
-        } catch (ex: Exception) {
-            Timber.tag(TAG).e(ex, "Failed to execute command")
+    private fun onKeyPressed(keyPressKeyValue: KeyPressKeyValues) {
+        viewModelScope.launch(ioDispatcher) {
+            deviceManager.getConnectedDevice()?.performKeyPress(keyPressKeyValue)
+            appReviewManager.onDeviceCommandSucceeded()
         }
     }
 
@@ -179,28 +183,20 @@ class RemoteScreenViewModel @Inject constructor(
      * can't be reached is assumed to be fully powered off, which Wake-on-LAN can fix.
      */
     private fun onPowerClicked() {
-        val request = QueryDeviceInfoRequest(commandHelper.getDeviceURL())
+        viewModelScope.launch(ioDispatcher) {
+            val deviceInfo = deviceManager.getConnectedDevice()?.queryDeviceInfo()
 
-        request.sendAsync(ResponseCallbackWrapper(mainDispatcher, object :
-            ResponseCallback<com.wseemann.ecp.model.Device> {
-            override fun onSuccess(data: com.wseemann.ecp.model.Device?) {
-                if (data == null) {
-                    wakeDevice()
-                    return
-                }
-
-                if (POWER_ON_MODE == data.powerMode) {
-                    _uiState.update { it.copy(showPowerOffConfirmation = true) }
-                } else {
-                    onKeyPressed(KeyPressKeyValues.POWER_ON)
-                }
-            }
-
-            override fun onError(ex: Exception) {
-                Timber.tag(TAG).d(ex, "Power mode query failed, falling back to Wake-on-LAN")
+            if (deviceInfo == null) {
                 wakeDevice()
+                return@launch
             }
-        }))
+
+            if (POWER_ON_MODE == deviceInfo.powerMode) {
+                _uiState.update { it.copy(showPowerOffConfirmation = true) }
+            } else {
+                onKeyPressed(KeyPressKeyValues.POWER_ON)
+            }
+        }
     }
 
     private fun onPowerOffConfirmed() {
@@ -213,10 +209,12 @@ class RemoteScreenViewModel @Inject constructor(
     }
 
     private fun wakeDevice() {
-        WakeOnLan.wakeAsync(context, preferenceUtils, ioDispatcher, mainDispatcher) { result ->
+        WakeOnLan.wakeAsync(context, deviceManager, ioDispatcher, mainDispatcher) { result ->
             val messageResId = when (result) {
                 is WakeOnLan.WakeResult.Sent -> R.string.waking_device
+
                 is WakeOnLan.WakeResult.NoMacAddress -> R.string.wake_no_mac
+
                 is WakeOnLan.WakeResult.Failed -> {
                     Timber.tag(TAG).e(result.exception, "Failed to wake the device")
                     R.string.wake_failed
@@ -263,7 +261,7 @@ class RemoteScreenViewModel @Inject constructor(
 
         val REMOTE_AUDIO_COMPONENT = ComponentName(
             "wseemann.media.romote.audio",
-            "wseemann.media.romote.audio.remoteaudio.RemoteAudio"
+            "wseemann.media.romote.audio.remoteaudio.RemoteAudio",
         )
     }
 }

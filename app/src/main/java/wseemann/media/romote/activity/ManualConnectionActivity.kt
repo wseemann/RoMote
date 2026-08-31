@@ -1,6 +1,5 @@
 package wseemann.media.romote.activity
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
@@ -18,10 +17,6 @@ import wseemann.media.romote.composables.theme.RomoteTheme
 import wseemann.media.romote.viewmodels.ConnectivityViewModel
 import wseemann.media.romote.viewmodels.ManualConnectionScreenViewModel
 
-/**
- * Pairing with a device by typing its IP address, for the devices discovery misses. Started for a
- * result by DevicesTab, which refreshes its device list on RESULT_OK.
- */
 @AndroidEntryPoint
 class ManualConnectionActivity : ShakeActivity() {
 
@@ -41,7 +36,7 @@ class ManualConnectionActivity : ShakeActivity() {
                 ManualConnectionScreen(
                     uiState = uiState,
                     onEvent = manualConnectionScreenViewModel::onHandleEvent,
-                    onBackClick = { finish() }
+                    onBackClick = { finish() },
                 )
 
                 ConnectivityDialogHost(viewModel = connectivityViewModel)

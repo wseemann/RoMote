@@ -29,7 +29,7 @@ fun StoreScreen(
     uiState: StoreScreenUiState,
     isCurrentPage: Boolean,
     onEvent: (StoreScreenUiEvent) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     var webView by remember { mutableStateOf<WebView?>(null) }
 
@@ -58,11 +58,7 @@ fun StoreScreen(
                             onEvent(StoreScreenUiEvent.PageFinishedEvent)
                         }
 
-                        override fun doUpdateVisitedHistory(
-                            view: WebView,
-                            url: String?,
-                            isReload: Boolean
-                        ) {
+                        override fun doUpdateVisitedHistory(view: WebView, url: String?, isReload: Boolean) {
                             super.doUpdateVisitedHistory(view, url, isReload)
                             onEvent(StoreScreenUiEvent.HistoryChangedEvent(view.canGoBack()))
                         }
@@ -72,7 +68,7 @@ fun StoreScreen(
                     loadUrl(uiState.url)
                     webView = this
                 }
-            }
+            },
         )
     }
 }
@@ -85,7 +81,7 @@ private fun StoreScreenPreview() {
             StoreScreen(
                 uiState = StoreScreenUiState(isLoading = true),
                 isCurrentPage = true,
-                onEvent = {}
+                onEvent = {},
             )
         }
     }

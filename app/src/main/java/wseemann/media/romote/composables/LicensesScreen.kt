@@ -23,10 +23,7 @@ import wseemann.media.romote.R
 import wseemann.media.romote.composables.theme.RomoteTheme
 
 @Composable
-fun LicensesScreen(
-    onBackClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
+fun LicensesScreen(onBackClick: () -> Unit, modifier: Modifier = Modifier) {
     var query by rememberSaveable { mutableStateOf("") }
 
     val libraries by produceLibraries(R.raw.aboutlibraries)
@@ -35,12 +32,14 @@ fun LicensesScreen(
         val loaded = libraries
         when {
             loaded == null -> null
+
             query.isBlank() -> loaded
+
             else -> loaded.copy(
                 libraries = loaded.libraries.filter { library ->
                     library.name.contains(query, ignoreCase = true) ||
-                            library.uniqueId.contains(query, ignoreCase = true)
-                }
+                        library.uniqueId.contains(query, ignoreCase = true)
+                },
             )
         }
     }
@@ -50,9 +49,9 @@ fun LicensesScreen(
         topBar = {
             RomoteTopAppBar(
                 title = stringResource(R.string.open_source_licenses_title_preference),
-                onBackClick = onBackClick
+                onBackClick = onBackClick,
             )
-        }
+        },
     ) { contentPadding ->
         Column(modifier = Modifier.padding(contentPadding)) {
             OutlinedTextField(
@@ -62,12 +61,12 @@ fun LicensesScreen(
                 singleLine = true,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .padding(horizontal = 16.dp, vertical = 8.dp),
             )
 
             LibrariesContainer(
                 libraries = filteredLibraries,
-                modifier = Modifier.fillMaxSize()
+                modifier = Modifier.fillMaxSize(),
             )
         }
     }

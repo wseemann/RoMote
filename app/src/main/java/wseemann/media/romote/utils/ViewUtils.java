@@ -6,9 +6,6 @@ import android.os.VibrationEffect;
 import android.os.Vibrator;
 import android.os.VibratorManager;
 import android.view.View;
-
-import wseemann.media.romote.BuildConfig;
-import wseemann.media.romote.di.CommonModule;
 import wseemann.media.romote.di.PreferencesModule;
 
 public class ViewUtils {

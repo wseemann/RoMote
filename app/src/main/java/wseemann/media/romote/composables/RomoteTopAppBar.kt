@@ -34,7 +34,7 @@ fun RomoteTopAppBar(
     title: String,
     modifier: Modifier = Modifier,
     onBackClick: (() -> Unit)? = null,
-    actions: @Composable RowScope.() -> Unit = {}
+    actions: @Composable RowScope.() -> Unit = {},
 ) {
     TopAppBar(
         title = { Text(title) },
@@ -43,7 +43,7 @@ fun RomoteTopAppBar(
                 IconButton(onClick = onBackClick) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                        contentDescription = stringResource(R.string.navigate_up_content_description)
+                        contentDescription = stringResource(R.string.navigate_up_content_description),
                     )
                 }
             }
@@ -56,8 +56,8 @@ fun RomoteTopAppBar(
             containerColor = Purple,
             titleContentColor = OnPurple,
             navigationIconContentColor = OnPurple,
-            actionIconContentColor = OnPurple
+            actionIconContentColor = OnPurple,
         ),
-        modifier = modifier
+        modifier = modifier,
     )
 }

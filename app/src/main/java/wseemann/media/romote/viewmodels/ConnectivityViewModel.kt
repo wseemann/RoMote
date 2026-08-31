@@ -21,9 +21,7 @@ import javax.inject.Inject
  * dialog survives configuration changes and the activities hold no network code at all.
  */
 @HiltViewModel
-class ConnectivityViewModel @Inject constructor(
-    localNetworkMonitor: LocalNetworkMonitor
-) : ViewModel() {
+class ConnectivityViewModel @Inject constructor(localNetworkMonitor: LocalNetworkMonitor) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ConnectivityUiState())
     val uiState = _uiState.asStateFlow()
@@ -38,12 +36,12 @@ class ConnectivityViewModel @Inject constructor(
                         state.copy(
                             isLocalNetworkAvailable = true,
                             isDialogVisible = false,
-                            isDismissed = false
+                            isDismissed = false,
                         )
                     } else {
                         state.copy(
                             isLocalNetworkAvailable = false,
-                            isDialogVisible = !state.isDismissed
+                            isDialogVisible = !state.isDismissed,
                         )
                     }
                 }

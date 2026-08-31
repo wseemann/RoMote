@@ -21,28 +21,17 @@ object PreferencesModule {
 
     @Singleton
     @Provides
-    fun provideSharedPreferences(@ApplicationContext context: Context): SharedPreferences {
-        return PreferenceManager.getDefaultSharedPreferences(context)
-    }
+    fun provideSharedPreferences(@ApplicationContext context: Context): SharedPreferences =
+        PreferenceManager.getDefaultSharedPreferences(context)
 
     @Singleton
     @Provides
-    fun provideAppPreferences(sharedPreferences: SharedPreferences): AppPreferences {
-        return AppPreferences(sharedPreferences)
-    }
+    fun provideAppPreferences(sharedPreferences: SharedPreferences): AppPreferences = AppPreferences(sharedPreferences)
 
     @Singleton
     @Provides
-    fun providePreferenceUtils(
-        @ApplicationContext context: Context,
-        sharedPreferences: SharedPreferences,
-        appPreferences: AppPreferences
-    ): PreferenceUtils {
-        PreferenceUtilsSingleton.preferenceUtils = PreferenceUtils(
-            context = context,
-            sharedPreferences = sharedPreferences,
-            appPreferences = appPreferences
-        )
+    fun providePreferenceUtils(appPreferences: AppPreferences): PreferenceUtils {
+        PreferenceUtilsSingleton.preferenceUtils = PreferenceUtils(appPreferences)
         return PreferenceUtilsSingleton.preferenceUtils
     }
 

@@ -1,5 +1,6 @@
 package wseemann.media.romote.keyboard
 
+import com.wseemann.ecp.core.KeyPressKeyValues
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import org.junit.Assert.assertEquals
@@ -14,15 +15,26 @@ import org.junit.Test
  */
 class KeyboardRelayTest {
 
-    private val sent = mutableListOf<String>()
+    private val sent = mutableListOf<KeyboardRelay.Key>()
 
     private val relay = KeyboardRelay(
         scope = CoroutineScope(Dispatchers.Unconfined),
         dispatcher = Dispatchers.Unconfined
     ) { key -> sent += key }
 
-    /** The keys sent since the last call, so each step of a test asserts only its own output. */
-    private fun drain(): List<String> = sent.toList().also { sent.clear() }
+    /**
+     * The keys sent since the last call, so each step of a test asserts only its own output,
+     * rendered the way Device puts them on the wire.
+     */
+    private fun drain(): List<String> = drainKeys().map { key ->
+        when (key) {
+            is KeyboardRelay.Key.Named -> key.value.value
+            is KeyboardRelay.Key.Literal -> KeyPressKeyValues.LIT_.value + key.text
+        }
+    }
+
+    /** The keys themselves, for the tests that care which kind of key was sent. */
+    private fun drainKeys(): List<KeyboardRelay.Key> = sent.toList().also { sent.clear() }
 
     @Test
     fun `typing sends one literal per character`() {
@@ -161,5 +173,22 @@ class KeyboardRelayTest {
         relay.onTextChanged("a")
 
         assertEquals(listOf("Lit_a"), drain())
+    }
+
+    @Test
+    fun `a named key stays a named key rather than text to be typed`() {
+        relay.backspace()
+
+        assertEquals(
+            listOf(KeyboardRelay.Key.Named(KeyPressKeyValues.BACKSPACE)),
+            drainKeys()
+        )
+    }
+
+    @Test
+    fun `a typed character is a literal of exactly one code point`() {
+        relay.onTextChanged("\uD83D\uDE00")
+
+        assertEquals(listOf(KeyboardRelay.Key.Literal("\uD83D\uDE00")), drainKeys())
     }
 }

@@ -3,13 +3,9 @@ package wseemann.media.romote.preferences
 import android.content.SharedPreferences
 import androidx.core.content.edit
 
-class AppPreferences(
-    private val sharedPreferences: SharedPreferences
-) {
+class AppPreferences(private val sharedPreferences: SharedPreferences) {
 
-    fun isHapticFeedbackEnabled(): Boolean {
-        return sharedPreferences.getBoolean(APP_PREFERENCE_HAPTIC_FEEDBACK, false)
-    }
+    fun isHapticFeedbackEnabled(): Boolean = sharedPreferences.getBoolean(APP_PREFERENCE_HAPTIC_FEEDBACK, false)
 
     fun setHapticFeedbackEnabled(enabled: Boolean) {
         sharedPreferences.edit {
@@ -17,9 +13,7 @@ class AppPreferences(
         }
     }
 
-    fun isNotificationWidgetEnabled(): Boolean {
-        return sharedPreferences.getBoolean(APP_PREFERENCE_NOTIFICATION_WIDGET, false)
-    }
+    fun isNotificationWidgetEnabled(): Boolean = sharedPreferences.getBoolean(APP_PREFERENCE_NOTIFICATION_WIDGET, false)
 
     fun setNotificationWidgetEnabled(enabled: Boolean) {
         sharedPreferences.edit {
@@ -27,9 +21,7 @@ class AppPreferences(
         }
     }
 
-    fun isShakeToPauseEnabled(): Boolean {
-        return sharedPreferences.getBoolean(APP_PREFERENCE_SHAKE_TO_PAUSE, false)
-    }
+    fun isShakeToPauseEnabled(): Boolean = sharedPreferences.getBoolean(APP_PREFERENCE_SHAKE_TO_PAUSE, false)
 
     fun setShakeToPauseEnabled(enabled: Boolean) {
         sharedPreferences.edit {
@@ -37,13 +29,7 @@ class AppPreferences(
         }
     }
 
-    /**
-     * When the app was first opened, as the in-app review prompt counts from there rather than
-     * from the install date, which SharedPreferences doesn't know. 0 means it hasn't been seeded.
-     */
-    fun getFirstLaunchMillis(): Long {
-        return sharedPreferences.getLong(APP_PREFERENCE_REVIEW_FIRST_LAUNCH, 0L)
-    }
+    fun getFirstLaunchMillis(): Long = sharedPreferences.getLong(APP_PREFERENCE_REVIEW_FIRST_LAUNCH, 0L)
 
     fun setFirstLaunchMillis(millis: Long) {
         sharedPreferences.edit {
@@ -51,10 +37,7 @@ class AppPreferences(
         }
     }
 
-    /** How many app sessions have included a command the connected device actually accepted. */
-    fun getEngagedSessionCount(): Int {
-        return sharedPreferences.getInt(APP_PREFERENCE_REVIEW_ENGAGED_SESSIONS, 0)
-    }
+    fun getEngagedSessionCount(): Int = sharedPreferences.getInt(APP_PREFERENCE_REVIEW_ENGAGED_SESSIONS, 0)
 
     fun setEngagedSessionCount(count: Int) {
         sharedPreferences.edit {
@@ -62,14 +45,7 @@ class AppPreferences(
         }
     }
 
-    /**
-     * Whether the first-run explainer for Roku's "Control by mobile apps" setting has been shown.
-     * The app can't drive a Roku left on the Limited default, so new users get told how to change
-     * it once, rather than finding out from a remote that does nothing.
-     */
-    fun hasSeenRemoteAccessHelp(): Boolean {
-        return sharedPreferences.getBoolean(APP_PREFERENCE_REMOTE_ACCESS_HELP_SEEN, false)
-    }
+    fun hasSeenRemoteAccessHelp(): Boolean = sharedPreferences.getBoolean(APP_PREFERENCE_REMOTE_ACCESS_HELP_SEEN, false)
 
     fun setRemoteAccessHelpSeen() {
         sharedPreferences.edit {
@@ -78,9 +54,7 @@ class AppPreferences(
     }
 
     /** When the review flow was last launched, whether or not Play went on to show a card. */
-    fun getLastReviewPromptMillis(): Long {
-        return sharedPreferences.getLong(APP_PREFERENCE_REVIEW_LAST_PROMPT, 0L)
-    }
+    fun getLastReviewPromptMillis(): Long = sharedPreferences.getLong(APP_PREFERENCE_REVIEW_LAST_PROMPT, 0L)
 
     fun setLastReviewPromptMillis(millis: Long) {
         sharedPreferences.edit {

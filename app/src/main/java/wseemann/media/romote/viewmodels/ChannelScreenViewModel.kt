@@ -2,9 +2,6 @@ package wseemann.media.romote.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wseemann.ecp.api.QueryRequests
-import com.wseemann.ecp.api.ResponseCallback
-import com.wseemann.ecp.request.LaunchAppRequest
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
@@ -14,17 +11,16 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
-import wseemann.media.romote.event.ChannelScreenUiEvent
-import wseemann.media.romote.data.ChannelItem
+import wseemann.media.romote.device.DeviceManager
 import wseemann.media.romote.di.IoDispatcher
+import wseemann.media.romote.event.ChannelScreenUiEvent
 import wseemann.media.romote.model.ChannelScreenUiState
-import wseemann.media.romote.utils.CommandHelper
 import javax.inject.Inject
 
 @HiltViewModel
 class ChannelScreenViewModel @Inject constructor(
-    private val commandHelper: CommandHelper,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
+    @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    private val deviceManager: DeviceManager,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ChannelScreenUiState())
@@ -46,19 +42,19 @@ class ChannelScreenViewModel @Inject constructor(
 
     private fun onLoadChannels() {
         viewModelScope.launch(ioDispatcher) {
-            val deviceUrl = commandHelper.getDeviceURL()
+            val deviceUrl = deviceManager.getConnectedDevice()?.getDeviceInfo()?.host
 
             // Nothing is paired, so there is no request worth making: queryAppsRequest("") only
             // throws its way into the catch below after a round trip that was never going to
             // reach anything. loadedDeviceUrl is cleared for the same reason the catch clears it -
             // nothing was loaded, so the next broadcast should retry rather than trust the state.
-            if (deviceUrl.isEmpty()) {
+            if (deviceManager.getConnectedDevice() == null) {
                 loadedDeviceUrl = null
                 _uiState.update {
                     it.copy(
                         channels = persistentListOf(),
                         isLoading = false,
-                        isDeviceConnected = false
+                        isDeviceConnected = false,
                     )
                 }
 
@@ -68,14 +64,7 @@ class ChannelScreenViewModel @Inject constructor(
             _uiState.update { it.copy(isLoading = true, isDeviceConnected = true) }
 
             try {
-                val channels = QueryRequests.queryAppsRequest(deviceUrl)
-                    .map { channel ->
-                        ChannelItem(
-                            id = channel.id.orEmpty(),
-                            title = channel.title.orEmpty(),
-                            iconUrl = commandHelper.getIconURL(channel.id)
-                        )
-                    }
+                val channels = deviceManager.getConnectedDevice()?.performQueryApps() ?: emptyList()
                 loadedDeviceUrl = deviceUrl
                 _uiState.update {
                     it.copy(channels = channels.toPersistentList(), isLoading = false)
@@ -102,8 +91,7 @@ class ChannelScreenViewModel @Inject constructor(
      */
     private fun onDeviceChanged() {
         viewModelScope.launch(ioDispatcher) {
-            // getDeviceURL() reads SQLite behind PreferenceUtils, hence the IO dispatcher.
-            if (commandHelper.getDeviceURL() != loadedDeviceUrl ||
+            if (deviceManager.getConnectedDevice()?.getDeviceInfo()?.host != loadedDeviceUrl ||
                 _uiState.value.channels.isEmpty()
             ) {
                 onLoadChannels()
@@ -112,13 +100,8 @@ class ChannelScreenViewModel @Inject constructor(
     }
 
     private fun onChannelClicked(channelId: String) {
-        val request = LaunchAppRequest(commandHelper.getDeviceURL(), channelId)
-        request.sendAsync(object : ResponseCallback<Void> {
-            override fun onSuccess(data: Void?) = Unit
-
-            override fun onError(ex: Exception) {
-                Timber.e(ex)
-            }
-        })
+        viewModelScope.launch(ioDispatcher) {
+            deviceManager.getConnectedDevice()?.performLaunchApp(channelId)
+        }
     }
 }

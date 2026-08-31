@@ -25,13 +25,9 @@ import timber.log.Timber
  * The device's field cannot be read back over the ECP, so [text] is only this app's picture of it,
  * and it starts empty every time the keyboard is raised.
  *
- * @param sendKey sends one raw ECP key and blocks until the device answers.
+ * @param sendKey sends one [Key] and blocks until the device answers.
  */
-class KeyboardRelay(
-    scope: CoroutineScope,
-    dispatcher: CoroutineDispatcher,
-    private val sendKey: (String) -> Unit
-) {
+class KeyboardRelay(scope: CoroutineScope, dispatcher: CoroutineDispatcher, private val sendKey: (Key) -> Unit) {
 
     private val _state = MutableStateFlow(State())
     val state = _state.asStateFlow()
@@ -41,7 +37,7 @@ class KeyboardRelay(
      * fresh thread per request, so characters posted back to back can reach the device in the wrong
      * order - and draining them through a single consumer is what keeps them in sequence.
      */
-    private val keyQueue = Channel<String>(Channel.UNLIMITED)
+    private val keyQueue = Channel<Key>(Channel.UNLIMITED)
 
     init {
         scope.launch(dispatcher) {
@@ -69,7 +65,7 @@ class KeyboardRelay(
 
     /** The IME's Done action: commits with Enter and puts the keyboard away. */
     fun done() {
-        enqueue(KeyPressKeyValues.ENTER.value)
+        enqueue(Key.Named(KeyPressKeyValues.ENTER))
         dismiss()
     }
 
@@ -78,7 +74,7 @@ class KeyboardRelay(
      * before the keyboard was raised - so it always sends, even once [text] has run empty.
      */
     fun backspace() {
-        enqueue(KeyPressKeyValues.BACKSPACE.value)
+        enqueue(Key.Named(KeyPressKeyValues.BACKSPACE))
 
         _state.update { current ->
             if (current.text.isEmpty()) current else current.copy(text = current.text.dropLastCodePoint())
@@ -95,29 +91,40 @@ class KeyboardRelay(
         val common = commonPrefixLength(previous, text)
 
         repeat(previous.codePointCount(common, previous.length)) {
-            enqueue(KeyPressKeyValues.BACKSPACE.value)
+            enqueue(Key.Named(KeyPressKeyValues.BACKSPACE))
         }
 
-        // Walk by code point so an emoji goes out as one Lit_ key rather than as the two halves of
-        // a surrogate pair, neither of which is a character on its own.
+        // Walk by code point so an emoji goes out as one literal key rather than as the two halves
+        // of a surrogate pair, neither of which is a character on its own.
         var index = common
         while (index < text.length) {
             val codePoint = text.codePointAt(index)
-            enqueue(KeyPressKeyValues.LIT_.value + String(Character.toChars(codePoint)))
+            enqueue(Key.Literal(String(Character.toChars(codePoint))))
             index += Character.charCount(codePoint)
         }
 
         _state.update { it.copy(text = text) }
     }
 
-    private fun enqueue(key: String) {
+    private fun enqueue(key: Key) {
         keyQueue.trySend(key)
     }
 
-    data class State(
-        val isActive: Boolean = false,
-        val text: String = ""
-    )
+    /**
+     * One key press bound for the device. The two kinds stay apart all the way down because the
+     * wrapper sends them through different calls: a named key goes out under its own name, while a
+     * literal one has to be prefixed to become a Lit_ key.
+     */
+    sealed interface Key {
+
+        /** A key the ECP names, such as Backspace or Enter. */
+        data class Named(val value: KeyPressKeyValues) : Key
+
+        /** Exactly one code point to type, which the device takes as a Lit_ key. */
+        data class Literal(val text: String) : Key
+    }
+
+    data class State(val isActive: Boolean = false, val text: String = "")
 
     private companion object {
         const val TAG = "KeyboardRelay"

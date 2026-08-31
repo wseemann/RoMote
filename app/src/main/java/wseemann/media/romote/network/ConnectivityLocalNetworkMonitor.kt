@@ -27,9 +27,8 @@ import javax.inject.Singleton
  * re-derive on resume.
  */
 @Singleton
-class ConnectivityLocalNetworkMonitor @Inject constructor(
-    @ApplicationContext private val context: Context
-) : LocalNetworkMonitor {
+class ConnectivityLocalNetworkMonitor @Inject constructor(@param:ApplicationContext private val context: Context) :
+    LocalNetworkMonitor {
 
     override val isLocalNetworkAvailable: Flow<Boolean> = callbackFlow {
         val connectivityManager = connectivityManager()
@@ -64,7 +63,7 @@ class ConnectivityLocalNetworkMonitor @Inject constructor(
         connectivityManager.registerNetworkCallback(
             localNetworkRequest(),
             callback,
-            Handler(Looper.getMainLooper())
+            Handler(Looper.getMainLooper()),
         )
 
         awaitClose { connectivityManager.unregisterNetworkCallback(callback) }
@@ -74,27 +73,23 @@ class ConnectivityLocalNetworkMonitor @Inject constructor(
         .conflate()
         .distinctUntilChanged()
 
-    private fun connectivityManager(): ConnectivityManager? {
-        return context.getSystemService(ConnectivityManager::class.java)
-    }
+    private fun connectivityManager(): ConnectivityManager? = context.getSystemService(ConnectivityManager::class.java)
 
     /**
      * Matches only the transports a Roku can be reached over, so the callbacks above never have to
      * look at capabilities themselves.
      */
-    private fun localNetworkRequest(): NetworkRequest {
-        return NetworkRequest.Builder()
-            .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
-            .addTransportType(NetworkCapabilities.TRANSPORT_ETHERNET)
-            .apply {
-                // TRANSPORT_USB only exists from API 31. Below it a USB dongle reports itself as
-                // ethernet anyway, so nothing is lost.
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
-                    addTransportType(NetworkCapabilities.TRANSPORT_USB)
-                }
+    private fun localNetworkRequest(): NetworkRequest = NetworkRequest.Builder()
+        .addTransportType(NetworkCapabilities.TRANSPORT_WIFI)
+        .addTransportType(NetworkCapabilities.TRANSPORT_ETHERNET)
+        .apply {
+            // TRANSPORT_USB only exists from API 31. Below it a USB dongle reports itself as
+            // ethernet anyway, so nothing is lost.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                addTransportType(NetworkCapabilities.TRANSPORT_USB)
             }
-            .build()
-    }
+        }
+        .build()
 
     /**
      * The synchronous seed. `allNetworks` is deprecated at API 31 in favour of network callbacks,
@@ -102,22 +97,18 @@ class ConnectivityLocalNetworkMonitor @Inject constructor(
      * there is no supported replacement for this one read.
      */
     @Suppress("DEPRECATION")
-    private fun ConnectivityManager.currentLocalNetworks(): Set<Network> {
-        return allNetworks
-            .filter { network ->
-                val transports = getNetworkCapabilities(network)?.toTransports().orEmpty()
-                LocalNetworkPolicy.isLocalNetwork(transports)
-            }
-            .toSet()
-    }
-}
-
-private fun NetworkCapabilities.toTransports(): Set<NetworkTransport> {
-    return TRANSPORTS
-        .filter { (platformTransport, _) -> hasTransport(platformTransport) }
-        .map { (_, transport) -> transport }
+    private fun ConnectivityManager.currentLocalNetworks(): Set<Network> = allNetworks
+        .filter { network ->
+            val transports = getNetworkCapabilities(network)?.toTransports().orEmpty()
+            LocalNetworkPolicy.isLocalNetwork(transports)
+        }
         .toSet()
 }
+
+private fun NetworkCapabilities.toTransports(): Set<NetworkTransport> = TRANSPORTS
+    .filter { (platformTransport, _) -> hasTransport(platformTransport) }
+    .map { (_, transport) -> transport }
+    .toSet()
 
 private val TRANSPORTS: List<Pair<Int, NetworkTransport>> = buildList {
     add(NetworkCapabilities.TRANSPORT_WIFI to NetworkTransport.WIFI)

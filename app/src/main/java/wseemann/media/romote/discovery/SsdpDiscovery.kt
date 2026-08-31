@@ -14,10 +14,7 @@ import java.net.SocketTimeoutException
  *        description document, so this is where [DeviceDescription] looks for the device image
  *        rather than assembling a path we guessed at.
  */
-data class SsdpDevice(
-    val host: String,
-    val descriptionUrl: String
-)
+data class SsdpDevice(val host: String, val descriptionUrl: String)
 
 /**
  * SSDP M-SEARCH discovery for Roku devices.
@@ -119,8 +116,7 @@ object SsdpDiscovery {
      * "LOCATION: http://192.168.1.9:8060/". Returns null when the response carries no usable
      * location, so a stray datagram from some other SSDP responder is simply ignored.
      */
-    internal fun parseLocation(response: String): String? =
-        locationHeader(response)?.let { baseUrl(it) }
+    internal fun parseLocation(response: String): String? = locationHeader(response)?.let { baseUrl(it) }
 
     /**
      * The same header, but with its path left on, because that path is the device's description

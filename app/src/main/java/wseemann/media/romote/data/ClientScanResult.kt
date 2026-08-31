@@ -15,9 +15,4 @@
  */
 package wseemann.media.romote.data
 
-data class ClientScanResult(
-    val ipAddr: String,
-    val hwAddr: String,
-    val device: String,
-    val isReachable: Boolean
-)
+data class ClientScanResult(val ipAddr: String, val hwAddr: String, val device: String, val isReachable: Boolean)

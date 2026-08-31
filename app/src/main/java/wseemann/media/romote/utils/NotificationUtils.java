@@ -9,6 +9,7 @@ import android.media.session.MediaSession;
 
 import com.wseemann.ecp.core.KeyPressKeyValues;
 
+import timber.log.Timber;
 import wseemann.media.romote.R;
 import wseemann.media.romote.activity.MainActivity;
 import wseemann.media.romote.service.CommandService;

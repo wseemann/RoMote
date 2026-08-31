@@ -21,11 +21,9 @@ object InAppReviewModule {
 
     @Singleton
     @Provides
-    fun provideReviewManager(@ApplicationContext context: Context): ReviewManager {
-        return if (BuildConfig.DEBUG) {
-            FakeReviewManager(context)
-        } else {
-            ReviewManagerFactory.create(context)
-        }
+    fun provideReviewManager(@ApplicationContext context: Context): ReviewManager = if (BuildConfig.DEBUG) {
+        FakeReviewManager(context)
+    } else {
+        ReviewManagerFactory.create(context)
     }
 }

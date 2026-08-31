@@ -22,8 +22,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import kotlinx.collections.immutable.persistentListOf
 import wseemann.media.romote.R
 import wseemann.media.romote.composables.theme.RomoteTheme
-import wseemann.media.romote.model.DeviceInfoScreenUiState
 import wseemann.media.romote.data.Entry
+import wseemann.media.romote.model.DeviceInfoScreenUiState
 
 /**
  * The device info screen: everything the connected Roku reports about itself, as key/value rows.
@@ -32,19 +32,15 @@ import wseemann.media.romote.data.Entry
  * no `onEvent` - DeviceInfoScreenViewModel starts its one query as soon as it is created.
  */
 @Composable
-fun DeviceInfoScreen(
-    uiState: DeviceInfoScreenUiState,
-    onBackClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
+fun DeviceInfoScreen(uiState: DeviceInfoScreenUiState, onBackClick: () -> Unit, modifier: Modifier = Modifier) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
             RomoteTopAppBar(
                 title = stringResource(R.string.title_device_info),
-                onBackClick = onBackClick
+                onBackClick = onBackClick,
             )
-        }
+        },
     ) { contentPadding ->
         DeviceInfoContent(uiState = uiState, contentPadding = contentPadding)
     }
@@ -54,21 +50,21 @@ fun DeviceInfoScreen(
 private fun DeviceInfoContent(
     uiState: DeviceInfoScreenUiState,
     contentPadding: PaddingValues,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     if (uiState.entries.isEmpty()) {
         Box(
             contentAlignment = Alignment.Center,
             modifier = modifier
                 .fillMaxSize()
-                .padding(contentPadding)
+                .padding(contentPadding),
         ) {
             if (uiState.isLoading) {
                 CircularProgressIndicator()
             } else {
                 Text(
                     text = stringResource(R.string.no_device_info),
-                    style = MaterialTheme.typography.bodyMedium
+                    style = MaterialTheme.typography.bodyMedium,
                 )
             }
         }
@@ -80,7 +76,7 @@ private fun DeviceInfoContent(
     // bar instead of stopping short of it.
     LazyColumn(
         contentPadding = contentPadding,
-        modifier = modifier.fillMaxSize()
+        modifier = modifier.fillMaxSize(),
     ) {
         items(uiState.entries, key = { entry -> entry.key }) { entry ->
             DeviceInfoRow(entry = entry)
@@ -90,10 +86,7 @@ private fun DeviceInfoContent(
 }
 
 @Composable
-private fun DeviceInfoRow(
-    entry: Entry,
-    modifier: Modifier = Modifier
-) {
+private fun DeviceInfoRow(entry: Entry, modifier: Modifier = Modifier) {
     ListItem(
         headlineContent = { Text(text = "${entry.key}:") },
         supportingContent = { Text(text = entry.value) },
@@ -102,7 +95,7 @@ private fun DeviceInfoRow(
         // for `background`. Staying transparent keeps the rows, the empty state and the space below
         // the last row all on the Activity's background, the way the ListView here used to.
         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -117,11 +110,11 @@ private fun DeviceInfoScreenPreview() {
                     Entry("serial-number", "X00500ABCDEF"),
                     Entry("vendor-name", "Roku"),
                     Entry("model-name", "Roku Ultra"),
-                    Entry("software-version", "13.0.0")
+                    Entry("software-version", "13.0.0"),
                 ),
-                isLoading = false
+                isLoading = false,
             ),
-            onBackClick = {}
+            onBackClick = {},
         )
     }
 }

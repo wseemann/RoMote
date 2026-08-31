@@ -41,11 +41,7 @@ import wseemann.media.romote.composables.theme.RomoteTheme
  * color from RomoteTheme instead.
  */
 @Composable
-fun SearchDialog(
-    onSearch: (String) -> Unit,
-    onDismiss: () -> Unit,
-    modifier: Modifier = Modifier
-) {
+fun SearchDialog(onSearch: (String) -> Unit, onDismiss: () -> Unit, modifier: Modifier = Modifier) {
     val focusRequester = remember { FocusRequester() }
 
     // The field is view state, not screen state, so it lives here rather than in a UiState - see
@@ -76,12 +72,12 @@ fun SearchDialog(
                     label = { Text(text = stringResource(R.string.action_search)) },
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                     keyboardActions = KeyboardActions(
-                        onDone = { onSearch(searchValue.text) }
+                        onDone = { onSearch(searchValue.text) },
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 8.dp)
-                        .focusRequester(focusRequester)
+                        .focusRequester(focusRequester),
                 )
             }
         },
@@ -95,7 +91,7 @@ fun SearchDialog(
                 Text(text = stringResource(android.R.string.cancel))
             }
         },
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -105,7 +101,7 @@ private fun SearchDialogPreview() {
     RomoteTheme {
         SearchDialog(
             onSearch = {},
-            onDismiss = {}
+            onDismiss = {},
         )
     }
 }

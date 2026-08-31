@@ -7,22 +7,16 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
-import android.util.Log;
 import android.widget.RemoteViews;
-
 import com.wseemann.ecp.core.KeyPressKeyValues;
-
-import timber.log.Timber;
 import wseemann.media.romote.R;
 import wseemann.media.romote.activity.MainActivity;
-import wseemann.media.romote.data.Device;
-import wseemann.media.romote.di.PreferencesModule;
+import wseemann.media.romote.device.Device;
+import wseemann.media.romote.di.DeviceModule;
 import wseemann.media.romote.receiver.CommandReceiver;
 import wseemann.media.romote.service.CommandService;
 
 public class RokuAppWidgetProvider extends AppWidgetProvider {
-
-    private static final String TAG = RokuAppWidgetProvider.class.getName();
 
     private static RokuAppWidgetProvider sInstance;
 
@@ -30,32 +24,33 @@ public class RokuAppWidgetProvider extends AppWidgetProvider {
         if (sInstance == null) {
             sInstance = new RokuAppWidgetProvider();
         }
+
         return sInstance;
     }
 
     @Override
     public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
-        Timber.d("onUpdate called");
-
         defaultAppWidget(context, appWidgetIds);
     }
 
-    /**
-     * Initialize given widgets to default state, where we launch Music on default click
-     * and hide actions if service not running.
-     */
     private void defaultAppWidget(Context context, int[] appWidgetIds) {
-        Device device;
+        String deviceName;
 
-        try {
-            device = PreferencesModule.PreferenceUtilsSingleton.preferenceUtils.getConnectedDevice();
-        } catch (Exception ex) {
+        Device device = DeviceModule.DeviceManagerSingleton.deviceManager.getConnectedDevice();
+
+        if (device == null) {
             return;
+        }
+
+        if (device.getDeviceInfo().getCustomUserDeviceName() != null) {
+            deviceName = device.getDeviceInfo().getCustomUserDeviceName();
+        } else {
+            deviceName = device.getDeviceInfo().getUserDeviceName();
         }
 
         final RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.roku_appwidget);
 
-        views.setTextViewText(R.id.model_name_text, device.getModelName());
+        views.setTextViewText(R.id.model_name_text, deviceName);
 
         linkButtons(context, views, false /* not playing */);
 
@@ -70,6 +65,7 @@ public class RokuAppWidgetProvider extends AppWidgetProvider {
     private void pushUpdate(Context context, int[] appWidgetIds, RemoteViews views) {
         // Update specific list of appWidgetIds if given, otherwise default to all
         final AppWidgetManager gm = AppWidgetManager.getInstance(context);
+
         if (appWidgetIds != null) {
             gm.updateAppWidget(appWidgetIds, views);
         } else {
@@ -117,12 +113,10 @@ public class RokuAppWidgetProvider extends AppWidgetProvider {
      * Link up various button actions using {@link PendingIntents}.
      *
      * @param playerActive True if player is active in background, which means
-     *            widget click will launch {@link MainActivity},
-     *            otherwise we launch {@link MainActivity}.
+     * widget click will launch {@link MainActivity},
+     * otherwise we launch {@link MainActivity}.
      */
     private void linkButtons(Context context, RemoteViews views, boolean playerActive) {
-        Log.d(TAG, "linkButtons called");
-
         linkButton(context, views, KeyPressKeyValues.BACK, R.id.back_button, 0);
         linkButton(context, views, KeyPressKeyValues.UP, R.id.up_button, 1);
         linkButton(context, views, KeyPressKeyValues.HOME, R.id.home_button, 2);

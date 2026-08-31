@@ -29,6 +29,7 @@ androidx-splashscreen = { module = "androidx.core:core-splashscreen", version.re
 android-material = { module = "com.google.android.material:material", version.ref = "android-material" }
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil" }
 coil-network-okhttp = { module = "io.coil-kt.coil3:coil-network-okhttp", version.ref = "coil" }
+detekt-rules-ktlint-wrapper = { module = "dev.detekt:detekt-rules-ktlint-wrapper", version.ref = "detekt" }
 compose-bom = { module = "androidx.compose:compose-bom", version.ref = "compose-bom" }
 compose-material-icons-core = { module = "androidx.compose.material:material-icons-core" }
 compose-material3 = { module = "androidx.compose.material3:material3" }

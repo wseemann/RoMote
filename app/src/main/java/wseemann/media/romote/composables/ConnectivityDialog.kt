@@ -19,11 +19,7 @@ import wseemann.media.romote.composables.theme.RomoteTheme
  * wrong answer should cost a dialog rather than the app.
  */
 @Composable
-fun ConnectivityDialog(
-    onOpenSettingsClick: () -> Unit,
-    onDismiss: () -> Unit,
-    modifier: Modifier = Modifier
-) {
+fun ConnectivityDialog(onOpenSettingsClick: () -> Unit, onDismiss: () -> Unit, modifier: Modifier = Modifier) {
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(text = stringResource(R.string.connectivity_dialog_title)) },
@@ -38,7 +34,7 @@ fun ConnectivityDialog(
                 Text(text = stringResource(R.string.connectivity_dialog_dismiss_button))
             }
         },
-        modifier = modifier
+        modifier = modifier,
     )
 }
 

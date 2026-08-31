@@ -67,6 +67,10 @@ tasks.named('check') {
 }
 
 tasks.withType(dev.detekt.gradle.Detekt).configureEach {
+    // Rewrites sources in place for every rule that supports it -- in practice the `ktlint`
+    // ruleset below. Note that `check` depends on the detekt tasks, so `check` reformats too.
+    autoCorrect = true
+
     reports {
         html.required = true
         sarif.required = true
@@ -76,6 +80,8 @@ tasks.withType(dev.detekt.gradle.Detekt).configureEach {
 }
 
 dependencies {
+    detektPlugins(libs.detekt.rules.ktlint.wrapper)
+
     implementation(libs.aboutlibraries.compose.m3)
     implementation(platform(libs.compose.bom))
     implementation(libs.androidx.activity.compose)

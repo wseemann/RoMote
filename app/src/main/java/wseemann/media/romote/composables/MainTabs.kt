@@ -50,10 +50,7 @@ import wseemann.media.romote.viewmodels.StoreScreenViewModel
  * here, so paging away and back doesn't restart it.
  */
 @Composable
-fun DevicesTab(
-    viewModel: MainScreenViewModel,
-    modifier: Modifier = Modifier
-) {
+fun DevicesTab(viewModel: MainScreenViewModel, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -62,7 +59,7 @@ fun DevicesTab(
      * screen, so the list is scanned again once the activity reports back.
      */
     val manualConnectionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.StartActivityForResult()
+        ActivityResultContracts.StartActivityForResult(),
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             viewModel.onHandleEvent(MainScreenUiEvent.RefreshEvent)
@@ -77,7 +74,7 @@ fun DevicesTab(
                     Toast.makeText(
                         context,
                         context.getString(R.string.device_connected, event.device.serialNumber),
-                        Toast.LENGTH_SHORT
+                        Toast.LENGTH_SHORT,
                     ).show()
 
                     BroadcastUtils.sendWidgetUpdateBroadcast(context)
@@ -91,21 +88,21 @@ fun DevicesTab(
                         Intent(context, DeviceInfoActivity::class.java).apply {
                             putExtra("serial_number", event.serialNumber)
                             putExtra("host", event.host)
-                        }
+                        },
                     )
                 }
 
                 is MainScreenUiEvent.AddDeviceClickedEvent -> {
                     // Nor this one.
                     manualConnectionLauncher.launch(
-                        Intent(context, ManualConnectionActivity::class.java)
+                        Intent(context, ManualConnectionActivity::class.java),
                     )
                 }
 
                 else -> viewModel.onHandleEvent(event)
             }
         },
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -118,11 +115,7 @@ fun DevicesTab(
  * keep relaying what was typed on another tab.
  */
 @Composable
-fun RemoteTab(
-    viewModel: RemoteScreenViewModel,
-    isCurrentPage: Boolean,
-    modifier: Modifier = Modifier
-) {
+fun RemoteTab(viewModel: RemoteScreenViewModel, isCurrentPage: Boolean, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -153,7 +146,7 @@ fun RemoteTab(
             context,
             receiver,
             IntentFilter(Constants.UPDATE_DEVICE_BROADCAST),
-            ContextCompat.RECEIVER_NOT_EXPORTED
+            ContextCompat.RECEIVER_NOT_EXPORTED,
         )
 
         onDispose { context.unregisterReceiver(receiver) }
@@ -197,7 +190,7 @@ fun RemoteTab(
 
                 is RemoteScreenUiEvent.InstallPrivateListeningConfirmedEvent -> {
                     context.startActivity(
-                        Intent(Intent.ACTION_VIEW, Constants.PRIVATE_LISTENING_URL.toUri())
+                        Intent(Intent.ACTION_VIEW, Constants.PRIVATE_LISTENING_URL.toUri()),
                     )
 
                     viewModel.onHandleEvent(event)
@@ -206,7 +199,7 @@ fun RemoteTab(
                 else -> viewModel.onHandleEvent(event)
             }
         },
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -219,11 +212,7 @@ fun RemoteTab(
  * ConnectivityViewModel reports the phone is back on a local network.
  */
 @Composable
-fun ChannelsTab(
-    viewModel: ChannelScreenViewModel,
-    isCurrentPage: Boolean,
-    modifier: Modifier = Modifier
-) {
+fun ChannelsTab(viewModel: ChannelScreenViewModel, isCurrentPage: Boolean, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -238,7 +227,7 @@ fun ChannelsTab(
             context,
             receiver,
             IntentFilter(Constants.UPDATE_DEVICE_BROADCAST),
-            ContextCompat.RECEIVER_NOT_EXPORTED
+            ContextCompat.RECEIVER_NOT_EXPORTED,
         )
 
         onDispose { context.unregisterReceiver(receiver) }
@@ -267,7 +256,7 @@ fun ChannelsTab(
 
             viewModel.onHandleEvent(event)
         },
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -276,18 +265,14 @@ fun ChannelsTab(
  * it from setUserVisibleHint, and the pager reports it directly.
  */
 @Composable
-fun StoreTab(
-    viewModel: StoreScreenViewModel,
-    isCurrentPage: Boolean,
-    modifier: Modifier = Modifier
-) {
+fun StoreTab(viewModel: StoreScreenViewModel, isCurrentPage: Boolean, modifier: Modifier = Modifier) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     StoreScreen(
         uiState = uiState,
         isCurrentPage = isCurrentPage,
         onEvent = viewModel::onHandleEvent,
-        modifier = modifier
+        modifier = modifier,
     )
 }
 
@@ -295,5 +280,5 @@ fun StoreTab(
 private val DEVICE_CHANGING_KEYS = setOf(
     KeyPressKeyValues.BACK,
     KeyPressKeyValues.HOME,
-    KeyPressKeyValues.SELECT
+    KeyPressKeyValues.SELECT,
 )

@@ -19,10 +19,7 @@ import wseemann.media.romote.audio.IRemoteAudioInterface
  *
  * [onStateChanged] reports whether audio is playing; it is what picks the button's icon.
  */
-class RemoteAudioConnection(
-    private val context: Context,
-    private val onStateChanged: (Boolean) -> Unit
-) {
+class RemoteAudioConnection(private val context: Context, private val onStateChanged: (Boolean) -> Unit) {
 
     private var service: IRemoteAudioInterface? = null
 
@@ -131,7 +128,7 @@ class RemoteAudioConnection(
 
         val REMOTE_AUDIO_COMPONENT = ComponentName(
             "wseemann.media.romote.audio",
-            "wseemann.media.romote.audio.remoteaudio.RemoteAudio"
+            "wseemann.media.romote.audio.remoteaudio.RemoteAudio",
         )
     }
 }

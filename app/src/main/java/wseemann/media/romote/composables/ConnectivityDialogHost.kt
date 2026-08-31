@@ -20,10 +20,7 @@ import wseemann.media.romote.viewmodels.ConnectivityViewModel
  * shows the dialog now sets its content with Compose, so it is just another composable in the tree.
  */
 @Composable
-fun ConnectivityDialogHost(
-    viewModel: ConnectivityViewModel,
-    modifier: Modifier = Modifier
-) {
+fun ConnectivityDialogHost(viewModel: ConnectivityViewModel, modifier: Modifier = Modifier) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     val context = LocalContext.current
 
@@ -35,7 +32,7 @@ fun ConnectivityDialogHost(
                 context.openWifiSettings()
             },
             onDismiss = { viewModel.onHandleEvent(ConnectivityUiEvent.DismissedEvent) },
-            modifier = modifier
+            modifier = modifier,
         )
     }
 }

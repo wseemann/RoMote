@@ -14,21 +14,22 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import wseemann.media.romote.device.DeviceManager
+import wseemann.media.romote.device.DeviceRepository
 import wseemann.media.romote.di.IoDispatcher
 import wseemann.media.romote.di.MainDispatcher
 import wseemann.media.romote.event.ManualConnectionScreenUiEvent
 import wseemann.media.romote.model.ManualConnectionScreenUiState
 import wseemann.media.romote.tasks.ResponseCallbackWrapper
-import wseemann.media.romote.database.DatabaseUtils
-import wseemann.media.romote.utils.PreferenceUtils
 import javax.inject.Inject
 
 @HiltViewModel
 class ManualConnectionScreenViewModel @Inject constructor(
-    @ApplicationContext val context: Context,
-    private val preferenceUtils: PreferenceUtils,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-    @MainDispatcher private val mainDispatcher: CoroutineDispatcher
+    @param:ApplicationContext val context: Context,
+    @param:MainDispatcher private val mainDispatcher: CoroutineDispatcher,
+    @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    private val deviceManager: DeviceManager,
+    private val deviceRepository: DeviceRepository,
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ManualConnectionScreenUiState())
@@ -52,7 +53,10 @@ class ManualConnectionScreenViewModel @Inject constructor(
         _uiState.update { it.copy(isLoading = true, hasError = false) }
 
         val queryDeviceInfoRequest = QueryDeviceInfoRequest(host)
-        queryDeviceInfoRequest.sendAsync(ResponseCallbackWrapper(mainDispatcher, object :
+        queryDeviceInfoRequest.sendAsync(
+            ResponseCallbackWrapper(
+                mainDispatcher,
+                object :
             ResponseCallback<Device?> {
             override fun onSuccess(data: Device?) {
                 if (data == null) {
@@ -69,7 +73,9 @@ class ManualConnectionScreenViewModel @Inject constructor(
             override fun onError(ex: Exception) {
                 onConnectionFailed(ex)
             }
-        }))
+        }
+            )
+        )
     }
 
     private fun onConnectionFailed(ex: Exception?) {
@@ -83,8 +89,8 @@ class ManualConnectionScreenViewModel @Inject constructor(
      */
     private fun storeDevice(device: wseemann.media.romote.data.Device) {
         viewModelScope.launch(ioDispatcher) {
-            DatabaseUtils.insertDevice(context, device)
-            preferenceUtils.setConnectedDevice(device.serialNumber)
+            deviceRepository.insertDevice(device)
+            deviceManager.setConnectedDevice(device.serialNumber)
 
             _uiState.update { it.copy(isLoading = false, isConnected = true) }
         }

@@ -26,8 +26,8 @@ import javax.inject.Singleton
  */
 @Singleton
 class DeviceDiscovery @Inject constructor(
-    @ApplicationContext private val context: Context,
-    @IoDispatcher private val ioDispatcher: CoroutineDispatcher
+    @param:ApplicationContext private val context: Context,
+    @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
 ) {
 
     private val mutex = Mutex()
@@ -44,21 +44,19 @@ class DeviceDiscovery @Inject constructor(
         }
     }
 
-    private fun scanNetworkForDevices(): List<Device> {
-        return SsdpDiscovery.discoverDevices().mapNotNull { ssdpDevice ->
-            try {
-                // The device info response carries no address, so the host we reached it at is
-                // the only record of where it lives.
-                fromDevice(QueryRequests.queryDeviceInfo(ssdpDevice.host)).apply {
-                    this.host = ssdpDevice.host
-                    // The description document is where the device names its own image, and the
-                    // device told us where that document is when it answered the M-SEARCH.
-                    this.deviceImageUrl = DeviceDescription.fetchIconUrl(ssdpDevice.descriptionUrl)
-                }
-            } catch (ex: Exception) {
-                Timber.tag(TAG).e(ex, "Failed to query %s", ssdpDevice.host)
-                null
+    private fun scanNetworkForDevices(): List<Device> = SsdpDiscovery.discoverDevices().mapNotNull { ssdpDevice ->
+        try {
+            // The device info response carries no address, so the host we reached it at is
+            // the only record of where it lives.
+            fromDevice(QueryRequests.queryDeviceInfo(ssdpDevice.host)).apply {
+                this.host = ssdpDevice.host
+                // The description document is where the device names its own image, and the
+                // device told us where that document is when it answered the M-SEARCH.
+                this.deviceImageUrl = DeviceDescription.fetchIconUrl(ssdpDevice.descriptionUrl)
             }
+        } catch (ex: Exception) {
+            Timber.tag(TAG).e(ex, "Failed to query %s", ssdpDevice.host)
+            null
         }
     }
 
@@ -76,8 +74,8 @@ class DeviceDiscovery @Inject constructor(
         return clients.mapNotNull { clientScanResult ->
             Timber.tag(TAG).d(
                 "Device: " + clientScanResult.device +
-                        " HW Address: " + clientScanResult.hwAddr +
-                        " IP Address:  " + clientScanResult.ipAddr
+                    " HW Address: " + clientScanResult.hwAddr +
+                    " IP Address:  " + clientScanResult.ipAddr,
             )
 
             val host = "http://" + clientScanResult.ipAddr + ":" + ECP_PORT

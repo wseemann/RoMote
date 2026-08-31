@@ -1,9 +1,9 @@
 package wseemann.media.romote.inappreview
 
 import android.app.Activity
-import com.google.android.play.core.review.ReviewManager
 import com.google.android.play.core.ktx.launchReview
 import com.google.android.play.core.ktx.requestReview
+import com.google.android.play.core.review.ReviewManager
 import timber.log.Timber
 import wseemann.media.romote.preferences.AppPreferences
 import javax.inject.Inject
@@ -27,7 +27,7 @@ import javax.inject.Singleton
 @Singleton
 class AppReviewManager @Inject constructor(
     private val appPreferences: AppPreferences,
-    private val reviewManager: ReviewManager
+    private val reviewManager: ReviewManager,
 ) {
 
     @Volatile
@@ -72,7 +72,7 @@ class AppReviewManager @Inject constructor(
         val state = ReviewState(
             engagedSessionCount = appPreferences.getEngagedSessionCount(),
             firstLaunchMillis = appPreferences.getFirstLaunchMillis(),
-            lastPromptMillis = appPreferences.getLastReviewPromptMillis()
+            lastPromptMillis = appPreferences.getLastReviewPromptMillis(),
         )
 
         if (!ReviewEligibility.isEligible(state, System.currentTimeMillis())) {
