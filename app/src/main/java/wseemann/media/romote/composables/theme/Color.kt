@@ -12,6 +12,17 @@ internal val PurpleAccentTwo = Color(0xFF8F318A)
 internal val OnPurple = Color(0xFFEBEBEB)
 
 /**
+ * [Purple] is a fill color - it was only ever a toolbar/button background - so on a dark surface it
+ * is unreadable as a foreground: #65318F measures 1.6:1 against the Material 3 dialog container and
+ * 2.1:1 against [DarkBackground], where WCAG AA asks for 4.5:1. These are its Material 3 dark-scheme
+ * tones (80 and 20), used as `primary`/`onPrimary` in the dark color scheme so that everything M3
+ * draws in `primary` - dialog action buttons, settings category headers - is legible. Chroma is
+ * pulled to 80% of what tone 80 allows, which keeps it reading purple rather than pink.
+ */
+internal val PurpleLight = Color(0xFFDDB9F3)
+internal val OnPurpleLight = Color(0xFF490081)
+
+/**
  * The lighter purple the connect/scan buttons are tinted with in the XML layouts
  * (fragment_configure_device.xml, dialog_fragment_volume.xml). It is not a role in the color
  * scheme - it never was in the XML theme either - so Compose buttons that used to be those

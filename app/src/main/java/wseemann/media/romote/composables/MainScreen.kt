@@ -51,6 +51,7 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import wseemann.media.romote.R
 import wseemann.media.romote.composables.theme.DeviceIconBackground
+import wseemann.media.romote.composables.theme.Purple
 import wseemann.media.romote.composables.theme.RomoteTheme
 import wseemann.media.romote.composables.theme.SemiTransparentBlack
 import wseemann.media.romote.data.Device
@@ -126,7 +127,7 @@ fun MainScreen(
 
             FloatingActionButton(
                 onClick = { onEvent(MainScreenUiEvent.AddDeviceClickedEvent) },
-                containerColor = MaterialTheme.colorScheme.primary,
+                containerColor = Purple,
                 contentColor = Color.White,
                 modifier = Modifier.align(Alignment.BottomEnd).padding(FabMargin)
             ) {
@@ -311,7 +312,7 @@ private fun DeviceRow(
                         .clip(CircleShape)
                         .background(
                             if (isConnected) {
-                                MaterialTheme.colorScheme.primary
+                                Purple
                             } else {
                                 SemiTransparentBlack
                             }

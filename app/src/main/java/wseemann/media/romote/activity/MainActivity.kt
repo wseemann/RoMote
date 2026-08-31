@@ -53,11 +53,12 @@ import wseemann.media.romote.composables.RemoteTab
 import wseemann.media.romote.composables.RomoteTopAppBar
 import wseemann.media.romote.composables.SearchDialog
 import wseemann.media.romote.composables.StoreTab
+import wseemann.media.romote.composables.theme.OnPurple
+import wseemann.media.romote.composables.theme.Purple
 import wseemann.media.romote.composables.theme.RomoteTheme
 import wseemann.media.romote.event.ChannelScreenUiEvent
 import wseemann.media.romote.fragment.InstallChannelDialog
 import wseemann.media.romote.inappreview.AppReviewManager
-import wseemann.media.romote.preferences.AppPreferences
 import wseemann.media.romote.service.NotificationService
 import wseemann.media.romote.utils.Constants
 import wseemann.media.romote.viewmodels.ChannelScreenViewModel
@@ -80,9 +81,6 @@ class MainActivity : ConnectivityActivity(), InstallChannelDialog.InstallChannel
 
     @Inject
     lateinit var appReviewManager: AppReviewManager
-
-    @Inject
-    lateinit var appPreferences: AppPreferences
 
     private val mainScreenViewModel: MainScreenViewModel by viewModels()
     private val remoteScreenViewModel: RemoteScreenViewModel by viewModels()
@@ -295,8 +293,10 @@ class MainActivity : ConnectivityActivity(), InstallChannelDialog.InstallChannel
         // label, where AppTheme.TabLayout's ran the full width of the tab.
         SecondaryTabRow(
             selectedTabIndex = pagerState.currentPage,
-            containerColor = MaterialTheme.colorScheme.primary,
-            contentColor = MaterialTheme.colorScheme.onPrimary,
+            // The brand purple by name, matching RomoteTopAppBar above it; the dark scheme's
+            // primary is a light foreground tone and would wash the strip out.
+            containerColor = Purple,
+            contentColor = OnPurple,
             indicator = {
                 TabRowDefaults.SecondaryIndicator(
                     modifier = Modifier.tabIndicatorOffset(pagerState.currentPage),
