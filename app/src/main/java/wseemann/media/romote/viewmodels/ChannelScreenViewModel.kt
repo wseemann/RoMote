@@ -26,9 +26,16 @@ class ChannelScreenViewModel @Inject constructor(private val commandHelper: Comm
     private val _uiState = MutableStateFlow(ChannelScreenUiState())
     val uiState = _uiState.asStateFlow()
 
+    /**
+     * The device the channels in [uiState] were fetched from, so a device change can be told apart
+     * from the other things that broadcast one. Null whenever there is nothing loaded to trust.
+     */
+    private var loadedDeviceUrl: String? = null
+
     fun onHandleEvent(event: ChannelScreenUiEvent) {
         when (event) {
             is ChannelScreenUiEvent.LoadChannelsEvent -> onLoadChannels()
+            is ChannelScreenUiEvent.DeviceChangedEvent -> onDeviceChanged()
             is ChannelScreenUiEvent.ChannelClickedEvent -> onChannelClicked(event.channelId)
         }
     }
@@ -37,8 +44,10 @@ class ChannelScreenViewModel @Inject constructor(private val commandHelper: Comm
         viewModelScope.launch(Dispatchers.IO) {
             _uiState.update { it.copy(isLoading = true) }
 
+            val deviceUrl = commandHelper.getDeviceURL()
+
             try {
-                val channels = QueryRequests.queryAppsRequest(commandHelper.getDeviceURL())
+                val channels = QueryRequests.queryAppsRequest(deviceUrl)
                     .map { channel ->
                         ChannelItem(
                             id = channel.id.orEmpty(),
@@ -46,14 +55,37 @@ class ChannelScreenViewModel @Inject constructor(private val commandHelper: Comm
                             iconUrl = commandHelper.getIconURL(channel.id)
                         )
                     }
+                loadedDeviceUrl = deviceUrl
                 _uiState.update {
                     it.copy(channels = channels.toPersistentList(), isLoading = false)
                 }
             } catch (ex: Exception) {
                 Timber.e(ex)
+                // Nothing was loaded, so the next broadcast should retry rather than treat the
+                // empty grid as what this device has on it.
+                loadedDeviceUrl = null
                 _uiState.update {
                     it.copy(channels = persistentListOf(), isLoading = false)
                 }
+            }
+        }
+    }
+
+    /**
+     * Reloads the grid only when it is showing another device's channels, or nothing at all.
+     *
+     * UPDATE_DEVICE_BROADCAST means "something about the device changed", and most of what sends
+     * it - launching a channel, pressing a remote key, renaming a device - leaves the installed
+     * app list exactly as it was. Reloading on all of them cost a request per channel tap and,
+     * because the load drives the pull-to-refresh indicator, made the indicator appear on taps.
+     */
+    private fun onDeviceChanged() {
+        viewModelScope.launch(Dispatchers.IO) {
+            // getDeviceURL() reads SQLite behind PreferenceUtils, hence the IO dispatcher.
+            if (commandHelper.getDeviceURL() != loadedDeviceUrl ||
+                _uiState.value.channels.isEmpty()
+            ) {
+                onLoadChannels()
             }
         }
     }

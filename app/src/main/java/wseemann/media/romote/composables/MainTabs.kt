@@ -227,7 +227,7 @@ fun ChannelsTab(
     DisposableEffect(context) {
         val receiver = object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
-                viewModel.onHandleEvent(ChannelScreenUiEvent.LoadChannelsEvent)
+                viewModel.onHandleEvent(ChannelScreenUiEvent.DeviceChangedEvent)
             }
         }
 
@@ -251,10 +251,12 @@ fun ChannelsTab(
         uiState = uiState,
         onEvent = { event ->
             /**
-             * Launching a channel changes what the device is doing, so the rest of the app is told
-             * about it. The broadcast comes back to the receiver above, which is what reloads the
-             * grid. Doing this here rather than in the ViewModel keeps a Context out of the
-             * ViewModel, and keeps [ChannelScreen] a pure function of its state.
+             * Launching a channel changes what the device is playing, and NotificationService
+             * listens for this broadcast to re-query the active app and redraw the now-playing
+             * notification - nothing else refreshes it while the app runs. The receiver above
+             * hears it too, and ignores it: the installed app list can't have changed. Sending it
+             * here rather than from the ViewModel keeps a Context out of the ViewModel, and keeps
+             * [ChannelScreen] a pure function of its state.
              */
             if (event is ChannelScreenUiEvent.ChannelClickedEvent) {
                 BroadcastUtils.sendUpdateDeviceBroadcast(context)
