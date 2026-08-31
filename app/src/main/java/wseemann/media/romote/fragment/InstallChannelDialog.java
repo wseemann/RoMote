@@ -10,6 +10,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 
 import com.bumptech.glide.Glide;
@@ -36,7 +37,7 @@ public class InstallChannelDialog extends DialogFragment {
             mListener = (InstallChannelListener) activity;
         } catch (ClassCastException e) {
             // The activity doesn't implement the interface, throw exception
-            throw new ClassCastException(activity.toString()
+            throw new ClassCastException(activity
                     + " must implement InstallChannelListener");
         }
 
@@ -58,11 +59,12 @@ public class InstallChannelDialog extends DialogFragment {
         mChannelCode = getArguments().getString("channel_code");
     }
 
+    @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        LayoutInflater inflater = getActivity().getLayoutInflater();
+        LayoutInflater inflater = requireActivity().getLayoutInflater();
         View view = inflater.inflate(R.layout.fragment_install_channel, null);
-        ImageView imageView = (ImageView) view.findViewById(android.R.id.icon);
+        ImageView imageView = view.findViewById(android.R.id.icon);
 
         Glide.with(this)
                 .load(Uri.parse(commandHelper.getIconURL(mChannelCode)))

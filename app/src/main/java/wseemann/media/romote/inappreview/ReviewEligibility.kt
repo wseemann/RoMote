@@ -1,4 +1,4 @@
-package wseemann.media.romote.review
+package wseemann.media.romote.inappreview
 
 import java.util.concurrent.TimeUnit
 

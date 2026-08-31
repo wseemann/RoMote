@@ -24,7 +24,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SecondaryTabRow
 import androidx.compose.material3.Tab
 import androidx.compose.material3.TabRowDefaults
-import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -55,7 +54,7 @@ import wseemann.media.romote.composables.StoreTab
 import wseemann.media.romote.composables.theme.RomoteTheme
 import wseemann.media.romote.event.ChannelScreenUiEvent
 import wseemann.media.romote.fragment.InstallChannelDialog
-import wseemann.media.romote.review.AppReviewManager
+import wseemann.media.romote.inappreview.AppReviewManager
 import wseemann.media.romote.service.NotificationService
 import wseemann.media.romote.viewmodels.ChannelScreenViewModel
 import wseemann.media.romote.viewmodels.MainScreenViewModel

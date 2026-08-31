@@ -16,24 +16,22 @@ public class ShakeMonitor implements SensorEventListener {
     private static final int SHAKE_DURATION = 1000;
     private static final int SHAKE_COUNT = 3;
 
-    private SensorManager mSensorManager;
+    private final SensorManager mSensorManager;
     private float mLastX=-1.0f, mLastY=-1.0f, mLastZ=-1.0f;
     private long mLastTime;
     private OnShakeListener mShakeListener;
-    private Context mContext;
     private int mShakeCount = 0;
     private long mLastShake;
     private long mLastForce;
 
-    private Sensor mAccelerometer;
+    private final Sensor mAccelerometer;
 
     public interface OnShakeListener {
         public void onShake();
     }
 
     public ShakeMonitor(Context context) {
-        mContext = context;
-        mSensorManager = (SensorManager)mContext.getSystemService(Context.SENSOR_SERVICE);
+        mSensorManager = (SensorManager) context.getSystemService(Context.SENSOR_SERVICE);
 
         if (mSensorManager == null) {
             throw new UnsupportedOperationException("Sensors not supported");

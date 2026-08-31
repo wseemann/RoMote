@@ -1,4 +1,4 @@
-package wseemann.media.romote.review
+package wseemann.media.romote.inappreview
 
 import android.app.Activity
 import com.google.android.play.core.review.ReviewManager

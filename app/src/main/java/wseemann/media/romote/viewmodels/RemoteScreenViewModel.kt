@@ -22,7 +22,7 @@ import wseemann.media.romote.R
 import wseemann.media.romote.event.RemoteScreenUiEvent
 import wseemann.media.romote.model.RemoteScreenUiState
 import wseemann.media.romote.model.RemoteScreenUiState.PrivateListening
-import wseemann.media.romote.review.AppReviewManager
+import wseemann.media.romote.inappreview.AppReviewManager
 import wseemann.media.romote.tasks.ResponseCallbackWrapper
 import wseemann.media.romote.utils.CommandHelper
 import wseemann.media.romote.utils.PreferenceUtils
