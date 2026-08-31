@@ -21,7 +21,7 @@ import wseemann.media.romote.di.IoDispatcher
 import wseemann.media.romote.model.DeviceInfoScreenUiState
 import wseemann.media.romote.data.Entry
 import wseemann.media.romote.utils.CommandHelper
-import wseemann.media.romote.utils.DBUtils
+import wseemann.media.romote.database.DatabaseUtils
 import javax.inject.Inject
 
 @HiltViewModel
@@ -51,7 +51,7 @@ class DeviceInfoScreenViewModel @Inject constructor(
 
             // Paint what was stored when the device was paired, so there is something on screen
             // while the device itself is queried for its current details.
-            DBUtils.getDevice(context, serialNumber)?.let { storedDevice ->
+            DatabaseUtils.getDevice(context, serialNumber)?.let { storedDevice ->
                 _uiState.update { it.copy(entries = parseDevice(storedDevice)) }
             }
 

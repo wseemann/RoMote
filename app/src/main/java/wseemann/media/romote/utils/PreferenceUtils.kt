@@ -3,6 +3,7 @@ package wseemann.media.romote.utils
 import android.content.Context
 import android.content.SharedPreferences
 import wseemann.media.romote.data.Device
+import wseemann.media.romote.database.DatabaseUtils
 import wseemann.media.romote.preferences.AppPreferences
 
 class PreferenceUtils(
@@ -24,7 +25,7 @@ class PreferenceUtils(
             // DBUtils is Java and unannotated, so this is a platform type. It really does return
             // null when nothing is paired -- typing it non-null made the guard below dead code
             // and turned "not connected" into an NPE at the assignment instead.
-            val device: Device? = DBUtils.getDevice(context, serialNumber)
+            val device: Device? = DatabaseUtils.getDevice(context, serialNumber)
 
             return device ?: error("Device not connected")
         }

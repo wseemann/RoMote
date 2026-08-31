@@ -1,4 +1,4 @@
-package wseemann.media.romote.utils;
+package wseemann.media.romote.database;
 
 import android.content.ContentValues;
 import android.content.Context;
@@ -8,12 +8,11 @@ import android.database.sqlite.SQLiteDatabase;
 import java.util.ArrayList;
 import java.util.List;
 
-import wseemann.media.romote.database.DeviceDatabase;
 import wseemann.media.romote.data.Device;
 
-public class DBUtils {
+public class DatabaseUtils {
 
-    private DBUtils() {
+    private DatabaseUtils() {
 
     }
 

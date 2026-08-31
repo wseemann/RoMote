@@ -20,7 +20,7 @@ import wseemann.media.romote.di.IoDispatcher
 import wseemann.media.romote.event.MainScreenUiEvent
 import wseemann.media.romote.model.MainScreenUiState
 import wseemann.media.romote.utils.BroadcastUtils
-import wseemann.media.romote.utils.DBUtils
+import wseemann.media.romote.database.DatabaseUtils
 import wseemann.media.romote.utils.PreferenceUtils
 import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
@@ -75,7 +75,7 @@ class MainScreenViewModel @Inject constructor(
 
                 // Read what is paired *after* the scan: a device forgotten while the scan was
                 // running is no longer paired, and has to show up as available again.
-                val pairedDevices = DBUtils.getAllDevices(context)
+                val pairedDevices = DatabaseUtils.getAllDevices(context)
                 val pairedSerialNumbers = pairedDevices.map { it.serialNumber }.toSet()
 
                 if (generation != scanGeneration.get()) {
@@ -126,7 +126,7 @@ class MainScreenViewModel @Inject constructor(
         }
 
         discovered.firstOrNull { it.serialNumber == connectedSerialNumber }?.let { device ->
-            DBUtils.updateDevice(context, device)
+            DatabaseUtils.updateDevice(context, device)
             BroadcastUtils.sendUpdateDeviceBroadcast(context)
         }
     }
@@ -148,7 +148,7 @@ class MainScreenViewModel @Inject constructor(
 
                 if (!imageUrl.isNullOrEmpty()) {
                     pairedDevice.deviceImageUrl = imageUrl
-                    DBUtils.updateDevice(context, pairedDevice)
+                    DatabaseUtils.updateDevice(context, pairedDevice)
                 }
             }
     }
@@ -168,7 +168,7 @@ class MainScreenViewModel @Inject constructor(
      */
     private fun onDeviceSelected(device: Device) {
         viewModelScope.launch(ioDispatcher) {
-            DBUtils.insertDevice(context, device)
+            DatabaseUtils.insertDevice(context, device)
             preferenceUtils.setConnectedDevice(device.serialNumber)
 
             BroadcastUtils.sendUpdateDeviceBroadcast(context)
@@ -178,7 +178,7 @@ class MainScreenViewModel @Inject constructor(
             _uiState.update {
                 it.copy(
                     availableDevices = persistentListOf(),
-                    pairedDevices = DBUtils.getAllDevices(context).toPersistentList(),
+                    pairedDevices = DatabaseUtils.getAllDevices(context).toPersistentList(),
                     connectedSerialNumber = device.serialNumber
                 )
             }
@@ -192,7 +192,7 @@ class MainScreenViewModel @Inject constructor(
      */
     private fun onForgetDevice(serialNumber: String) {
         viewModelScope.launch(ioDispatcher) {
-            DBUtils.removeDevice(context, serialNumber)
+            DatabaseUtils.removeDevice(context, serialNumber)
 
             val connectedSerialNumber = connectedSerialNumber()
 
@@ -208,7 +208,7 @@ class MainScreenViewModel @Inject constructor(
 
             _uiState.update {
                 it.copy(
-                    pairedDevices = DBUtils.getAllDevices(context).toPersistentList(),
+                    pairedDevices = DatabaseUtils.getAllDevices(context).toPersistentList(),
                     connectedSerialNumber = connectedSerialNumber()
                 )
             }
@@ -244,9 +244,9 @@ class MainScreenViewModel @Inject constructor(
         _uiState.update { it.copy(renameTarget = null) }
 
         viewModelScope.launch(ioDispatcher) {
-            DBUtils.getDevice(context, target.serialNumber)?.let { device ->
+            DatabaseUtils.getDevice(context, target.serialNumber)?.let { device ->
                 device.setCustomUserDeviceName(name)
-                DBUtils.updateDevice(context, device)
+                DatabaseUtils.updateDevice(context, device)
                 BroadcastUtils.sendUpdateDeviceBroadcast(context)
             }
 
@@ -255,7 +255,7 @@ class MainScreenViewModel @Inject constructor(
             _uiState.update {
                 it.copy(
                     availableDevices = persistentListOf(),
-                    pairedDevices = DBUtils.getAllDevices(context).toPersistentList()
+                    pairedDevices = DatabaseUtils.getAllDevices(context).toPersistentList()
                 )
             }
         }

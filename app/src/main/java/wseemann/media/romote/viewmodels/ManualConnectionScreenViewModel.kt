@@ -19,7 +19,7 @@ import wseemann.media.romote.di.MainDispatcher
 import wseemann.media.romote.event.ManualConnectionScreenUiEvent
 import wseemann.media.romote.model.ManualConnectionScreenUiState
 import wseemann.media.romote.tasks.ResponseCallbackWrapper
-import wseemann.media.romote.utils.DBUtils
+import wseemann.media.romote.database.DatabaseUtils
 import wseemann.media.romote.utils.PreferenceUtils
 import javax.inject.Inject
 
@@ -83,7 +83,7 @@ class ManualConnectionScreenViewModel @Inject constructor(
      */
     private fun storeDevice(device: wseemann.media.romote.data.Device) {
         viewModelScope.launch(ioDispatcher) {
-            DBUtils.insertDevice(context, device)
+            DatabaseUtils.insertDevice(context, device)
             preferenceUtils.setConnectedDevice(device.serialNumber)
 
             _uiState.update { it.copy(isLoading = false, isConnected = true) }
