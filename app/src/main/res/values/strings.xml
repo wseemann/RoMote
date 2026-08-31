@@ -1,10 +1,6 @@
 <resources>
     <string name="app_name">RoMote</string>
 
-    <string name="ok">OK</string>
-    <string name="home">HOME</string>
-    <string name="clear">Clear</string>
-
     <string name="empty_list">No devices detected</string>
     <string name="empty_channel_list">No channels detected</string>
     <string name="action_refresh">Refresh</string>
@@ -15,7 +11,6 @@
     <string name="action_search">Search</string>
     <string name="navigate_up_content_description">Navigate up</string>
     <string name="keyboard">Keyboard</string>
-    <string name="no_network_connection_toast">No network connection</string>
 
     <string name="roku_devices">Roku Devices</string>
     <string name="select_a_device">Select a device ...</string>
@@ -72,11 +67,7 @@
     <string name="donate_title_preference">Donate</string>
     <string name="donate_summary_preference">Support RoMote development</string>
 
-    <string name="volume_dialog_title">Volume controls</string>
     <string name="close">Close</string>
-
-    <string name="navigation_drawer_open">Open navigation drawer</string>
-    <string name="navigation_drawer_close">Close navigation drawer</string>
 
     <string name="power_dialog_title">Power Off</string>
     <string name="power_dialog_message">Are you sure you want to turn off the device?</string>
@@ -86,7 +77,6 @@
 
     <string name="download_private_listening">Private listening is experimental and support may be discontinued at
         any time. In order to enable private listening please download and install the companion plugin.</string>
-    <string name="download">Download</string>
     <!-- Spoken labels for the remote's buttons, which as ImageButtons had none. -->
     <string name="remote_back">Back</string>
     <string name="remote_options">Options</string>
