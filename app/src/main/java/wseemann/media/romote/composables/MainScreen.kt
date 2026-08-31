@@ -18,6 +18,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -39,14 +40,17 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil3.compose.AsyncImage
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import wseemann.media.romote.R
+import wseemann.media.romote.composables.theme.DeviceIconBackground
 import wseemann.media.romote.composables.theme.RomoteTheme
 import wseemann.media.romote.composables.theme.SemiTransparentBlack
 import wseemann.media.romote.data.Device
@@ -65,8 +69,20 @@ private val DeviceDetailFontSize = 14.sp
 /** The 100dip square the device icon sat in, which is what gave a row its height. */
 private val DeviceIconBoxSize = 100.dp
 
-/** The 70dip circle drawn inside it. */
+/** The 70dip circle drawn inside it, still the placeholder for a device with no picture. */
 private val DeviceIconSize = 70.dp
+
+/**
+ * The frame a device's own picture is drawn in.
+ *
+ * Roku composes that art on a wide canvas with a lot of transparent padding - a Streambar SE is a
+ * 278x72 device sitting in a 360x219 image - so the frame is the shape of the canvas rather than a
+ * square. Fitting a 1.6:1 image into a circle either cut the ends off the device or left it a
+ * sliver in the middle of the disc.
+ */
+private val DeviceImageWidth = 84.dp
+private val DeviceImageHeight = 52.dp
+private val DeviceImageCornerRadius = 10.dp
 
 /** @dimen/fab_margin. */
 private val FabMargin = 16.dp
@@ -270,18 +286,38 @@ private fun DeviceRow(
             contentAlignment = Alignment.Center,
             modifier = Modifier.size(DeviceIconBoxSize)
         ) {
-            Box(
-                modifier = Modifier
-                    .size(DeviceIconSize)
-                    .clip(CircleShape)
-                    .background(
-                        if (isConnected) {
-                            MaterialTheme.colorScheme.primary
-                        } else {
-                            SemiTransparentBlack
-                        }
-                    )
-            )
+            // The picture the device publishes of itself, when it publishes one. A device that
+            // doesn't, or whose picture hasn't loaded, keeps the flat disc the list always drew,
+            // which is also what still says at a glance which device is connected.
+            val deviceImageUrl = device.deviceImageUrl
+
+            if (!deviceImageUrl.isNullOrEmpty()) {
+                AsyncImage(
+                    model = deviceImageUrl,
+                    // Decorative: displayName() is read out immediately to its right.
+                    contentDescription = null,
+                    // Fit, never Crop: the art is mostly transparent padding, so cropping it to
+                    // fill a square scales past the device and takes its ends off.
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier
+                        .size(width = DeviceImageWidth, height = DeviceImageHeight)
+                        .clip(RoundedCornerShape(DeviceImageCornerRadius))
+                        .background(DeviceIconBackground)
+                )
+            } else {
+                Box(
+                    modifier = Modifier
+                        .size(DeviceIconSize)
+                        .clip(CircleShape)
+                        .background(
+                            if (isConnected) {
+                                MaterialTheme.colorScheme.primary
+                            } else {
+                                SemiTransparentBlack
+                            }
+                        )
+                )
+            }
         }
 
         Column(modifier = Modifier.weight(1f).padding(start = 10.dp)) {

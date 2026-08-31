@@ -26,6 +26,15 @@ internal val PurpleButton = Color(0xFFA865F3)
 internal val SemiTransparentBlack = Color(0x66000000)
 
 /**
+ * The disc a device's picture is drawn on in the device list.
+ *
+ * Roku serves those pictures as dark hardware on a transparent background, so the disc has to stay
+ * light in both themes to keep the device visible; surfaceVariant resolves to a dark grey on the
+ * dark theme and would swallow it.
+ */
+internal val DeviceIconBackground = Color(0xFFE6E1E5)
+
+/**
  * Window backgrounds. The XML screens take these from Theme.MaterialComponents.DayNight rather than
  * from colors.xml, so they are spelled out here to keep the Compose screens on the same surface.
  */

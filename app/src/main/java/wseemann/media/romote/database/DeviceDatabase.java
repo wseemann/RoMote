@@ -2,11 +2,14 @@ package wseemann.media.romote.database;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
+
+import timber.log.Timber;
 
 public class DeviceDatabase extends SQLiteOpenHelper {
 
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 5;
     private static final String DATABASE_NAME = "devices";
     public static final String DEVICES_TABLE_NAME = "devices";
 
@@ -46,6 +49,7 @@ public class DeviceDatabase extends SQLiteOpenHelper {
     public static final String IS_TV = "is_tv";
     public static final String IS_STICK = "is_stick";
     public static final String CUSTOM_USER_DEVICE_NAME = "custom_user_device_name";
+    public static final String DEVICE_IMAGE_URL = "device_image_url";
 
     private static final String DEVICES_TABLE_CREATE =
             "CREATE TABLE " + DEVICES_TABLE_NAME + " ("
@@ -83,7 +87,8 @@ public class DeviceDatabase extends SQLiteOpenHelper {
                     + HEADPHONES_CONNECTED + " TEXT,"
                     + IS_TV + " TEXT,"
                     + IS_STICK + " TEXT,"
-                    + CUSTOM_USER_DEVICE_NAME + " TEXT);";
+                    + CUSTOM_USER_DEVICE_NAME + " TEXT,"
+                    + DEVICE_IMAGE_URL + " TEXT);";
 
     private static final String[] DEVICES_TABLE_ALTER_VERSION_TWO = {
             "ALTER TABLE " + DEVICES_TABLE_NAME + " ADD COLUMN " + SUPPORTS_SUSPEND + " TEXT;",
@@ -98,6 +103,14 @@ public class DeviceDatabase extends SQLiteOpenHelper {
     private static final String[] DEVICES_TABLE_ALTER_VERSION_FOUR = {
             "ALTER TABLE " + DEVICES_TABLE_NAME + " ADD COLUMN " + CUSTOM_USER_DEVICE_NAME + " TEXT;"};
 
+    private static final String[] DEVICES_TABLE_ALTER_VERSION_FIVE = {
+            "ALTER TABLE " + DEVICES_TABLE_NAME + " ADD COLUMN " + DEVICE_IMAGE_URL + " TEXT;"};
+
+    private static final String[] NO_ALTERS = {};
+
+    /** The first version that ships an alter; version one is what onCreate produced. */
+    private static final int FIRST_ALTERED_VERSION = 2;
+
     public DeviceDatabase(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
@@ -107,24 +120,44 @@ public class DeviceDatabase extends SQLiteOpenHelper {
         db.execSQL(DEVICES_TABLE_CREATE);
     }
 
+    /**
+     * Brings the table up to [newVersion].
+     *
+     * This used to test newVersion instead of oldVersion, so upgrading straight from version one
+     * to version four ran only the version four alter and left every column the earlier ones add
+     * missing - parseDevice then asked for a column index of -1 and threw.
+     *
+     * Those databases still exist on people's phones, claiming version four while missing columns
+     * from version two, so replaying only the alters after oldVersion would leave them broken.
+     * Every alter is replayed instead, and the duplicate column error the ones already applied
+     * raise is swallowed. onUpgrade only runs when the version actually changes, so the wasted
+     * statements cost nothing at startup.
+     */
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        if (newVersion <= 2) {
-            for (int i = 0; i < DEVICES_TABLE_ALTER_VERSION_TWO.length; i++) {
-                db.execSQL(DEVICES_TABLE_ALTER_VERSION_TWO[i]);
+        for (int version = FIRST_ALTERED_VERSION; version <= newVersion; version++) {
+            for (String statement : altersFor(version)) {
+                try {
+                    db.execSQL(statement);
+                } catch (SQLiteException ex) {
+                    Timber.w(ex, "Skipping %s", statement);
+                }
             }
         }
+    }
 
-        if (newVersion <= 3) {
-            for (int i = 0; i < DEVICES_TABLE_ALTER_VERSION_THREE.length; i++) {
-                db.execSQL(DEVICES_TABLE_ALTER_VERSION_THREE[i]);
-            }
-        }
-
-        if (newVersion <= 4) {
-            for (int i = 0; i < DEVICES_TABLE_ALTER_VERSION_FOUR.length; i++) {
-                db.execSQL(DEVICES_TABLE_ALTER_VERSION_FOUR[i]);
-            }
+    private static String[] altersFor(int version) {
+        switch (version) {
+            case 2:
+                return DEVICES_TABLE_ALTER_VERSION_TWO;
+            case 3:
+                return DEVICES_TABLE_ALTER_VERSION_THREE;
+            case 4:
+                return DEVICES_TABLE_ALTER_VERSION_FOUR;
+            case 5:
+                return DEVICES_TABLE_ALTER_VERSION_FIVE;
+            default:
+                return NO_ALTERS;
         }
     }
 }

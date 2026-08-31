@@ -68,4 +68,49 @@ class SsdpDiscoveryTest {
     fun `returns null when the location has no host`() {
         Assert.assertNull(SsdpDiscovery.parseLocation("HTTP/1.1 200 OK\r\nLOCATION: http:///\r\n\r\n"))
     }
+
+    /**
+     * The description url keeps the path the base url drops, because that path is where the device
+     * says its own picture is named. A Roku answering ST roku:ecp points it at "/".
+     */
+    @Test
+    fun `keeps the whole location as the description url`() {
+        val response = """
+            HTTP/1.1 200 OK
+            ST: roku:ecp
+            USN: uuid:roku:ecp:X01800U24LW8
+            Server: Roku/15.3.4 UPnP/1.0 Roku/15.3.4
+            LOCATION: http://192.168.50.80:8060/
+
+        """.trimIndent()
+
+        Assert.assertEquals(
+            "http://192.168.50.80:8060/",
+            SsdpDiscovery.parseDescriptionUrl(response)
+        )
+    }
+
+    @Test
+    fun `keeps a description url that points at dd xml`() {
+        val response = "HTTP/1.1 200 OK\r\nLOCATION: http://192.168.50.80:8060/dial/dd.xml\r\n\r\n"
+
+        Assert.assertEquals(
+            "http://192.168.50.80:8060/dial/dd.xml",
+            SsdpDiscovery.parseDescriptionUrl(response)
+        )
+    }
+
+    @Test
+    fun `returns no description url for a reply with no location header`() {
+        val response = "HTTP/1.1 200 OK\r\nST: upnp:rootdevice\r\nUSN: uuid:something\r\n\r\n"
+
+        Assert.assertNull(SsdpDiscovery.parseDescriptionUrl(response))
+    }
+
+    @Test
+    fun `returns no description url when the location has no host`() {
+        Assert.assertNull(
+            SsdpDiscovery.parseDescriptionUrl("HTTP/1.1 200 OK\r\nLOCATION: http:///\r\n\r\n")
+        )
+    }
 }

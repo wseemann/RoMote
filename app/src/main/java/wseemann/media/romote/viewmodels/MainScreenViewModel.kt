@@ -77,6 +77,7 @@ class MainScreenViewModel @Inject constructor(
                 }
 
                 refreshConnectedDevice(discovered)
+                backfillDeviceImages(pairedDevices, discovered)
 
                 _uiState.update {
                     it.copy(
@@ -121,6 +122,28 @@ class MainScreenViewModel @Inject constructor(
             DBUtils.updateDevice(context, device)
             BroadcastUtils.sendUpdateDeviceBroadcast(context)
         }
+    }
+
+    /**
+     * Gives paired devices the image the scan just found for them.
+     *
+     * refreshConnectedDevice only writes back the connected device, and a device paired before the
+     * app knew about device images has no image url stored at all, so without this a paired but
+     * unconnected device would keep drawing the placeholder for good.
+     */
+    private fun backfillDeviceImages(pairedDevices: List<Device>, discovered: List<Device>) {
+        val discoveredBySerialNumber = discovered.associateBy { it.serialNumber }
+
+        pairedDevices
+            .filter { it.deviceImageUrl.isNullOrEmpty() }
+            .forEach { pairedDevice ->
+                val imageUrl = discoveredBySerialNumber[pairedDevice.serialNumber]?.deviceImageUrl
+
+                if (!imageUrl.isNullOrEmpty()) {
+                    pairedDevice.deviceImageUrl = imageUrl
+                    DBUtils.updateDevice(context, pairedDevice)
+                }
+            }
     }
 
     /** Reads SQLite, so every caller is already on the IO dispatcher. */

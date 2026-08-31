@@ -96,6 +96,7 @@ public class DBUtils {
         values.put(DeviceDatabase.IS_TV, device.getTv());
         values.put(DeviceDatabase.IS_STICK, device.getStick());
         values.put(DeviceDatabase.CUSTOM_USER_DEVICE_NAME, device.getCustomUserDeviceName());
+        values.put(DeviceDatabase.DEVICE_IMAGE_URL, device.getDeviceImageUrl());
 
         id = db.insert(DeviceDatabase.DEVICES_TABLE_NAME, null, values);
 
@@ -117,6 +118,11 @@ public class DBUtils {
         values.put(DeviceDatabase.IS_STICK, device.getStick());
         if (device.getCustomUserDeviceName() != null) {
             values.put(DeviceDatabase.CUSTOM_USER_DEVICE_NAME, device.getCustomUserDeviceName());
+        }
+        // A device that is asleep or briefly unreachable reports no image. That is not the same as
+        // having none, so it must not overwrite an image url already stored.
+        if (device.getDeviceImageUrl() != null) {
+            values.put(DeviceDatabase.DEVICE_IMAGE_URL, device.getDeviceImageUrl());
         }
 
         String whereClause = DeviceDatabase.SERIAL_NUMBER + " = ?";
@@ -211,6 +217,7 @@ public class DBUtils {
         device.setTv(cursor.getString(cursor.getColumnIndex(DeviceDatabase.IS_TV)));
         device.setStick(cursor.getString(cursor.getColumnIndex(DeviceDatabase.IS_STICK)));
         device.setCustomUserDeviceName(cursor.getString(cursor.getColumnIndex(DeviceDatabase.CUSTOM_USER_DEVICE_NAME)));
+        device.setDeviceImageUrl(cursor.getString(cursor.getColumnIndex(DeviceDatabase.DEVICE_IMAGE_URL)));
 
         return device;
     }

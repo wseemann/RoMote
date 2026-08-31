@@ -9,6 +9,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import timber.log.Timber
 import wseemann.media.romote.data.Device.Companion.fromDevice
+import wseemann.media.romote.discovery.DeviceDescription
 import wseemann.media.romote.discovery.SsdpDiscovery
 import wseemann.media.romote.utils.WifiApManager
 import javax.inject.Inject
@@ -42,13 +43,18 @@ class DeviceDiscovery @Inject constructor(
     }
 
     private fun scanNetworkForDevices(): List<Device> {
-        return SsdpDiscovery.discoverHosts().mapNotNull { host ->
+        return SsdpDiscovery.discoverDevices().mapNotNull { ssdpDevice ->
             try {
                 // The device info response carries no address, so the host we reached it at is
                 // the only record of where it lives.
-                fromDevice(QueryRequests.queryDeviceInfo(host)).apply { this.host = host }
+                fromDevice(QueryRequests.queryDeviceInfo(ssdpDevice.host)).apply {
+                    this.host = ssdpDevice.host
+                    // The description document is where the device names its own image, and the
+                    // device told us where that document is when it answered the M-SEARCH.
+                    this.deviceImageUrl = DeviceDescription.fetchIconUrl(ssdpDevice.descriptionUrl)
+                }
             } catch (ex: Exception) {
-                Timber.tag(TAG).e(ex, "Failed to query %s", host)
+                Timber.tag(TAG).e(ex, "Failed to query %s", ssdpDevice.host)
                 null
             }
         }
@@ -75,7 +81,13 @@ class DeviceDiscovery @Inject constructor(
             val host = "http://" + clientScanResult.ipAddr + ":" + ECP_PORT
 
             try {
-                fromDevice(QueryRequests.queryDeviceInfo(host)).apply { this.host = host }
+                fromDevice(QueryRequests.queryDeviceInfo(host)).apply {
+                    this.host = host
+                    // No M-SEARCH ran here, so there is no advertised LOCATION to work from. A
+                    // Roku answers ST roku:ecp with its ECP base url, which is what this is; the
+                    // image's filename still comes out of the document it serves.
+                    this.deviceImageUrl = DeviceDescription.fetchIconUrl("$host/")
+                }
             } catch (ex: Exception) {
                 Timber.tag(TAG).e("Invalid device: %s", ex.message)
                 null

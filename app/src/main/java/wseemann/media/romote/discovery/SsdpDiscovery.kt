@@ -7,6 +7,19 @@ import java.net.InetAddress
 import java.net.SocketTimeoutException
 
 /**
+ * A Roku that answered an M-SEARCH.
+ *
+ * @param host the ECP base URL ("http://192.168.1.9:8060"), which every request is built on.
+ * @param descriptionUrl the LOCATION the device advertised, verbatim. Roku points it at the UPnP
+ *        description document, so this is where [DeviceDescription] looks for the device image
+ *        rather than assembling a path we guessed at.
+ */
+data class SsdpDevice(
+    val host: String,
+    val descriptionUrl: String
+)
+
+/**
  * SSDP M-SEARCH discovery for Roku devices.
  *
  * This replaces com.wseemann.ecp.api.DeviceRequests.discoverDevices(), whose implementation
@@ -50,11 +63,11 @@ object SsdpDiscovery {
     /**
      * Sends an M-SEARCH and collects replies until [timeoutMillis] elapses.
      *
-     * @return the base URL of every Roku that answered ("http://192.168.1.9:8060"), deduplicated
-     *         and in the order they replied. Empty when nothing answered - never an exception.
+     * @return every Roku that answered, deduplicated by host and in the order they replied. Empty
+     *         when nothing answered - never an exception.
      */
-    fun discoverHosts(timeoutMillis: Long = DEFAULT_TIMEOUT_MILLIS): List<String> {
-        val hosts = LinkedHashSet<String>()
+    fun discoverDevices(timeoutMillis: Long = DEFAULT_TIMEOUT_MILLIS): List<SsdpDevice> {
+        val devices = LinkedHashMap<String, SsdpDevice>()
 
         try {
             // An ephemeral port is deliberate: Roku unicasts its reply back to the port the
@@ -86,16 +99,19 @@ object SsdpDiscovery {
                     val response = String(packet.data, packet.offset, packet.length)
 
                     // Anything that isn't a Roku reply is skipped rather than aborting the scan.
-                    parseLocation(response)?.let { hosts.add(it) }
+                    val location = locationHeader(response) ?: continue
+                    val host = baseUrl(location) ?: continue
+
+                    devices.putIfAbsent(host, SsdpDevice(host = host, descriptionUrl = location))
                 }
             }
         } catch (ex: Exception) {
             Timber.tag(TAG).e(ex, "SSDP discovery failed")
         }
 
-        Timber.tag(TAG).d("Discovered %s device(s)", hosts.size)
+        Timber.tag(TAG).d("Discovered %s device(s)", devices.size)
 
-        return hosts.toList()
+        return devices.values.toList()
     }
 
     /**
@@ -103,7 +119,23 @@ object SsdpDiscovery {
      * "LOCATION: http://192.168.1.9:8060/". Returns null when the response carries no usable
      * location, so a stray datagram from some other SSDP responder is simply ignored.
      */
-    internal fun parseLocation(response: String): String? {
+    internal fun parseLocation(response: String): String? =
+        locationHeader(response)?.let { baseUrl(it) }
+
+    /**
+     * The same header, but with its path left on, because that path is the device's description
+     * document. Roku answers ST roku:ecp with "http://192.168.1.9:8060/", which serves the
+     * document that names the device image.
+     */
+    internal fun parseDescriptionUrl(response: String): String? {
+        val location = locationHeader(response) ?: return null
+
+        // A location with no host is no more usable here than it is in parseLocation.
+        return if (baseUrl(location) == null) null else location
+    }
+
+    /** The LOCATION header's value, verbatim, once it is known to be an http(s) URL. */
+    private fun locationHeader(response: String): String? {
         val location = response.lineSequence()
             .map { it.trim() }
             .firstOrNull { it.startsWith(LOCATION_HEADER, ignoreCase = true) }
@@ -117,8 +149,14 @@ object SsdpDiscovery {
             return null
         }
 
-        // Keep scheme, host and port; drop the path ("/" on a Roku) so the result can be used
-        // directly as an ECP base URL.
+        return location
+    }
+
+    /**
+     * Keeps scheme, host and port and drops the path ("/" on a Roku) so the result can be used
+     * directly as an ECP base URL.
+     */
+    private fun baseUrl(location: String): String? {
         val schemeEnd = location.indexOf("//") + 2
         val pathStart = location.indexOf('/', schemeEnd)
         val base = if (pathStart == -1) location else location.substring(0, pathStart)

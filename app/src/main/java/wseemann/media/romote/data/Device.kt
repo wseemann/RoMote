@@ -4,6 +4,15 @@ class Device : com.wseemann.ecp.model.Device() {
 
     private var customUserDeviceName: String? = null
 
+    /**
+     * The picture the device publishes of itself, read out of its UPnP description document by
+     * [wseemann.media.romote.discovery.DeviceDescription]. Null for a device that publishes none.
+     *
+     * Like [customUserDeviceName] this is ours rather than the discovery library's, so [fromDevice]
+     * cannot carry it over - the callers that know the device's description url set it themselves.
+     */
+    var deviceImageUrl: String? = null
+
     companion object {
         fun fromDevice(jakuDevice: com.wseemann.ecp.model.Device): Device {
             val device = Device()
