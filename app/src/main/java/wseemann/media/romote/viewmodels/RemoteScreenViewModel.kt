@@ -22,6 +22,7 @@ import wseemann.media.romote.R
 import wseemann.media.romote.event.RemoteScreenUiEvent
 import wseemann.media.romote.model.RemoteScreenUiState
 import wseemann.media.romote.model.RemoteScreenUiState.PrivateListening
+import wseemann.media.romote.review.AppReviewManager
 import wseemann.media.romote.tasks.ResponseCallbackWrapper
 import wseemann.media.romote.utils.CommandHelper
 import wseemann.media.romote.utils.PreferenceUtils
@@ -32,7 +33,8 @@ import javax.inject.Inject
 class RemoteScreenViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val commandHelper: CommandHelper,
-    private val preferenceUtils: PreferenceUtils
+    private val preferenceUtils: PreferenceUtils,
+    private val appReviewManager: AppReviewManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(RemoteScreenUiState())
@@ -123,7 +125,9 @@ class RemoteScreenViewModel @Inject constructor(
 
         try {
             KeyPressRequest(url, key.value).sendAsync(object : ResponseCallback<Void> {
-                override fun onSuccess(data: Void?) = Unit
+                // A key the device accepted is the one unambiguous sign the app is doing its job,
+                // which is what the in-app review prompt counts sessions by.
+                override fun onSuccess(data: Void?) = appReviewManager.onDeviceCommandSucceeded()
 
                 override fun onError(ex: Exception) {
                     Timber.tag(TAG).e(ex, "Failed to execute command")

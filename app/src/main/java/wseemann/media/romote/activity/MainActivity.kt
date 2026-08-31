@@ -38,6 +38,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.fragment.app.DialogFragment
+import androidx.lifecycle.lifecycleScope
 import com.wseemann.ecp.api.ResponseCallback
 import com.wseemann.ecp.request.SearchRequest
 import dagger.hilt.android.AndroidEntryPoint
@@ -54,11 +55,13 @@ import wseemann.media.romote.composables.StoreTab
 import wseemann.media.romote.composables.theme.RomoteTheme
 import wseemann.media.romote.event.ChannelScreenUiEvent
 import wseemann.media.romote.fragment.InstallChannelDialog
+import wseemann.media.romote.review.AppReviewManager
 import wseemann.media.romote.service.NotificationService
 import wseemann.media.romote.viewmodels.ChannelScreenViewModel
 import wseemann.media.romote.viewmodels.MainScreenViewModel
 import wseemann.media.romote.viewmodels.RemoteScreenViewModel
 import wseemann.media.romote.viewmodels.StoreScreenViewModel
+import javax.inject.Inject
 
 /**
  * The app's four tabs. This was an XML shell - an AppBarLayout with a Toolbar and a TabLayout over a
@@ -72,6 +75,9 @@ import wseemann.media.romote.viewmodels.StoreScreenViewModel
  */
 @AndroidEntryPoint
 class MainActivity : ConnectivityActivity(), InstallChannelDialog.InstallChannelListener {
+
+    @Inject
+    lateinit var appReviewManager: AppReviewManager
 
     private val mainScreenViewModel: MainScreenViewModel by viewModels()
     private val remoteScreenViewModel: RemoteScreenViewModel by viewModels()
@@ -87,6 +93,10 @@ class MainActivity : ConnectivityActivity(), InstallChannelDialog.InstallChannel
         if (appPreferences.isFirstUse()) {
             startActivity(Intent(this, ConfigureDeviceActivity::class.java))
             finish()
+        } else {
+            // The review prompt measures the app's age from the first real session, so the
+            // configure-device detour on first launch isn't what starts its clock.
+            appReviewManager.onAppSessionStarted()
         }
 
         intent?.data?.path?.let { path ->
@@ -108,6 +118,19 @@ class MainActivity : ConnectivityActivity(), InstallChannelDialog.InstallChannel
             connection,
             Context.BIND_AUTO_CREATE
         )
+    }
+
+    /**
+     * Offers the Play in-app review card, if this user has driven a Roku often enough and long
+     * enough for it to be worth asking. AppReviewManager decides that, and only tries once per
+     * process, so coming back from settings doesn't ask again.
+     */
+    override fun onResume() {
+        super.onResume()
+
+        lifecycleScope.launch {
+            appReviewManager.maybeLaunchReviewFlow(this@MainActivity)
+        }
     }
 
     override fun onDestroy() {

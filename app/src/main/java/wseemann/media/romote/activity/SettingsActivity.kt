@@ -12,6 +12,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import wseemann.media.romote.composables.SettingsScreen
 import wseemann.media.romote.composables.theme.RomoteTheme
 import wseemann.media.romote.utils.Constants
+import wseemann.media.romote.utils.openPlayStoreListing
 import wseemann.media.romote.utils.enableRomoteEdgeToEdge
 import wseemann.media.romote.viewmodels.SettingsScreenViewModel
 
@@ -36,6 +37,7 @@ class SettingsActivity : ComponentActivity() {
                     onLicensesClick = {
                         startActivity(Intent(this, LicensesActivity::class.java))
                     },
+                    onRateClick = { openPlayStoreListing() },
                     onDonateClick = {
                         startActivity(
                             Intent(Intent.ACTION_VIEW, Uri.parse(Constants.PAYPAL_DONATION_LINK))

@@ -70,6 +70,8 @@
 
     <string name="open_source_licenses_title_preference">Open Source Licenses</string>
 
+    <string name="rate_app_title_preference">Rate RoMote</string>
+    <string name="rate_app_summary_preference">Rate the app on Google Play</string>
     <string name="donate_title_preference">Donate</string>
     <string name="donate_summary_preference">Support RoMote development</string>
 

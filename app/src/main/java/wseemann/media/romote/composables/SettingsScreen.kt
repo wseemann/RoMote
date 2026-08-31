@@ -39,6 +39,7 @@ fun SettingsScreen(
     uiState: SettingsScreenUiState,
     onEvent: (SettingsScreenUiEvent) -> Unit,
     onLicensesClick: () -> Unit,
+    onRateClick: () -> Unit,
     onDonateClick: () -> Unit,
     onBackClick: () -> Unit,
     modifier: Modifier = Modifier
@@ -96,6 +97,12 @@ fun SettingsScreen(
                 title = stringResource(R.string.open_source_licenses_title_preference),
                 summary = null,
                 onClick = onLicensesClick
+            )
+
+            SettingsActionRow(
+                title = stringResource(R.string.rate_app_title_preference),
+                summary = stringResource(R.string.rate_app_summary_preference),
+                onClick = onRateClick
             )
 
             SettingsActionRow(
@@ -210,6 +217,7 @@ private fun SettingsScreenPreview() {
             ),
             onEvent = {},
             onLicensesClick = {},
+            onRateClick = {},
             onDonateClick = {},
             onBackClick = {}
         )

@@ -79,6 +79,7 @@ dependencies {
     ksp(libs.hilt.compiler)
     implementation(libs.jdom)
     implementation(libs.kotlinx.collections.immutable)
+    implementation(libs.play.review.ktx)
     implementation(libs.roku.ecp.wrapper.kotlin)
     implementation(libs.timber)
 

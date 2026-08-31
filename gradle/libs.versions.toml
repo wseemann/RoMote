@@ -14,6 +14,7 @@ glide = "4.16.0"
 hilt = "2.60.1"
 jdom = "2.0.6"
 kotlinx-collections-immutable = "0.5.1"
+play-review = "2.0.2"
 roku-ecp-wrapper-kotlin = "1.5.0"
 rxjava-android = "2.1.1"
 rxjava = "2.2.21"
@@ -46,6 +47,7 @@ hilt-android = { module = "com.google.dagger:hilt-android", version.ref = "hilt"
 hilt-compiler = { module = "com.google.dagger:hilt-compiler", version.ref = "hilt" }
 jdom = { module = "org.jdom:jdom2", version.ref = "jdom" }
 kotlinx-collections-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "kotlinx-collections-immutable" }
+play-review-ktx = { module = "com.google.android.play:review-ktx", version.ref = "play-review" }
 roku-ecp-wrapper-kotlin = { module = "com.github.wseemann:roku-ecp-wrapper-kotlin", version.ref = "roku-ecp-wrapper-kotlin" }
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 junit = { module = "junit:junit", version.ref = "junit" }
