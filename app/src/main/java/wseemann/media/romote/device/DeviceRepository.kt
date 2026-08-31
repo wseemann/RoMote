@@ -6,15 +6,10 @@ import android.database.Cursor
 import wseemann.media.romote.data.Device
 import wseemann.media.romote.database.DeviceDatabase
 
-/**
- * Stored-device reads and writes.
- *
- * [deviceDatabase] is a singleton, so every method here shares one cached SQLiteDatabase. Nothing
- * closes it: the helper owns the connection for the life of the process. Closing it per call would
- * both defeat that caching and let one coroutine close the database out from under another - the
- * view models run these off several independent coroutines on the IO dispatcher.
- */
-class DeviceRepository(private val deviceDatabase: DeviceDatabase, private val sharedPreferences: SharedPreferences) {
+class DeviceRepository(
+    private val deviceDatabase: DeviceDatabase,
+    private val sharedPreferences: SharedPreferences
+) {
 
     fun insertDevice(device: Device): Long {
         val serialNumber = device.serialNumber
@@ -210,15 +205,6 @@ class DeviceRepository(private val deviceDatabase: DeviceDatabase, private val s
         return device
     }
 
-    /**
-     * Reads a nullable text column by name.
-     *
-     * getColumnIndex returns -1 for a column the table does not have, and getString(-1) throws.
-     * A database that reaches version five has every column - [DeviceDatabase.onUpgrade] replays
-     * the alters to repair the ones that skipped some - but that repair only runs when the version
-     * changes, so this reads a missing column as null rather than crashing the device list the way
-     * it did before that repair existed.
-     */
     private fun Cursor.string(column: String): String? {
         val index = getColumnIndex(column)
         return if (index < 0) null else getString(index)
