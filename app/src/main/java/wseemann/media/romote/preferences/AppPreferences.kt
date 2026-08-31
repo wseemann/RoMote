@@ -62,6 +62,21 @@ class AppPreferences(
         }
     }
 
+    /**
+     * Whether the first-run explainer for Roku's "Control by mobile apps" setting has been shown.
+     * The app can't drive a Roku left on the Limited default, so new users get told how to change
+     * it once, rather than finding out from a remote that does nothing.
+     */
+    fun hasSeenRemoteAccessHelp(): Boolean {
+        return sharedPreferences.getBoolean(APP_PREFERENCE_REMOTE_ACCESS_HELP_SEEN, false)
+    }
+
+    fun setRemoteAccessHelpSeen() {
+        sharedPreferences.edit {
+            putBoolean(APP_PREFERENCE_REMOTE_ACCESS_HELP_SEEN, true)
+        }
+    }
+
     /** When the review flow was last launched, whether or not Play went on to show a card. */
     fun getLastReviewPromptMillis(): Long {
         return sharedPreferences.getLong(APP_PREFERENCE_REVIEW_LAST_PROMPT, 0L)
@@ -80,5 +95,6 @@ class AppPreferences(
         private const val APP_PREFERENCE_REVIEW_FIRST_LAUNCH = "review_first_launch_millis"
         private const val APP_PREFERENCE_REVIEW_ENGAGED_SESSIONS = "review_engaged_session_count"
         private const val APP_PREFERENCE_REVIEW_LAST_PROMPT = "review_last_prompt_millis"
+        private const val APP_PREFERENCE_REMOTE_ACCESS_HELP_SEEN = "remote_access_help_seen"
     }
 }

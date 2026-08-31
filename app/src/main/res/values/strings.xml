@@ -47,6 +47,17 @@
     <string name="connectivity_dialog_message">A Wifi connection is not available. Please connect to a Wifi network.</string>
     <string name="connectivity_dialog_button">Go to settings</string>
 
+    <string name="remote_access_dialog_title">Enable remote control</string>
+    <string name="remote_access_dialog_message">Roku blocks third-party remotes by default. To let RoMote control your device:</string>
+    <string name="remote_access_dialog_step_1">1. On your Roku, press Home and open Settings.</string>
+    <string name="remote_access_dialog_step_2">2. Select System, then Advanced system settings.</string>
+    <string name="remote_access_dialog_step_3">3. Select Control by mobile apps, then Network access.</string>
+    <string name="remote_access_dialog_step_4">4. Choose Enabled (or Permissive).</string>
+    <string name="remote_access_dialog_step_5">5. Return to RoMote and select your device.</string>
+    <string name="remote_access_dialog_note">The default setting, Limited, only allows text input and app launches.</string>
+    <string name="remote_access_dialog_confirm">Got it</string>
+    <string name="remote_access_dialog_learn_more">Learn more</string>
+
     <string name="install_channel_dialog_title">New channel</string>
     <string name="install_channel_dialog_message">"Would you like to install the following channel: "</string>
     <string name="install_channel_dialog_button">Install</string>

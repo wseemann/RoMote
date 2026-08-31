@@ -35,6 +35,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.core.net.toUri
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.lifecycleScope
@@ -47,6 +48,7 @@ import timber.log.Timber
 import wseemann.media.romote.R
 import wseemann.media.romote.composables.ChannelsTab
 import wseemann.media.romote.composables.DevicesTab
+import wseemann.media.romote.composables.RemoteAccessHelpDialog
 import wseemann.media.romote.composables.RemoteTab
 import wseemann.media.romote.composables.RomoteTopAppBar
 import wseemann.media.romote.composables.SearchDialog
@@ -55,7 +57,9 @@ import wseemann.media.romote.composables.theme.RomoteTheme
 import wseemann.media.romote.event.ChannelScreenUiEvent
 import wseemann.media.romote.fragment.InstallChannelDialog
 import wseemann.media.romote.inappreview.AppReviewManager
+import wseemann.media.romote.preferences.AppPreferences
 import wseemann.media.romote.service.NotificationService
+import wseemann.media.romote.utils.Constants
 import wseemann.media.romote.viewmodels.ChannelScreenViewModel
 import wseemann.media.romote.viewmodels.MainScreenViewModel
 import wseemann.media.romote.viewmodels.RemoteScreenViewModel
@@ -76,6 +80,9 @@ class MainActivity : ConnectivityActivity(), InstallChannelDialog.InstallChannel
 
     @Inject
     lateinit var appReviewManager: AppReviewManager
+
+    @Inject
+    lateinit var appPreferences: AppPreferences
 
     private val mainScreenViewModel: MainScreenViewModel by viewModels()
     private val remoteScreenViewModel: RemoteScreenViewModel by viewModels()
@@ -158,6 +165,17 @@ class MainActivity : ConnectivityActivity(), InstallChannelDialog.InstallChannel
 
         var isSearchDialogVisible by rememberSaveable { mutableStateOf(false) }
 
+        // Seeded from preferences rather than re-read on every recomposition, and saveable so a
+        // rotation doesn't take the dialog down: it is only marked seen once the user closes it.
+        var isRemoteAccessHelpVisible by rememberSaveable {
+            mutableStateOf(!appPreferences.hasSeenRemoteAccessHelp())
+        }
+
+        fun dismissRemoteAccessHelp() {
+            isRemoteAccessHelpVisible = false
+            appPreferences.setRemoteAccessHelpSeen()
+        }
+
         Scaffold(
             topBar = {
                 Column {
@@ -211,6 +229,19 @@ class MainActivity : ConnectivityActivity(), InstallChannelDialog.InstallChannel
                     performSearch(searchText)
                 },
                 onDismiss = { isSearchDialogVisible = false }
+            )
+        }
+
+        if (isRemoteAccessHelpVisible) {
+            RemoteAccessHelpDialog(
+                onLearnMoreClick = {
+                    dismissRemoteAccessHelp()
+
+                    startActivity(
+                        Intent(Intent.ACTION_VIEW, Constants.ROKU_MOBILE_APP_SETUP_URL.toUri())
+                    )
+                },
+                onDismiss = { dismissRemoteAccessHelp() }
             )
         }
     }
