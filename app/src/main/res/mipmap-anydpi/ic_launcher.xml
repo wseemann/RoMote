@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- minSdkVersion is 26, so this adaptive icon is the launcher icon on every
+     supported device and the mipmap-*dpi PNGs are never used as one. They are
+     kept only for the app widget header (roku_appwidget.xml) and legacy tooling.
+
+     <monochrome> is an API 33 attribute; it is ignored harmlessly on 26-32, so
+     no separate anydpi-v33 variant is needed. -->
+<adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
+    <background android:drawable="@drawable/ic_launcher_background" />
+    <foreground android:drawable="@drawable/ic_launcher_foreground" />
+    <monochrome android:drawable="@drawable/ic_launcher_monochrome" />
+</adaptive-icon>
