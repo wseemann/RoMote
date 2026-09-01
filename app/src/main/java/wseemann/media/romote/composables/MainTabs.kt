@@ -33,7 +33,6 @@ import wseemann.media.romote.utils.Constants
 import wseemann.media.romote.viewmodels.ChannelScreenViewModel
 import wseemann.media.romote.viewmodels.MainScreenViewModel
 import wseemann.media.romote.viewmodels.RemoteScreenViewModel
-import wseemann.media.romote.viewmodels.StoreScreenViewModel
 
 @Composable
 fun DevicesTab(viewModel: MainScreenViewModel, modifier: Modifier = Modifier) {
@@ -236,22 +235,6 @@ fun ChannelsTab(viewModel: ChannelScreenViewModel, isCurrentPage: Boolean, modif
 
             viewModel.onHandleEvent(event)
         },
-        modifier = modifier
-    )
-}
-
-/**
- * The store tab. [isCurrentPage] gates the WebView's back navigation; StoreFragment had to derive
- * it from setUserVisibleHint, and the pager reports it directly.
- */
-@Composable
-fun StoreTab(viewModel: StoreScreenViewModel, isCurrentPage: Boolean, modifier: Modifier = Modifier) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-
-    StoreScreen(
-        uiState = uiState,
-        isCurrentPage = isCurrentPage,
-        onEvent = viewModel::onHandleEvent,
         modifier = modifier
     )
 }

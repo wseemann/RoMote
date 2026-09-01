@@ -29,7 +29,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -50,7 +49,6 @@ import wseemann.media.romote.composables.DevicesTab
 import wseemann.media.romote.composables.RemoteAccessHelpDialog
 import wseemann.media.romote.composables.RemoteTab
 import wseemann.media.romote.composables.RomoteTopAppBar
-import wseemann.media.romote.composables.StoreTab
 import wseemann.media.romote.composables.theme.OnPurple
 import wseemann.media.romote.composables.theme.Purple
 import wseemann.media.romote.composables.theme.RomoteTheme
@@ -62,7 +60,6 @@ import wseemann.media.romote.viewmodels.ChannelScreenViewModel
 import wseemann.media.romote.viewmodels.ConnectivityViewModel
 import wseemann.media.romote.viewmodels.MainScreenViewModel
 import wseemann.media.romote.viewmodels.RemoteScreenViewModel
-import wseemann.media.romote.viewmodels.StoreScreenViewModel
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -74,7 +71,6 @@ class MainActivity : ShakeActivity() {
     private val mainScreenViewModel: MainScreenViewModel by viewModels()
     private val remoteScreenViewModel: RemoteScreenViewModel by viewModels()
     private val channelScreenViewModel: ChannelScreenViewModel by viewModels()
-    private val storeScreenViewModel: StoreScreenViewModel by viewModels()
     private val connectivityViewModel: ConnectivityViewModel by viewModels()
 
     private var isBound = false
@@ -141,15 +137,6 @@ class MainActivity : ShakeActivity() {
             appPreferences.setRemoteAccessHelpSeen()
         }
 
-        // Every tab has to stay composed - that is what keeps the store's WebView and the remote's
-        // service binding alive across a swipe, the way viewPager.setOffscreenPageLimit(3) did.
-        // But building them all during the first composition puts creating the process's first
-        // WebView, which loads the WebView APK on the main thread, in front of the first frame.
-        // Starting at 0 and widening a frame later keeps the behavior and takes it off the
-        // critical path; beyondViewportPageCount only ever adds pages, so nothing is torn down.
-        var offscreenPages by remember { mutableIntStateOf(0) }
-        LaunchedEffect(Unit) { offscreenPages = PAGE_COUNT - 1 }
-
         LaunchedEffect(Unit) {
             var wasAvailable = connectivityViewModel.uiState.value.isLocalNetworkAvailable
 
@@ -183,7 +170,9 @@ class MainActivity : ShakeActivity() {
         ) { contentPadding ->
             HorizontalPager(
                 state = pagerState,
-                beyondViewportPageCount = offscreenPages,
+                // Every tab stays composed - that is what keeps the remote's service binding
+                // alive across a swipe, the way viewPager.setOffscreenPageLimit(3) did.
+                beyondViewportPageCount = PAGE_COUNT - 1,
                 modifier = Modifier.padding(contentPadding)
             ) { page ->
                 when (page) {
@@ -194,14 +183,9 @@ class MainActivity : ShakeActivity() {
                         isCurrentPage = pagerState.currentPage == REMOTE_PAGE
                     )
 
-                    CHANNELS_PAGE -> ChannelsTab(
+                    else -> ChannelsTab(
                         viewModel = channelScreenViewModel,
                         isCurrentPage = pagerState.currentPage == CHANNELS_PAGE
-                    )
-
-                    else -> StoreTab(
-                        viewModel = storeScreenViewModel,
-                        isCurrentPage = pagerState.currentPage == STORE_PAGE
                     )
                 }
             }
@@ -254,8 +238,7 @@ class MainActivity : ShakeActivity() {
         val titles = listOf(
             stringResource(R.string.title_devices),
             stringResource(R.string.title_remote),
-            stringResource(R.string.title_channels),
-            stringResource(R.string.title_store)
+            stringResource(R.string.title_channels)
         )
 
         SecondaryTabRow(
@@ -297,7 +280,6 @@ class MainActivity : ShakeActivity() {
         const val DEVICES_PAGE = 0
         const val REMOTE_PAGE = 1
         const val CHANNELS_PAGE = 2
-        const val STORE_PAGE = 3
-        const val PAGE_COUNT = 4
+        const val PAGE_COUNT = 3
     }
 }
