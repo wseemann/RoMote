@@ -3,7 +3,6 @@ package wseemann.media.romote.composables
 import androidx.annotation.StringRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -14,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
@@ -22,7 +22,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -30,6 +29,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
@@ -50,6 +50,7 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
+import timber.log.Timber
 import wseemann.media.romote.R
 import wseemann.media.romote.composables.theme.DeviceIconBackground
 import wseemann.media.romote.composables.theme.Purple
@@ -59,14 +60,18 @@ import wseemann.media.romote.data.Device
 import wseemann.media.romote.event.MainScreenUiEvent
 import wseemann.media.romote.model.MainScreenUiState
 
-/** The 50dip the progress header was fixed at in fragment_main.xml. */
-private val ProgressHeaderHeight = 50.dp
-
 /** @android:style/TextAppearance.Medium, the device name's size in device.xml. */
 private val DeviceNameFontSize = 18.sp
 
 /** @android:style/TextAppearance.Small, the two lines under the device name. */
 private val DeviceDetailFontSize = 14.sp
+
+/**
+ * The dot drawn beside "Connected", small enough to sit under a 14sp line without weighing on it.
+ * Only the connected device gets one, so the line below it is not indented to match.
+ */
+private val ConnectedDotSize = 8.dp
+private val ConnectedDotGap = 6.dp
 
 /** The 100dip square the device icon sat in, which is what gave a row its height. */
 private val DeviceIconBoxSize = 100.dp
@@ -90,7 +95,7 @@ private val DeviceImageCornerRadius = 10.dp
 private val FabMargin = 16.dp
 
 /** Keeps the last row clear of the floating action button, which draws on top of the list. */
-private val ListBottomInset = 88.dp
+// private val ListBottomInset = 88.dp
 
 /**
  * The devices tab: the paired devices, then whatever else answered the last scan. Tapping a device
@@ -108,15 +113,16 @@ fun MainScreen(uiState: MainScreenUiState, onEvent: (MainScreenUiEvent) -> Unit,
     // default - so the devices tab alone came out a shade off the channels grid beside it.
     //
     // The app is edge-to-edge, so keep the list and the button clear of the navigation bar.
-    Box(modifier = modifier.fillMaxSize().navigationBarsPadding()) {
+    Box(modifier = modifier
+        .fillMaxSize()
+        .navigationBarsPadding()) {
         Column(modifier = Modifier.fillMaxSize()) {
-            if (uiState.isLoading) {
-                DiscoveringDevicesHeader()
-            }
-
             PullToRefreshBox(
                 isRefreshing = uiState.isLoading,
                 onRefresh = { onEvent(MainScreenUiEvent.RefreshEvent) },
+                // No indicator of its own: the LinearProgressIndicator below is the one loading
+                // affordance the screen shows, and the two of them drew at once on a cold start.
+                indicator = {},
                 modifier = Modifier.weight(1f)
             ) {
                 DeviceList(uiState = uiState, onEvent = onEvent)
@@ -127,11 +133,21 @@ fun MainScreen(uiState: MainScreenUiState, onEvent: (MainScreenUiEvent) -> Unit,
             onClick = { onEvent(MainScreenUiEvent.AddDeviceClickedEvent) },
             containerColor = Purple,
             contentColor = Color.White,
-            modifier = Modifier.align(Alignment.BottomEnd).padding(FabMargin)
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(FabMargin)
         ) {
             Icon(
                 imageVector = Icons.Default.Add,
                 contentDescription = stringResource(R.string.connect_manually)
+            )
+        }
+
+        if (uiState.isLoading) {
+            LinearProgressIndicator(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.BottomCenter)
             )
         }
     }
@@ -154,35 +170,38 @@ private fun DeviceList(
     val isEmpty = uiState.pairedDevices.isEmpty() && uiState.availableDevices.isEmpty()
 
     LazyColumn(modifier = modifier.fillMaxSize()) {
-        if (isEmpty) {
-            // The section headers are dropped while there is nothing under either of them, which
-            // is what the ListView's empty view was for - it never actually showed, because the
-            // adapter counted its two headers and so was never empty.
-            if (!uiState.isLoading) {
-                item {
-                    Box(
-                        contentAlignment = Alignment.Center,
-                        // Fills the viewport so the pull gesture still has somewhere to travel.
-                        modifier = Modifier.fillParentMaxSize()
-                    ) {
-                        Text(
-                            text = stringResource(R.string.empty_list),
-                            style = MaterialTheme.typography.bodyMedium
-                        )
-                    }
+        // The section headers are dropped while there is nothing under either of them, which
+        // is what the ListView's empty view was for - it never actually showed, because the
+        // adapter counted its two headers and so was never empty.
+        if (isEmpty && !uiState.isLoading) {
+            item {
+                Box(
+                    contentAlignment = Alignment.Center,
+                    // Fills the viewport so the pull gesture still has somewhere to travel.
+                    modifier = Modifier.fillParentMaxSize()
+                ) {
+                    Text(
+                        text = stringResource(R.string.empty_list),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
                 }
             }
 
             return@LazyColumn
         }
 
-        deviceSection(
-            title = R.string.paired_devices,
-            devices = uiState.pairedDevices,
-            isPaired = true,
-            connectedSerialNumber = uiState.connectedSerialNumber,
-            onEvent = onEvent
-        )
+        // Nothing is paired until the user picks a device, and a "Paired devices" header with
+        // an empty space under it reads as a section that failed to load rather than one the
+        // user has not filled yet. The available devices below it keep their header either way.
+        if (uiState.pairedDevices.isNotEmpty()) {
+            deviceSection(
+                title = R.string.paired_devices,
+                devices = uiState.pairedDevices,
+                isPaired = true,
+                connectedSerialNumber = uiState.connectedSerialNumber,
+                onEvent = onEvent
+            )
+        }
 
         deviceSection(
             title = R.string.available_devices,
@@ -192,15 +211,15 @@ private fun DeviceList(
             onEvent = onEvent
         )
 
-        item {
+        /*item {
             Spacer(modifier = Modifier.height(ListBottomInset))
-        }
+        }*/
     }
 }
 
 /**
- * One of the two sections the SeparatedListAdapter used to stitch together. The header stays put
- * when the section is empty, the way that adapter drew it.
+ * One of the two sections the SeparatedListAdapter used to stitch together. The header is drawn
+ * whenever the section is, so a caller with nothing to show skips the whole call.
  */
 private fun LazyListScope.deviceSection(
     @StringRes title: Int,
@@ -210,7 +229,10 @@ private fun LazyListScope.deviceSection(
     onEvent: (MainScreenUiEvent) -> Unit
 ) {
     item(key = "header-$title") {
-        SectionHeader(title = stringResource(title))
+        SectionHeader(
+            title = stringResource(title),
+            modifier = Modifier.padding(top = 10.dp, bottom = 2.dp)
+        )
     }
 
     items(devices, key = { device -> "$isPaired-${device.serialNumber}" }) { device ->
@@ -239,22 +261,6 @@ private fun SectionHeader(title: String, modifier: Modifier = Modifier) {
         )
 
         HorizontalDivider()
-    }
-}
-
-@Composable
-private fun DiscoveringDevicesHeader(modifier: Modifier = Modifier) {
-    Row(
-        horizontalArrangement = Arrangement.Center,
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier.fillMaxWidth().height(ProgressHeaderHeight)
-    ) {
-        Text(
-            text = stringResource(R.string.discovering_devices),
-            fontSize = DeviceNameFontSize
-        )
-
-        CircularProgressIndicator(modifier = Modifier.padding(start = 8.dp).size(24.dp))
     }
 }
 
@@ -315,7 +321,9 @@ private fun DeviceRow(
             }
         }
 
-        Column(modifier = Modifier.weight(1f).padding(start = 10.dp)) {
+        Column(modifier = Modifier
+            .weight(1f)
+            .padding(start = 10.dp)) {
             // No line limit: the TextView this replaced had none either, and the row is as tall as
             // the icon beside it, so a long name wraps rather than being cut off.
             Text(
@@ -328,12 +336,29 @@ private fun DeviceRow(
                 fontSize = DeviceDetailFontSize
             )
 
-            Text(
-                text = stringResource(
-                    if (isConnected) R.string.connected else R.string.not_connected
-                ),
-                fontSize = DeviceDetailFontSize
-            )
+            // The 70dip disc beside the row only says which device is connected when the device
+            // publishes no picture of itself; a device that does gets its art there instead. The
+            // dot is the marker that survives either branch. Decorative - the word next to it is
+            // what a screen reader reads out.
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (isConnected) {
+                    Box(
+                        modifier = Modifier
+                            .size(ConnectedDotSize)
+                            .clip(CircleShape)
+                            .background(Purple)
+                    )
+
+                    Spacer(modifier = Modifier.width(ConnectedDotGap))
+                }
+
+                Text(
+                    text = stringResource(
+                        if (isConnected) R.string.connected else R.string.not_connected
+                    ),
+                    fontSize = DeviceDetailFontSize
+                )
+            }
         }
 
         DeviceOverflowMenu(

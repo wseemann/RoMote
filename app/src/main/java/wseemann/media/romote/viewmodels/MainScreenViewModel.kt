@@ -45,9 +45,6 @@ class MainScreenViewModel @Inject constructor(
     private val scanGeneration = AtomicInteger()
 
     init {
-        // Nothing else kicks off the first scan. MainFragment used to do this from onCreate, behind
-        // a guard against re-scanning after a rotation; the ViewModel is created once for the
-        // screen either way, so the scan belongs here and the guard is no longer needed.
         onRefresh()
     }
 
@@ -71,12 +68,21 @@ class MainScreenViewModel @Inject constructor(
         viewModelScope.launch(ioDispatcher) {
             _uiState.update { it.copy(isLoading = true) }
 
+            val pairedDevices = deviceRepository.getAllDevices()
+
+            _uiState.update {
+                it.copy(
+                    availableDevices = persistentListOf(),
+                    pairedDevices = pairedDevices.toPersistentList(),
+                    connectedSerialNumber = connectedSerialNumber()
+                )
+            }
+
             try {
                 val discovered = deviceDiscovery.discoverDevices()
 
                 // Read what is paired *after* the scan: a device forgotten while the scan was
                 // running is no longer paired, and has to show up as available again.
-                val pairedDevices = deviceRepository.getAllDevices()
                 val pairedSerialNumbers = pairedDevices.map { it.serialNumber }.toSet()
 
                 if (generation != scanGeneration.get()) {
@@ -174,12 +180,20 @@ class MainScreenViewModel @Inject constructor(
 
             BroadcastUtils.sendUpdateDeviceBroadcast(context)
 
-            // A device that was just paired belongs under "Paired devices" and nowhere else, so
-            // the available list is dropped rather than filtered - the next scan repopulates it.
+            // Read outside the update lambda: update re-runs its lambda if another coroutine wins
+            // the race to publish, and the database should not be read twice for that.
+            val pairedDevices = deviceRepository.getAllDevices()
+            val pairedSerialNumbers = pairedDevices.map { it.serialNumber }.toSet()
+
+            // A device that was just paired belongs under "Paired devices" and nowhere else, so it
+            // is filtered out of the available list by the same rule onRefresh applies to a scan.
+            // The rest of the scan's results stay where they are until the next scan replaces them.
             _uiState.update {
                 it.copy(
-                    availableDevices = persistentListOf(),
-                    pairedDevices = deviceRepository.getAllDevices().toPersistentList(),
+                    availableDevices = it.availableDevices
+                        .filterNot { available -> available.serialNumber in pairedSerialNumbers }
+                        .toPersistentList(),
+                    pairedDevices = pairedDevices.toPersistentList(),
                     connectedSerialNumber = device.serialNumber
                 )
             }
@@ -193,6 +207,14 @@ class MainScreenViewModel @Inject constructor(
      */
     private fun onForgetDevice(serialNumber: String) {
         viewModelScope.launch(ioDispatcher) {
+            // Read while the row still exists: this is the record that moves back to the available
+            // list, and removeDevice below leaves nothing to read it from.
+            val forgottenDevice = deviceRepository.getDevice(serialNumber)?.apply {
+                // The name the user gave it went with the pairing, and a device the scan turned up
+                // has no custom name, so the row reverts to the name the device reports for itself.
+                setCustomUserDeviceName(null)
+            }
+
             deviceRepository.removeDevice(serialNumber)
 
             val connectedSerialNumber = connectedSerialNumber()
@@ -200,22 +222,40 @@ class MainScreenViewModel @Inject constructor(
             if (connectedSerialNumber == null || connectedSerialNumber == serialNumber) {
                 deviceManager.setConnectedDevice(null)
 
-                // Nothing else announces this: onRefresh below reaches refreshConnectedDevice,
-                // which now returns early because there is no connected device left to refresh.
-                // Without the broadcast the remote and channels tabs keep showing the device that
-                // was just unpaired until the process restarts.
+                // Nothing else announces this: refreshConnectedDevice returns early once there is
+                // no connected device left to refresh. Without the broadcast the remote and
+                // channels tabs keep showing the device that was just unpaired until the process
+                // restarts.
                 BroadcastUtils.sendUpdateDeviceBroadcast(context)
             }
 
+            // Read outside the update lambda, which re-runs if another coroutine wins the race to
+            // publish - the database should not be read again for that.
+            val pairedDevices = deviceRepository.getAllDevices()
+            val updatedConnectedSerialNumber = connectedSerialNumber()
+
             _uiState.update {
                 it.copy(
-                    pairedDevices = deviceRepository.getAllDevices().toPersistentList(),
-                    connectedSerialNumber = connectedSerialNumber()
+                    // The mirror of onDeviceSelected: a device that is no longer paired is one the
+                    // last scan found and nothing more, so it goes back under "Available devices"
+                    // rather than disappearing until the next scan.
+                    availableDevices = if (
+                        forgottenDevice != null &&
+                        it.availableDevices.none { available ->
+                            available.serialNumber == serialNumber
+                        }
+                    ) {
+                        (it.availableDevices + forgottenDevice).toPersistentList()
+                    } else {
+                        it.availableDevices
+                    },
+                    pairedDevices = pairedDevices.toPersistentList(),
+                    connectedSerialNumber = updatedConnectedSerialNumber
                 )
             }
 
             // Only rescan once the row is gone, so the scan can see the device as unpaired.
-            onRefresh()
+            //onRefresh()
         }
     }
 
