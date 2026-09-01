@@ -18,19 +18,21 @@ object DispatchersModule {
 
     @IoDispatcher
     @Provides
-    fun provideIoDispatcher(): CoroutineDispatcher = Dispatchers.IO
+    fun provideIoDispatcher(): CoroutineDispatcher {
+        return Dispatchers.IO
+    }
 
     @MainDispatcher
     @Provides
-    fun provideMainDispatcher(): CoroutineDispatcher = Dispatchers.Main
+    fun provideMainDispatcher(): CoroutineDispatcher {
+        return Dispatchers.Main
+    }
 }
 
-/** The dispatcher for blocking IO: network calls, SQLite reads, socket work. */
 @Retention(AnnotationRetention.RUNTIME)
 @Qualifier
 annotation class IoDispatcher
 
-/** The main thread, for delivering results to the UI. */
 @Retention(AnnotationRetention.RUNTIME)
 @Qualifier
 annotation class MainDispatcher
