@@ -36,10 +36,6 @@
         android:theme="@style/AppTheme.NoActionBar"
         android:usesCleartextTraffic="true">
 
-        <!-- Android 16 ignores android:screenOrientation on displays 600dp and wider for apps
-             targeting SDK 36. Every Activity here is still portrait-only, so opt out until the
-             screens have been laid out for landscape. The platform drops this escape hatch in a
-             later SDK. -->
         <property
             android:name="android.window.PROPERTY_COMPAT_ALLOW_RESTRICTED_RESIZABILITY"
             android:value="true" />
