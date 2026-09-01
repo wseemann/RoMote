@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import wseemann.media.romote.BuildConfig
 import wseemann.media.romote.device.DeviceManager
 import wseemann.media.romote.di.IoDispatcher
 import wseemann.media.romote.event.SettingsScreenUiEvent
@@ -24,9 +25,11 @@ class SettingsScreenViewModel @Inject constructor(
     private val appPreferences: AppPreferences
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(SettingsScreenUiState(
+    private val _uiState = MutableStateFlow(
+        SettingsScreenUiState(
             shakeToPauseEnabled = appPreferences.isShakeToPauseEnabled(),
-            notificationWidgetEnabled = appPreferences.isNotificationWidgetEnabled()
+            notificationWidgetEnabled = appPreferences.isNotificationWidgetEnabled(),
+            versionName = BuildConfig.VERSION_NAME
         )
     )
     val uiState = _uiState.asStateFlow()

@@ -73,12 +73,12 @@ fun SettingsScreen(
                 onCheckedChange = { onEvent(SettingsScreenUiEvent.ShakeToPauseToggledEvent(it)) }
             )
 
-            SettingsSwitchRow(
+            /*SettingsSwitchRow(
                 title = stringResource(R.string.notification_title_checkbox_preference),
                 summary = stringResource(R.string.notification_to_pause_summary_checkbox_preference),
                 checked = uiState.notificationWidgetEnabled,
                 onCheckedChange = rememberNotificationWidgetToggle(onEvent)
-            )
+            )*/
 
             SettingsCategoryHeader(title = stringResource(R.string.settings_other_category))
 
@@ -105,6 +105,11 @@ fun SettingsScreen(
                 title = stringResource(R.string.donate_title_preference),
                 summary = stringResource(R.string.donate_summary_preference),
                 onClick = onDonateClick
+            )
+
+            SettingsInfoRow(
+                title = stringResource(R.string.version_title_preference),
+                summary = uiState.versionName
             )
         }
     }
@@ -205,6 +210,18 @@ private fun SettingsActionRow(
     )
 }
 
+@Composable
+private fun SettingsInfoRow(title: String, summary: String, modifier: Modifier = Modifier) {
+    // Nothing to tap - this row only reports a value.
+    SettingsListItem(
+        title = title,
+        summary = summary,
+        enabled = true,
+        trailingContent = null,
+        modifier = modifier
+    )
+}
+
 /**
  * ListItem's container defaults to colorScheme.surface, which RomoteTheme leaves at the tinted
  * Material 3 default rather than the window background it pins for `background`. Staying
@@ -243,7 +260,8 @@ private fun SettingsScreenPreview() {
             uiState = SettingsScreenUiState(
                 shakeToPauseEnabled = true,
                 notificationWidgetEnabled = false,
-                findRemoteSupported = true
+                findRemoteSupported = true,
+                versionName = "2.0.0"
             ),
             onEvent = {},
             onLicensesClick = {},

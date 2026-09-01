@@ -79,6 +79,8 @@
     <string name="donate_title_preference">Donate</string>
     <string name="donate_summary_preference">Support RoMote development</string>
 
+    <string name="version_title_preference">Version</string>
+
     <string name="close">Close</string>
 
     <string name="power_dialog_title">Power Off</string>
