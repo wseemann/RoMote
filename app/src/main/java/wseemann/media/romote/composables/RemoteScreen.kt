@@ -3,6 +3,7 @@ package wseemann.media.romote.composables
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -22,6 +23,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.union
+import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
@@ -90,6 +92,9 @@ private val KeyboardBarHeight = 48.dp
 
 /** @drawable/remote_button_bg's flat fill, so the keyboard bar sits on the same black as the buttons. */
 private val KeyboardBarBackground = Color(0xFF151218)
+
+/** remote_bg.png's bottom edge, so the strip behind the navigation bar is seamless with the artwork. */
+private val NavigationBarBackground = Color(0xFF0A0A0A)
 
 /**
  * The remote tab. A pure function of [uiState] - the private listening service binding belongs to
@@ -273,6 +278,21 @@ fun RemoteScreen(uiState: RemoteScreenUiState, onEvent: (RemoteScreenUiEvent) ->
                     }
                 }
             }
+        }
+
+        // Day theme only, matching the bar styling in MainActivity: there the bar is transparent
+        // over this tab, so the screen has to paint what sits behind it - the artwork covers that
+        // edge, but the empty state has none to show through and white icons on the white window
+        // background would vanish. The night theme keeps Android's own navigation bar, so painting
+        // under it would only fight it. Zero-height in landscape, where the bar moves to the side.
+        if (!isSystemInDarkTheme()) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.BottomCenter)
+                    .fillMaxWidth()
+                    .windowInsetsBottomHeight(WindowInsets.navigationBars)
+                    .background(NavigationBarBackground)
+            )
         }
 
         if (uiState.keyboardActive) {

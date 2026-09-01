@@ -8,6 +8,7 @@ import android.os.Bundle
 import android.os.IBinder
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.padding
@@ -56,6 +57,7 @@ import wseemann.media.romote.event.ChannelScreenUiEvent
 import wseemann.media.romote.inappreview.AppReviewManager
 import wseemann.media.romote.service.NotificationService
 import wseemann.media.romote.utils.Constants
+import wseemann.media.romote.utils.enableRomoteEdgeToEdge
 import wseemann.media.romote.viewmodels.ChannelScreenViewModel
 import wseemann.media.romote.viewmodels.ConnectivityViewModel
 import wseemann.media.romote.viewmodels.MainScreenViewModel
@@ -135,6 +137,23 @@ class MainActivity : ShakeActivity() {
         fun dismissRemoteAccessHelp() {
             isRemoteAccessHelpVisible = false
             appPreferences.setRemoteAccessHelpSeen()
+        }
+
+        // Only in the day theme. There the adaptive bar would put a near-white band under the
+        // remote's near-black artwork, so the tab paints its own surface behind the bar and this
+        // styles the bar to get out of the way. The night theme is left alone deliberately - the
+        // navigation bar keeps whatever Android gives it, the same as every other screen.
+        //
+        // Keyed on currentPage rather than settledPage so the bar turns over at the halfway point of
+        // a swipe, when the dark artwork already covers most of the screen, instead of lagging until
+        // it lands.
+        val isDarkTheme = isSystemInDarkTheme()
+
+        LaunchedEffect(pagerState.currentPage, isDarkTheme) {
+            enableRomoteEdgeToEdge(
+                activity = this@MainActivity,
+                darkNavigationBar = pagerState.currentPage == REMOTE_PAGE && !isDarkTheme
+            )
         }
 
         LaunchedEffect(Unit) {
