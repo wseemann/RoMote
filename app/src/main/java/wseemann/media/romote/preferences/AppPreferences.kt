@@ -5,9 +5,7 @@ import androidx.core.content.edit
 
 class AppPreferences(private val sharedPreferences: SharedPreferences) {
 
-    fun isHapticFeedbackEnabled(): Boolean {
-        return sharedPreferences.getBoolean(APP_PREFERENCE_HAPTIC_FEEDBACK, false)
-    }
+    fun isHapticFeedbackEnabled(): Boolean = sharedPreferences.getBoolean(APP_PREFERENCE_HAPTIC_FEEDBACK, false)
 
     fun setHapticFeedbackEnabled(enabled: Boolean) {
         sharedPreferences.edit {
@@ -15,9 +13,7 @@ class AppPreferences(private val sharedPreferences: SharedPreferences) {
         }
     }
 
-    fun isNotificationWidgetEnabled(): Boolean {
-        return sharedPreferences.getBoolean(APP_PREFERENCE_NOTIFICATION_WIDGET, false)
-    }
+    fun isNotificationWidgetEnabled(): Boolean = sharedPreferences.getBoolean(APP_PREFERENCE_NOTIFICATION_WIDGET, false)
 
     fun setNotificationWidgetEnabled(enabled: Boolean) {
         sharedPreferences.edit {
@@ -25,9 +21,7 @@ class AppPreferences(private val sharedPreferences: SharedPreferences) {
         }
     }
 
-    fun isShakeToPauseEnabled(): Boolean {
-        return sharedPreferences.getBoolean(APP_PREFERENCE_SHAKE_TO_PAUSE, false)
-    }
+    fun isShakeToPauseEnabled(): Boolean = sharedPreferences.getBoolean(APP_PREFERENCE_SHAKE_TO_PAUSE, false)
 
     fun setShakeToPauseEnabled(enabled: Boolean) {
         sharedPreferences.edit {
@@ -35,9 +29,7 @@ class AppPreferences(private val sharedPreferences: SharedPreferences) {
         }
     }
 
-    fun getFirstLaunchMillis(): Long {
-        return sharedPreferences.getLong(APP_PREFERENCE_REVIEW_FIRST_LAUNCH, 0L)
-    }
+    fun getFirstLaunchMillis(): Long = sharedPreferences.getLong(APP_PREFERENCE_REVIEW_FIRST_LAUNCH, 0L)
 
     fun setFirstLaunchMillis(millis: Long) {
         sharedPreferences.edit {
@@ -45,9 +37,7 @@ class AppPreferences(private val sharedPreferences: SharedPreferences) {
         }
     }
 
-    fun getEngagedSessionCount(): Int {
-        return sharedPreferences.getInt(APP_PREFERENCE_REVIEW_ENGAGED_SESSIONS, 0)
-    }
+    fun getEngagedSessionCount(): Int = sharedPreferences.getInt(APP_PREFERENCE_REVIEW_ENGAGED_SESSIONS, 0)
 
     fun setEngagedSessionCount(count: Int) {
         sharedPreferences.edit {
@@ -55,9 +45,7 @@ class AppPreferences(private val sharedPreferences: SharedPreferences) {
         }
     }
 
-    fun hasSeenRemoteAccessHelp(): Boolean {
-        return sharedPreferences.getBoolean(APP_PREFERENCE_REMOTE_ACCESS_HELP_SEEN, false)
-    }
+    fun hasSeenRemoteAccessHelp(): Boolean = sharedPreferences.getBoolean(APP_PREFERENCE_REMOTE_ACCESS_HELP_SEEN, false)
 
     fun setRemoteAccessHelpSeen() {
         sharedPreferences.edit {
@@ -65,9 +53,7 @@ class AppPreferences(private val sharedPreferences: SharedPreferences) {
         }
     }
 
-    fun getLastReviewPromptMillis(): Long {
-        return sharedPreferences.getLong(APP_PREFERENCE_REVIEW_LAST_PROMPT, 0L)
-    }
+    fun getLastReviewPromptMillis(): Long = sharedPreferences.getLong(APP_PREFERENCE_REVIEW_LAST_PROMPT, 0L)
 
     fun setLastReviewPromptMillis(millis: Long) {
         sharedPreferences.edit {
