@@ -120,9 +120,8 @@ class MainScreenViewModel @Inject constructor(
     }
 
     /**
-     * Refreshes the stored record of the connected device, in case its details (host, name, ...)
-     * changed since it was paired. It reuses the scan the caller already ran rather than starting
-     * a second one alongside it.
+     * Refreshes the stored record of the connected device, in case its details changed since it was
+     * paired. Reuses the scan the caller already ran rather than starting a second one alongside it.
      */
     private fun refreshConnectedDevice(discovered: List<Device>) {
         val connectedSerialNumber = connectedSerialNumber()
@@ -139,8 +138,6 @@ class MainScreenViewModel @Inject constructor(
     }
 
     /**
-     * Gives paired devices the image the scan just found for them.
-     *
      * refreshConnectedDevice only writes back the connected device, and a device paired before the
      * app knew about device images has no image url stored at all, so without this a paired but
      * unconnected device would keep drawing the placeholder for good.
@@ -168,11 +165,7 @@ class MainScreenViewModel @Inject constructor(
         null
     }
 
-    /**
-     * Pairs with the tapped device and makes it the connected one. This ran on the main thread
-     * from the list's click listener, database writes and all; the toast and the widget update it
-     * also did stay with DevicesTab, which needs its own Context for them.
-     */
+    /** The toast and the widget update stay with DevicesTab, which needs its own Context. */
     private fun onDeviceSelected(device: Device) {
         viewModelScope.launch(ioDispatcher) {
             deviceRepository.insertDevice(device)
@@ -187,7 +180,6 @@ class MainScreenViewModel @Inject constructor(
 
             // A device that was just paired belongs under "Paired devices" and nowhere else, so it
             // is filtered out of the available list by the same rule onRefresh applies to a scan.
-            // The rest of the scan's results stay where they are until the next scan replaces them.
             _uiState.update {
                 it.copy(
                     availableDevices = it.availableDevices
@@ -200,18 +192,13 @@ class MainScreenViewModel @Inject constructor(
         }
     }
 
-    /**
-     * Unpairs a device. This used to run on the main thread from the fragment's popup menu, and
-     * blanked the connected device whichever device was being forgotten - so forgetting a
-     * secondary device silently disconnected the active one.
-     */
     private fun onForgetDevice(serialNumber: String) {
         viewModelScope.launch(ioDispatcher) {
             // Read while the row still exists: this is the record that moves back to the available
             // list, and removeDevice below leaves nothing to read it from.
             val forgottenDevice = deviceRepository.getDevice(serialNumber)?.apply {
-                // The name the user gave it went with the pairing, and a device the scan turned up
-                // has no custom name, so the row reverts to the name the device reports for itself.
+                // The name the user gave it went with the pairing, so the row reverts to the name
+                // the device reports for itself.
                 setCustomUserDeviceName(null)
             }
 
@@ -253,9 +240,6 @@ class MainScreenViewModel @Inject constructor(
                     connectedSerialNumber = updatedConnectedSerialNumber
                 )
             }
-
-            // Only rescan once the row is gone, so the scan can see the device as unpaired.
-            //onRefresh()
         }
     }
 
@@ -274,11 +258,6 @@ class MainScreenViewModel @Inject constructor(
         _uiState.update { it.copy(renameTarget = null) }
     }
 
-    /**
-     * Stores the name the rename dialog collected. EditDeviceNameDialog used to do this itself, on
-     * the main thread, and tell the list to refresh through a listener a configuration change threw
-     * away - so a rename confirmed after a rotation reached the database but never the list.
-     */
     private fun onRenameDeviceConfirmed(name: String) {
         val target = _uiState.value.renameTarget ?: return
 
@@ -291,8 +270,7 @@ class MainScreenViewModel @Inject constructor(
                 BroadcastUtils.sendUpdateDeviceBroadcast(context)
             }
 
-            // The old listener cleared the available devices before reloading the paired ones,
-            // because a renamed device is a paired one and has no business in both lists.
+            // A renamed device is a paired one, and has no business in both lists.
             _uiState.update {
                 it.copy(
                     availableDevices = persistentListOf(),

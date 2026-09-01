@@ -10,22 +10,18 @@ import java.net.SocketTimeoutException
  * A Roku that answered an M-SEARCH.
  *
  * @param host the ECP base URL ("http://192.168.1.9:8060"), which every request is built on.
- * @param descriptionUrl the LOCATION the device advertised, verbatim. Roku points it at the UPnP
- *        description document, so this is where [DeviceDescription] looks for the device image
- *        rather than assembling a path we guessed at.
+ * @param descriptionUrl the LOCATION the device advertised, verbatim - the UPnP description
+ *        document, which is where [DeviceDescription] looks for the device image.
  */
 data class SsdpDevice(val host: String, val descriptionUrl: String)
 
 /**
  * SSDP M-SEARCH discovery for Roku devices.
  *
- * This replaces com.wseemann.ecp.api.DeviceRequests.discoverDevices(), whose implementation
- * calls DatagramSocket.receive() without a socket timeout inside a fixed ten iteration loop.
- * UDP replies are dropped routinely over Wi-Fi, and the first drop blocks receive() forever on
- * a thread that Thread.interrupt() cannot wake, so the scan never returns.
- *
- * Here the socket has a read timeout and the whole scan has a deadline, so it always terminates,
- * with an empty list when nothing answered.
+ * Replaces com.wseemann.ecp.api.DeviceRequests.discoverDevices(), which calls
+ * DatagramSocket.receive() with no socket timeout: UDP replies are dropped routinely over Wi-Fi,
+ * and the first drop blocks receive() forever on a thread Thread.interrupt() cannot wake. Here the
+ * socket has a read timeout and the scan has a deadline, so it always terminates.
  */
 object SsdpDiscovery {
 
@@ -58,8 +54,6 @@ object SsdpDiscovery {
     }
 
     /**
-     * Sends an M-SEARCH and collects replies until [timeoutMillis] elapses.
-     *
      * @return every Roku that answered, deduplicated by host and in the order they replied. Empty
      *         when nothing answered - never an exception.
      */
@@ -112,16 +106,14 @@ object SsdpDiscovery {
     }
 
     /**
-     * Reads the base URL out of an SSDP reply's LOCATION header, which looks like
-     * "LOCATION: http://192.168.1.9:8060/". Returns null when the response carries no usable
-     * location, so a stray datagram from some other SSDP responder is simply ignored.
+     * Returns null when the response carries no usable location, so a stray datagram from some
+     * other SSDP responder is simply ignored.
      */
     internal fun parseLocation(response: String): String? = locationHeader(response)?.let { baseUrl(it) }
 
     /**
-     * The same header, but with its path left on, because that path is the device's description
-     * document. Roku answers ST roku:ecp with "http://192.168.1.9:8060/", which serves the
-     * document that names the device image.
+     * The same header with its path left on, because that path is the device's description
+     * document - the one that names the device image.
      */
     internal fun parseDescriptionUrl(response: String): String? {
         val location = locationHeader(response) ?: return null
@@ -130,7 +122,6 @@ object SsdpDiscovery {
         return if (baseUrl(location) == null) null else location
     }
 
-    /** The LOCATION header's value, verbatim, once it is known to be an http(s) URL. */
     private fun locationHeader(response: String): String? {
         val location = response.lineSequence()
             .map { it.trim() }
@@ -148,10 +139,7 @@ object SsdpDiscovery {
         return location
     }
 
-    /**
-     * Keeps scheme, host and port and drops the path ("/" on a Roku) so the result can be used
-     * directly as an ECP base URL.
-     */
+    /** Drops the path ("/" on a Roku) so the result can be used directly as an ECP base URL. */
     private fun baseUrl(location: String): String? {
         val schemeEnd = location.indexOf("//") + 2
         val pathStart = location.indexOf('/', schemeEnd)

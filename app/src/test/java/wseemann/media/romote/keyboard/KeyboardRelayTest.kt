@@ -7,9 +7,6 @@ import org.junit.Assert.assertEquals
 import org.junit.Test
 
 /**
- * The relay's job is to turn an edit into the keys that reproduce it on a device whose own field
- * cannot be read back, so what is asserted here is the key sequence, in order.
- *
  * Dispatchers.Unconfined resumes the sending coroutine on the thread that queued the key, which
  * makes the relay's sends land synchronously and keeps these tests free of a scheduler.
  */
@@ -22,10 +19,7 @@ class KeyboardRelayTest {
         dispatcher = Dispatchers.Unconfined
     ) { key -> sent += key }
 
-    /**
-     * The keys sent since the last call, so each step of a test asserts only its own output,
-     * rendered the way Device puts them on the wire.
-     */
+    /** The keys sent since the last call, so each step asserts only its own output. */
     private fun drain(): List<String> = drainKeys().map { key ->
         when (key) {
             is KeyboardRelay.Key.Named -> key.value.value
@@ -33,7 +27,6 @@ class KeyboardRelayTest {
         }
     }
 
-    /** The keys themselves, for the tests that care which kind of key was sent. */
     private fun drainKeys(): List<KeyboardRelay.Key> = sent.toList().also { sent.clear() }
 
     @Test

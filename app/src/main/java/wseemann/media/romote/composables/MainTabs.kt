@@ -86,9 +86,6 @@ fun DevicesTab(viewModel: MainScreenViewModel, modifier: Modifier = Modifier) {
 }
 
 /**
- * The remote tab. Owns the private listening binding and the broadcast that tells the other tabs
- * the device moved on.
- *
  * [isCurrentPage] is what takes the soft keyboard down when the user swipes away. The pager keeps
  * this page composed either side of the one on screen, so without it the keyboard would stay up and
  * keep relaying what was typed on another tab.
@@ -132,9 +129,8 @@ fun RemoteTab(viewModel: RemoteScreenViewModel, isCurrentPage: Boolean, modifier
     }
 
     /**
-     * Re-reads the device on the way back to the foreground. RemoteFragment refreshed the private
-     * listening button here for the same reason: the user may have left to install the companion
-     * app, and the screen has no other way to find out.
+     * Re-reads the device on the way back to the foreground: the user may have left to install the
+     * private listening companion app, and the screen has no other way to find out.
      */
     LifecycleEventEffect(Lifecycle.Event.ON_RESUME) {
         viewModel.onHandleEvent(RemoteScreenUiEvent.DeviceChangedEvent)
@@ -183,12 +179,8 @@ fun RemoteTab(viewModel: RemoteScreenViewModel, isCurrentPage: Boolean, modifier
 }
 
 /**
- * The channels tab: a grid of the apps installed on the connected device.
- *
- * The grid loads the first time the tab is selected, which is what MainActivity's
- * OnPageChangeListener used to drive through ChannelFragment.refresh(). The other caller of that
- * method, a reconnect, is handled by MainActivity, which reloads the grid when
- * ConnectivityViewModel reports the phone is back on a local network.
+ * The grid loads the first time the tab is selected. A reconnect reloads it too, driven by
+ * MainActivity when ConnectivityViewModel reports the phone is back on a local network.
  */
 @Composable
 fun ChannelsTab(viewModel: ChannelScreenViewModel, isCurrentPage: Boolean, modifier: Modifier = Modifier) {
@@ -223,11 +215,9 @@ fun ChannelsTab(viewModel: ChannelScreenViewModel, isCurrentPage: Boolean, modif
         onEvent = { event ->
             /**
              * Launching a channel changes what the device is playing, and NotificationService
-             * listens for this broadcast to re-query the active app and redraw the now-playing
-             * notification - nothing else refreshes it while the app runs. The receiver above
-             * hears it too, and ignores it: the installed app list can't have changed. Sending it
-             * here rather than from the ViewModel keeps a Context out of the ViewModel, and keeps
-             * [ChannelScreen] a pure function of its state.
+             * listens for this broadcast to redraw the now-playing notification - nothing else
+             * refreshes it while the app runs. Sent here rather than from the ViewModel to keep a
+             * Context out of it, and to keep [ChannelScreen] a pure function of its state.
              */
             if (event is ChannelScreenUiEvent.ChannelClickedEvent) {
                 BroadcastUtils.sendUpdateDeviceBroadcast(context)

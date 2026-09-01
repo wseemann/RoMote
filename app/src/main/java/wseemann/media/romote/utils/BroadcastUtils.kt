@@ -13,9 +13,6 @@ object BroadcastUtils {
         context.sendBroadcast(intent)
     }
 
-    /**
-     * Tells the home screen widgets to redraw against the device that was just connected.
-     */
     fun sendWidgetUpdateBroadcast(context: Context) {
         val widgetManager = AppWidgetManager.getInstance(context)
         val widgetComponent = ComponentName(context, RokuAppWidgetProvider::class.java)

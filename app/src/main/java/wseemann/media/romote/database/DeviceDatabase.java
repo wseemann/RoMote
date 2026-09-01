@@ -121,17 +121,14 @@ public class DeviceDatabase extends SQLiteOpenHelper {
     }
 
     /**
-     * Brings the table up to [newVersion].
-     *
-     * This used to test newVersion instead of oldVersion, so upgrading straight from version one
-     * to version four ran only the version four alter and left every column the earlier ones add
-     * missing - parseDevice then asked for a column index of -1 and threw.
+     * An earlier version of this method tested newVersion instead of oldVersion, so upgrading
+     * straight from version one to version four ran only the version four alter and left every
+     * column the earlier ones add missing.
      *
      * Those databases still exist on people's phones, claiming version four while missing columns
      * from version two, so replaying only the alters after oldVersion would leave them broken.
      * Every alter is replayed instead, and the duplicate column error the ones already applied
-     * raise is swallowed. onUpgrade only runs when the version actually changes, so the wasted
-     * statements cost nothing at startup.
+     * raise is swallowed.
      */
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {

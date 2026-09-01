@@ -36,12 +36,8 @@ import wseemann.media.romote.event.SettingsScreenUiEvent
 import wseemann.media.romote.model.SettingsScreenUiState
 
 /**
- * The settings screen: what SettingsFragment used to build out of res/xml/preferences.xml.
- *
- * The three switches are the CheckBoxPreferences; PreferenceFragmentCompat persisted those itself,
- * so here the writes go through SettingsScreenViewModel instead. Leaving the screen - to the
- * licenses list or the donation page - stays with the Activity, so this composable remains a pure
- * function of its state.
+ * Leaving the screen - to the licenses list or the donation page - stays with the Activity, so this
+ * composable remains a pure function of its state.
  */
 @Composable
 fun SettingsScreen(
@@ -115,14 +111,10 @@ fun SettingsScreen(
 }
 
 /**
- * The notification widget switch, wrapped in the POST_NOTIFICATIONS request API 33 introduced.
- *
- * The switch is only allowed to latch on once the permission is actually held: NotificationService
- * posts through NotificationManager, which drops everything silently while the permission is
- * missing, so a switch that turned on regardless would be advertising a notification that never
- * arrives.
- *
- * @return the onCheckedChange to hand the switch.
+ * The switch is only allowed to latch on once POST_NOTIFICATIONS is actually held:
+ * NotificationService posts through NotificationManager, which drops everything silently while the
+ * permission is missing, so a switch that turned on regardless would be advertising a notification
+ * that never arrives.
  */
 @Composable
 private fun rememberNotificationWidgetToggle(onEvent: (SettingsScreenUiEvent) -> Unit): (Boolean) -> Unit {
@@ -160,9 +152,6 @@ private fun hasNotificationPermission(context: Context): Boolean =
         ContextCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) ==
         PackageManager.PERMISSION_GRANTED
 
-/**
- * Stands in for PreferenceCategory, which drew its title in the accent color above the group.
- */
 @Composable
 private fun SettingsCategoryHeader(title: String, modifier: Modifier = Modifier) {
     HorizontalDivider()
@@ -218,9 +207,8 @@ private fun SettingsActionRow(
 
 /**
  * ListItem's container defaults to colorScheme.surface, which RomoteTheme leaves at the tinted
- * Material 3 default rather than the window background it pins for `background` - see
- * DeviceInfoScreen for the same note. Staying transparent keeps every row on the Activity's
- * background, the way the preference list used to sit.
+ * Material 3 default rather than the window background it pins for `background`. Staying
+ * transparent keeps every row on the Activity's background.
  *
  * ListItem has no disabled state of its own, so a disabled row dims its own text.
  */

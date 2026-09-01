@@ -3,11 +3,6 @@ package wseemann.media.romote.network
 import org.junit.Assert
 import org.junit.Test
 
-/**
- * The rule that decides whether the "no local network" dialog goes up. The check this replaced
- * asked whether the active network's type was exactly TYPE_WIFI, which is what put the dialog in
- * front of anyone whose phone was hardwired.
- */
 class LocalNetworkPolicyTest {
 
     @Test

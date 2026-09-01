@@ -17,16 +17,10 @@ import wseemann.media.romote.composables.theme.OnPurple
 import wseemann.media.romote.composables.theme.Purple
 
 /**
- * The purple app bar the XML screens used to get from AppBarLayout + Toolbar. The colors come from
- * the theme rather than the `purple` color resource so the bar follows RomoteTheme the way the rest
- * of the Compose screens do.
- *
- * Hosted in a Scaffold's `topBar` slot, this also consumes the status bar inset, which is what
- * applyStatusBarTopPadding used to do for the XML app bars.
+ * Hosted in a Scaffold's `topBar` slot, this also consumes the status bar inset.
  *
  * [onBackClick] is null on the main screen, which is the root of the task and has nowhere to go up
- * to; every other screen passes one and gets the up arrow. [actions] is what MainActivity's options
- * menu (menu/main.xml) became.
+ * to; every other screen passes one and gets the up arrow.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -50,9 +44,8 @@ fun RomoteTopAppBar(
         },
         actions = actions,
         colors = TopAppBarDefaults.topAppBarColors(
-            // Named directly rather than taken from the primary role: this is the branded purple
-            // bar the XML screens draw, and it stays that purple in both themes. The dark scheme's
-            // primary is a light tone, meant for foregrounds.
+            // Named directly rather than taken from the primary role: the bar stays this purple in
+            // both themes, and the dark scheme's primary is a light tone meant for foregrounds.
             containerColor = Purple,
             titleContentColor = OnPurple,
             navigationIconContentColor = OnPurple,

@@ -7,23 +7,12 @@ import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 
 /**
- * Maps the XML AppTheme (styles.xml, parent Theme.MaterialComponents.DayNight) onto Material 3:
- *
- *   colorPrimary        -> primary
- *   colorAccent /
- *   colorSecondary      -> secondary
- *   colorSecondaryVariant -> tertiary
- *
- * There is no values-night/styles.xml override, so the XML theme resolves the same brand purples in
- * light and dark. The Compose chrome that wants that branded purple bar - the top app bar, the tab
- * strip, the FAB, the connected-device dot - names [Purple]/[OnPurple] directly rather than going
- * through the primary role, the same way PurpleButton and DeviceIconBackground already do. That
- * leaves `primary` free to be what Material 3 uses it for: a foreground. Material 3 draws every
+ * The chrome that wants the branded purple bar - the top app bar, the tab strip, the FAB, the
+ * connected-device dot - names [Purple]/[OnPurple] directly rather than going through the primary
+ * role. That leaves `primary` free to be what Material 3 uses it for: a foreground. M3 draws every
  * dialog action button and every settings category header in it, and #65318F on a dark surface is
- * 1.6:1 - so the dark scheme takes its tone 80 instead. The backgrounds are pinned to the values
- * Theme.MaterialComponents.DayNight resolves to, because the Material 3 defaults are a tinted white
- * and a warm grey that read as a different app next to the XML screens. Typography and shapes stay
- * at the Material 3 defaults because the XML theme never customized them.
+ * 1.6:1, so the dark scheme takes its tone 80 instead. The backgrounds are pinned because the M3
+ * defaults are a tinted white and a warm grey that read as a different app.
  */
 private val LightColorScheme = lightColorScheme(
     primary = Purple,

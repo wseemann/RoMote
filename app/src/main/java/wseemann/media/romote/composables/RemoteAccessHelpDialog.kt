@@ -22,8 +22,7 @@ import wseemann.media.romote.composables.theme.RomoteTheme
  *
  * Current Roku OS ships that setting on Limited, which only lets a third-party app send text and
  * launch channels - so without this the first thing a new user sees is a remote whose buttons do
- * nothing, with nothing on screen saying why. MainActivity shows this once and records that it has,
- * so it never comes back.
+ * nothing, with nothing on screen saying why.
  *
  * Cancellable on purpose: backing out or tapping outside counts as having seen it, the same as
  * "Got it". Nothing here is a decision the app needs an answer to.
@@ -33,9 +32,8 @@ fun RemoteAccessHelpDialog(onLearnMoreClick: () -> Unit, onDismiss: () -> Unit, 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text(text = stringResource(R.string.remote_access_dialog_title)) },
-        // Five steps plus the intro and the closing note are taller than the dialog on a short or
-        // landscape screen, and AlertDialog's text slot does not scroll on its own - without this
-        // the buttons get pushed off the bottom.
+        // The steps are taller than the dialog on a short or landscape screen, and AlertDialog's
+        // text slot does not scroll on its own - without this the buttons are pushed off the bottom.
         text = {
             Column(
                 verticalArrangement = Arrangement.spacedBy(4.dp),

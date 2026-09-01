@@ -75,40 +75,30 @@ import wseemann.media.romote.event.RemoteScreenUiEvent
 import wseemann.media.romote.model.RemoteScreenUiState
 import wseemann.media.romote.model.RemoteScreenUiState.PrivateListening
 
-/** @dimen/remote_view_top_title_height, the height the device name TextView was fixed at. */
 private val DeviceNameHeight = 35.dp
-
-/** @dimen/font_size_18sp. */
 private val DeviceNameFontSize = 18.sp
-
-/** The margin every button row carried between itself and the row above. */
 private val RowSpacing = 10.dp
-
-/** The power button was a fixed 52dip square rather than sharing the row's weight. */
 private val PowerButtonSize = 52.dp
-
-/** The height of the bar that rides on top of the soft keyboard. */
 private val KeyboardBarHeight = 48.dp
 
-/** @drawable/remote_button_bg's flat fill, so the keyboard bar sits on the same black as the buttons. */
+/** The remote buttons' flat fill, so the keyboard bar sits on the same black as they do. */
 private val KeyboardBarBackground = Color(0xFF151218)
 
 /** remote_bg.png's bottom edge, so the strip behind the navigation bar is seamless with the artwork. */
 private val NavigationBarBackground = Color(0xFF0A0A0A)
 
 /**
- * The remote tab. A pure function of [uiState] - the private listening service binding belongs to
- * RemoteTab, which intercepts those events before they get here.
+ * A pure function of [uiState] - the private listening service binding belongs to RemoteTab, which
+ * intercepts those events before they get here.
  */
 @Composable
 fun RemoteScreen(uiState: RemoteScreenUiState, onEvent: (RemoteScreenUiEvent) -> Unit, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val softwareKeyboard = LocalSoftwareKeyboardController.current
 
-    // Removing the bar takes focus off its field, which is normally enough to send the IME away.
-    // Asking for it explicitly covers the keyboard button, which puts the keyboard down while the
-    // user is still typing into it. Only on the way out of keyboard mode, so that the tab being
-    // composed does not swipe away a keyboard something else raised.
+    // Removing the bar takes focus off its field, which is normally enough to send the IME away;
+    // asking explicitly covers the keyboard button, which puts the keyboard down mid-typing. Only
+    // on the way out of keyboard mode, so composing the tab cannot dismiss someone else's keyboard.
     var keyboardWasActive by remember { mutableStateOf(false) }
 
     LaunchedEffect(uiState.keyboardActive) {
@@ -132,9 +122,7 @@ fun RemoteScreen(uiState: RemoteScreenUiState, onEvent: (RemoteScreenUiEvent) ->
         modifier = modifier
             .fillMaxSize()
             // The artwork is the frame around the buttons, so it is only drawn when there are
-            // buttons to frame; the empty state below sits on the plain window background the way
-            // the channels grid's does. A View background bitmap is stretched to the view's
-            // bounds, not letterboxed.
+            // buttons to frame; the empty state below sits on the plain window background.
             .then(
                 if (uiState.isDeviceConnected) {
                     Modifier.paint(
@@ -147,16 +135,14 @@ fun RemoteScreen(uiState: RemoteScreenUiState, onEvent: (RemoteScreenUiEvent) ->
             )
     ) {
         if (!uiState.isDeviceConnected) {
-            // Deliberately the same centered bodyMedium in the scheme's own content color that
-            // ChannelScreen draws its empty states with - off the artwork, white would be black on
-            // black in the day theme.
+            // The scheme's own content color, not white: off the artwork, white would be white on
+            // white in the day theme.
             Text(
                 text = stringResource(R.string.no_device_connected),
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.align(Alignment.Center)
             )
         } else {
-            // The app is edge-to-edge, so keep the bottom row clear of the navigation bar.
             Column(modifier = Modifier.fillMaxSize().navigationBarsPadding()) {
                 Text(
                     text = uiState.deviceName,
@@ -195,7 +181,7 @@ fun RemoteScreen(uiState: RemoteScreenUiState, onEvent: (RemoteScreenUiEvent) ->
                         icon = R.mipmap.remote_power,
                         contentDescription = stringResource(R.string.remote_power),
                         onClick = { onEvent(RemoteScreenUiEvent.PowerClickedEvent) },
-                        // scaleType="center": the icon keeps its natural size in the square button.
+                        // The icon keeps its natural size in the square button.
                         contentScale = ContentScale.None,
                         modifier = Modifier.size(PowerButtonSize)
                     )
@@ -281,10 +267,9 @@ fun RemoteScreen(uiState: RemoteScreenUiState, onEvent: (RemoteScreenUiEvent) ->
         }
 
         // Day theme only, matching the bar styling in MainActivity: there the bar is transparent
-        // over this tab, so the screen has to paint what sits behind it - the artwork covers that
-        // edge, but the empty state has none to show through and white icons on the white window
-        // background would vanish. The night theme keeps Android's own navigation bar, so painting
-        // under it would only fight it. Zero-height in landscape, where the bar moves to the side.
+        // over this tab, so the screen has to paint what sits behind it, or white icons on the
+        // white window background would vanish. The night theme keeps Android's own navigation bar.
+        // Zero-height in landscape, where the bar moves to the side.
         if (!isSystemInDarkTheme()) {
             Box(
                 modifier = Modifier
@@ -355,10 +340,8 @@ fun RemoteScreen(uiState: RemoteScreenUiState, onEvent: (RemoteScreenUiEvent) ->
  *
  * It exists because there is nothing else to look at: the keys go straight to the device, and the
  * ECP gives no way to read the device's field back, so this is the only record of what was sent.
- *
- * Its text field is what holds the IME up - Android will not raise a keyboard without a focused
- * view that owns an InputConnection - and reporting the field's whole contents on every edit is
- * what [wseemann.media.romote.keyboard.KeyboardRelay] turns into key presses.
+ * Its text field is also what holds the IME up - Android will not raise a keyboard without a
+ * focused view that owns an InputConnection.
  */
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -399,9 +382,9 @@ private fun KeyboardBar(text: String, onEvent: (RemoteScreenUiEvent) -> Unit, mo
                 singleLine = true,
                 textStyle = LocalTextStyle.current.copy(color = Color.White),
                 cursorBrush = SolidColor(Color.White),
-                // Suggestions and auto-capitalisation would rewrite words after the fact, and every
-                // rewrite costs a run of backspaces on the device. Ascii keeps the IME from
-                // composing, which is the other source of text that changes under you.
+                // Suggestions and auto-capitalisation rewrite words after the fact, and every
+                // rewrite costs a run of backspaces on the device. Ascii stops the IME composing,
+                // which is the other source of text that changes under you.
                 keyboardOptions = KeyboardOptions(
                     autoCorrectEnabled = false,
                     capitalization = KeyboardCapitalization.None,
@@ -449,10 +432,7 @@ private fun KeyboardBar(text: String, onEvent: (RemoteScreenUiEvent) -> Unit, mo
     }
 }
 
-/**
- * The directional pad: the d-pad artwork with a 3x3 grid of transparent buttons on top of it. The
- * fragment used to arrange that overlap by calling bringToFront() on the button layout.
- */
+/** The d-pad artwork with a 3x3 grid of transparent buttons on top of it. */
 @Composable
 private fun DPad(onEvent: (RemoteScreenUiEvent) -> Unit, modifier: Modifier = Modifier) {
     Box(modifier = modifier, contentAlignment = Alignment.Center) {

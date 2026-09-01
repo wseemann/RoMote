@@ -11,8 +11,6 @@ import java.net.HttpURLConnection
 import java.net.URL
 
 /**
- * Reads the picture a Roku publishes of itself.
- *
  * Every Roku serves a UPnP description document at the LOCATION it advertises over SSDP, and that
  * document names its own image:
  *
@@ -34,8 +32,6 @@ object DeviceDescription {
     private const val TAG = "DeviceDescription"
 
     /**
-     * @param descriptionUrl the device's description document, which for a Roku is the SSDP
-     *        LOCATION verbatim.
      * @return an absolute URL for the device image, or null for any device that doesn't publish
      *         one or can't be reached. A device without a picture still belongs in the list, so
      *         nothing here throws.
@@ -69,7 +65,6 @@ object DeviceDescription {
         null
     }
 
-    /** The first icon's url as the document spells it, which on a Roku is relative. */
     internal fun parseIconPath(xml: String): String? = try {
         val root = hardenedBuilder().build(xml.reader()).rootElement
 

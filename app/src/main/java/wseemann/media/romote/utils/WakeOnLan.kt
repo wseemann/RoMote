@@ -58,10 +58,7 @@ class WakeOnLan {
         /** /0 covers every address and /32 is a single host, so neither has a useful broadcast. */
         private val USABLE_PREFIX_LENGTHS = 1..<IPV4_BITS
 
-        /**
-         * Resolves the connected device, builds a magic packet for it and broadcasts it on the
-         * device's subnet. The result is delivered on the main thread.
-         */
+        /** The result is delivered on the main thread. */
         @JvmStatic
         fun wakeAsync(
             context: Context,
@@ -120,11 +117,7 @@ class WakeOnLan {
             }
         }
 
-        /**
-         * Prefers the ethernet MAC when the device reports an ethernet connection, the wifi MAC
-         * otherwise, falling back to whichever one is present. Returns null when the device has
-         * neither, which means it can't be woken.
-         */
+        /** Returns null when the device has neither MAC, which means it can't be woken. */
         internal fun resolveMac(device: Device): ByteArray? {
             val ethernetMac = parseMac(device.ethernetMac)
             val wifiMac = parseMac(device.wifiMac)
@@ -136,9 +129,7 @@ class WakeOnLan {
             }
         }
 
-        /**
-         * Accepts the colon separated form Roku reports as well as dash separated and bare hex.
-         */
+        /** Accepts the colon separated form Roku reports, as well as dash separated and bare hex. */
         internal fun parseMac(mac: String?): ByteArray? {
             val digits = mac?.replace(":", "")?.replace("-", "")?.trim() ?: return null
 
@@ -157,9 +148,6 @@ class WakeOnLan {
             }
         }
 
-        /**
-         * A magic packet is six 0xFF bytes followed by the target MAC repeated sixteen times.
-         */
         internal fun buildMagicPacket(mac: ByteArray): ByteArray {
             val packet = ByteArray(MAC_BYTES + MAGIC_PACKET_MAC_REPEATS * mac.size)
 
@@ -199,10 +187,7 @@ class WakeOnLan {
             }
         }
 
-        /**
-         * Turns an address and prefix length into the subnet broadcast address, e.g.
-         * 192.168.1.42/24 becomes 192.168.1.255. Returns null for anything that isn't IPv4.
-         */
+        /** 192.168.1.42/24 becomes 192.168.1.255. Returns null for anything that isn't IPv4. */
         internal fun broadcastAddressFor(address: String, prefixLength: Int): InetAddress? {
             if (prefixLength !in USABLE_PREFIX_LENGTHS) {
                 return null

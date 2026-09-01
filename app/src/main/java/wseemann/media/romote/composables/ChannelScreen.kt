@@ -36,18 +36,11 @@ import wseemann.media.romote.data.ChannelItem
 import wseemann.media.romote.event.ChannelScreenUiEvent
 import wseemann.media.romote.model.ChannelScreenUiState
 
-/** Spacing carried over from the GridView this screen replaced. */
 private val ThumbnailSpacing = 2.dp
 
-/**
- * Roku serves channel art at 4:3, and that is effectively what the GridView showed: it sized each
- * thumbnail's height from floor(width / 102dp) columns while the grid itself laid out the three
- * columns @integer/fragment_channel_columns asks for, leaving cells a third of the width wide and
- * about a quarter tall. Forcing 1:1 here instead would crop the top and bottom off every icon.
- */
+/** Roku serves channel art at 4:3; forcing 1:1 would crop the top and bottom off every icon. */
 private const val ThumbnailAspectRatio = 4f / 3f
 
-/** Matches the 5dp corner size of the ShapeableImageView the grid items used to be. */
 private val ThumbnailCornerRadius = 5.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -73,7 +66,6 @@ fun ChannelScreen(
                 horizontalArrangement = Arrangement.spacedBy(ThumbnailSpacing),
                 verticalArrangement = Arrangement.spacedBy(ThumbnailSpacing),
                 contentPadding = PaddingValues(ThumbnailSpacing),
-                // The app is edge-to-edge, so keep the last row clear of the navigation bar.
                 modifier = Modifier.fillMaxSize().navigationBarsPadding()
             ) {
                 if (uiState.channels.isEmpty() && !uiState.isLoading) {

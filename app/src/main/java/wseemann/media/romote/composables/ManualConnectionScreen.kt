@@ -39,13 +39,11 @@ import wseemann.media.romote.composables.theme.RomoteTheme
 import wseemann.media.romote.event.ManualConnectionScreenUiEvent
 import wseemann.media.romote.model.ManualConnectionScreenUiState
 
-/** Matches the 14dp corner radius of @drawable/buttonshape, the button's old background. */
 private val ConnectButtonCornerRadius = 14.dp
 
 /**
- * Pairing by IP address, for a device SSDP discovery cannot see. The user types an address, the
- * ViewModel asks whatever is there to identify itself, and ManualConnectionActivity closes itself
- * once a device answers.
+ * Pairing by IP address, for a device SSDP discovery cannot see. The ViewModel asks whatever is at
+ * the address to identify itself, and ManualConnectionActivity closes itself once a device answers.
  */
 @Composable
 fun ManualConnectionScreen(
@@ -63,16 +61,14 @@ fun ManualConnectionScreen(
         mutableStateOf(TextFieldValue(uiState.ipAddress, TextRange(uiState.ipAddress.length)))
     }
 
-    // The fragment this replaced force-showed the keyboard on entry, since typing an address is
-    // the only thing there is to do here.
+    // Typing an address is the only thing there is to do here, so the keyboard is forced up.
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
     }
 
-    // The Scaffold paints colorScheme.background - the same background the activity's window
-    // already has - and supplies the matching content color, which MaterialTheme alone would leave
-    // black and unreadable in dark mode. Its content padding carries the navigation bar inset the
-    // activity used to apply to the fragment container.
+    // The Scaffold supplies the content color matching colorScheme.background, which MaterialTheme
+    // alone would leave black and unreadable in dark mode. Its content padding carries the
+    // navigation bar inset.
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
@@ -107,8 +103,7 @@ fun ManualConnectionScreen(
                 enabled = !uiState.isLoading,
                 isError = uiState.hasError,
                 keyboardOptions = KeyboardOptions(
-                    // Decimal rather than Number: the field no longer starts with the dotted
-                    // prefix, so the keypad has to offer the separator the user now types.
+                    // Decimal rather than Number, so the keypad offers the dot separator.
                     keyboardType = KeyboardType.Decimal,
                     imeAction = ImeAction.Done
                 ),
@@ -129,8 +124,7 @@ fun ManualConnectionScreen(
                     containerColor = PurpleButton,
                     contentColor = Color.White
                 ),
-                // The padding comes before the height so the button is a full 64dp tall, the way
-                // the MaterialButton's layout_height plus layout_margin used to be.
+                // The padding comes before the height so the button is a full 64dp tall.
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 8.dp, end = 8.dp, top = 10.dp)

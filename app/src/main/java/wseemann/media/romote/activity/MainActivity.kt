@@ -139,10 +139,9 @@ class MainActivity : ShakeActivity() {
             appPreferences.setRemoteAccessHelpSeen()
         }
 
-        // Only in the day theme. There the adaptive bar would put a near-white band under the
-        // remote's near-black artwork, so the tab paints its own surface behind the bar and this
-        // styles the bar to get out of the way. The night theme is left alone deliberately - the
-        // navigation bar keeps whatever Android gives it, the same as every other screen.
+        // Only in the day theme, where the adaptive bar would put a near-white band under the
+        // remote's near-black artwork. The night theme is left alone deliberately - the navigation
+        // bar keeps whatever Android gives it, the same as every other screen.
         //
         // Keyed on currentPage rather than settledPage so the bar turns over at the halfway point of
         // a swipe, when the dark artwork already covers most of the screen, instead of lagging until
@@ -183,14 +182,14 @@ class MainActivity : ShakeActivity() {
                     MainTabRow(pagerState = pagerState, scope = scope)
                 }
             },
-            // The screens apply navigationBarsPadding() themselves - they had to, hanging off a
-            // ViewPager - so letting the Scaffold inset the content too would pad the bottom twice.
+            // The screens apply navigationBarsPadding() themselves, so letting the Scaffold inset
+            // the content too would pad the bottom twice.
             contentWindowInsets = WindowInsets(0)
         ) { contentPadding ->
             HorizontalPager(
                 state = pagerState,
                 // Every tab stays composed - that is what keeps the remote's service binding
-                // alive across a swipe, the way viewPager.setOffscreenPageLimit(3) did.
+                // alive across a swipe.
                 beyondViewportPageCount = PAGE_COUNT - 1,
                 modifier = Modifier.padding(contentPadding)
             ) { page ->
@@ -251,7 +250,6 @@ class MainActivity : ShakeActivity() {
         }
     }
 
-    /** The purple tab strip the XML screens used to get from a Material TabLayout. */
     @Composable
     private fun MainTabRow(pagerState: PagerState, scope: CoroutineScope) {
         val titles = listOf(

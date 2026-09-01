@@ -45,9 +45,9 @@ class ChannelScreenViewModel @Inject constructor(
             val deviceUrl = deviceManager.getConnectedDevice()?.getDeviceInfo()?.host
 
             // Nothing is paired, so there is no request worth making: queryAppsRequest("") only
-            // throws its way into the catch below after a round trip that was never going to
-            // reach anything. loadedDeviceUrl is cleared for the same reason the catch clears it -
-            // nothing was loaded, so the next broadcast should retry rather than trust the state.
+            // throws its way into the catch below after a round trip that was never going to reach
+            // anything. loadedDeviceUrl is cleared so the next broadcast retries rather than
+            // trusting the state.
             if (deviceManager.getConnectedDevice() == null) {
                 loadedDeviceUrl = null
                 _uiState.update {
@@ -82,8 +82,6 @@ class ChannelScreenViewModel @Inject constructor(
     }
 
     /**
-     * Reloads the grid only when it is showing another device's channels, or nothing at all.
-     *
      * UPDATE_DEVICE_BROADCAST means "something about the device changed", and most of what sends
      * it - launching a channel, pressing a remote key, renaming a device - leaves the installed
      * app list exactly as it was. Reloading on all of them cost a request per channel tap and,

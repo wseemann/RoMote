@@ -43,9 +43,9 @@ class SsdpDiscoveryTest {
     }
 
     /**
-     * Other SSDP responders share the network. The old implementation did
-     * response.split("location:")[1] and threw ArrayIndexOutOfBoundsException here, which aborted
-     * the whole scan rather than skipping the packet.
+     * Other SSDP responders share the network. An earlier implementation did
+     * response.split("location:")[1] and threw ArrayIndexOutOfBoundsException here, aborting the
+     * whole scan rather than skipping the packet.
      */
     @Test
     fun `returns null for a reply with no location header`() {

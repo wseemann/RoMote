@@ -13,12 +13,9 @@ import wseemann.media.romote.network.LocalNetworkMonitor
 import javax.inject.Inject
 
 /**
- * Holds the "you are not on a local network" dialog for every screen that shows it.
- *
- * This used to live in ConnectivityActivity, which put the dialog up in onResume and tore it down
- * in onPause - so a rotation rebuilt it, and the receiver that drove it keyed off the wifi radio
- * being switched on rather than off being on a usable network. Keeping the state here means the
- * dialog survives configuration changes and the activities hold no network code at all.
+ * Holds the "you are not on a local network" dialog for every screen that shows it. Keeping the
+ * state here means the dialog survives configuration changes and the activities hold no network
+ * code at all.
  */
 @HiltViewModel
 class ConnectivityViewModel @Inject constructor(localNetworkMonitor: LocalNetworkMonitor) : ViewModel() {

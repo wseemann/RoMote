@@ -63,7 +63,6 @@ public class RokuAppWidgetProvider extends AppWidgetProvider {
     }
 
     private void pushUpdate(Context context, int[] appWidgetIds, RemoteViews views) {
-        // Update specific list of appWidgetIds if given, otherwise default to all
         final AppWidgetManager gm = AppWidgetManager.getInstance(context);
 
         if (appWidgetIds != null) {
@@ -73,9 +72,6 @@ public class RokuAppWidgetProvider extends AppWidgetProvider {
         }
     }
 
-    /**
-     * Check against {@link AppWidgetManager} if there are any instances of this widget.
-     */
     private boolean hasInstances(Context context) {
         AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
         int[] appWidgetIds = appWidgetManager.getAppWidgetIds(
@@ -83,22 +79,15 @@ public class RokuAppWidgetProvider extends AppWidgetProvider {
         return (appWidgetIds.length > 0);
     }
 
-    /**
-     * Handle a change notification coming over from {@link CommandService}
-     */
     void notifyChange(CommandService service, String what) {
         if (hasInstances(service)) {
             performUpdate(service, null);
         }
     }
 
-    /**
-     * Update all active widget instances by pushing changes
-     */
     public void performUpdate(CommandService service, int[] appWidgetIds) {
         final RemoteViews views = new RemoteViews(service.getPackageName(), R.layout.roku_appwidget);
 
-        // Link actions buttons to intents
         linkButtons(service, views, true);
 
         Intent intent = new Intent(service, MainActivity.class);
@@ -109,13 +98,6 @@ public class RokuAppWidgetProvider extends AppWidgetProvider {
         pushUpdate(service, appWidgetIds, views);
     }
 
-    /**
-     * Link up various button actions using {@link PendingIntents}.
-     *
-     * @param playerActive True if player is active in background, which means
-     * widget click will launch {@link MainActivity},
-     * otherwise we launch {@link MainActivity}.
-     */
     private void linkButtons(Context context, RemoteViews views, boolean playerActive) {
         linkButton(context, views, KeyPressKeyValues.BACK, R.id.back_button, 0);
         linkButton(context, views, KeyPressKeyValues.UP, R.id.up_button, 1);
@@ -135,7 +117,6 @@ public class RokuAppWidgetProvider extends AppWidgetProvider {
     }
 
     private void linkButton(Context context, RemoteViews views, KeyPressKeyValues keypressKeyValue, int id, int requestCode) {
-        // Connect up various buttons and touch events
         final ComponentName serviceName = new ComponentName(context, CommandReceiver.class);
 
         Intent intent = new Intent();

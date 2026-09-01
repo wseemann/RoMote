@@ -11,11 +11,8 @@ import wseemann.media.romote.audio.IRemoteAudioInterface
 
 /**
  * The binding to the private listening companion app (`wseemann.media.romote.audio`), which streams
- * the device's audio to the phone over an AIDL interface.
- *
- * This used to live in RemoteFragment, which never unbound - the binding leaked for the life of the
- * process. It is now a plain object the remote tab holds across recompositions and releases in a
- * DisposableEffect.
+ * the device's audio to the phone over an AIDL interface. The remote tab holds it across
+ * recompositions and releases it in a DisposableEffect.
  *
  * [onStateChanged] reports whether audio is playing; it is what picks the button's icon.
  */
@@ -29,8 +26,8 @@ class RemoteAudioConnection(private val context: Context, private val onStateCha
     private var pendingHost: String? = null
 
     /**
-     * Starts or stops private listening. The first call binds the service, which toggles audio on
-     * as soon as it connects; every later call toggles the service that is already bound.
+     * The first call binds the service, which toggles audio on as soon as it connects; every later
+     * call toggles the service that is already bound.
      */
     fun toggle(deviceHost: String?) {
         val service = service
@@ -76,7 +73,6 @@ class RemoteAudioConnection(private val context: Context, private val onStateCha
         }
     }
 
-    /** Tells the caller what the service is doing, which is what picks the button's icon. */
     private fun reportState() {
         val isActive = try {
             service?.isRemoteAudioActive == true

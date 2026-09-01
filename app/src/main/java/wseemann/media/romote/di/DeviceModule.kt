@@ -12,10 +12,6 @@ import wseemann.media.romote.device.DeviceManager
 import wseemann.media.romote.device.DeviceRepository
 import javax.inject.Singleton
 
-/**
- * Provides the stored-device layer when injected: the SQLite helper and the repository that reads
- * and writes paired devices through it.
- */
 @Module
 @InstallIn(SingletonComponent::class)
 object DeviceModule {

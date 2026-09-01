@@ -11,11 +11,9 @@ private const val PLAY_STORE_MARKET_URI = "market://details?id="
 private const val PLAY_STORE_WEB_URL = "https://play.google.com/store/apps/details?id="
 
 /**
- * Opens the app's Play Store listing.
- *
- * This is the explicit "rate the app" route, and deliberately not the in-app review API: Play
- * enforces a quota it won't disclose, so a button wired to that API does nothing at all once the
- * quota is spent. The listing always opens.
+ * The explicit "rate the app" route, and deliberately not the in-app review API: Play enforces a
+ * quota it won't disclose, so a button wired to that API does nothing at all once the quota is
+ * spent. The listing always opens.
  *
  * market:// goes straight to the Play Store app; a device without it - or with it disabled - falls
  * back to the web listing in a browser.

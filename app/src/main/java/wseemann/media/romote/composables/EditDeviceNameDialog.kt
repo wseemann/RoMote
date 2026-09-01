@@ -28,15 +28,7 @@ import androidx.compose.ui.unit.dp
 import wseemann.media.romote.R
 import wseemann.media.romote.composables.theme.RomoteTheme
 
-/**
- * Renaming a paired device, replacing the EditDeviceNameDialog DialogFragment and the single
- * EditText of dialog_fragment_edit_device_name.xml.
- *
- * The dialog it replaced wrote the new name straight to the database from its positive button, on
- * the main thread, and told the list to refresh through a listener that a configuration change
- * dropped. Both now belong to MainScreenViewModel, so this composable only reports the name the
- * user typed.
- */
+/** Reports the name the user typed; MainScreenViewModel owns the write and the list refresh. */
 @Composable
 fun EditDeviceNameDialog(
     initialName: String,
@@ -46,11 +38,10 @@ fun EditDeviceNameDialog(
 ) {
     val focusRequester = remember { FocusRequester() }
 
-    // The field is view state, not screen state, so it lives here rather than in the UiState - see
-    // ManualConnectionScreen for the same note. The caret starts past the existing name so typing
-    // extends it instead of landing in front of it. Saveable because the EditText this replaced
-    // kept half-typed names across a rotation, and keyed on initialName so opening the dialog for a
-    // different device reseeds the field.
+    // The field is view state, not screen state, so it lives here rather than in the UiState. The
+    // caret starts past the existing name so typing extends it instead of landing in front of it.
+    // Saveable to keep half-typed names across a rotation, and keyed on initialName so opening the
+    // dialog for a different device reseeds the field.
     var deviceNameValue by rememberSaveable(initialName, stateSaver = TextFieldValue.Saver) {
         mutableStateOf(TextFieldValue(initialName, TextRange(initialName.length)))
     }
@@ -61,7 +52,6 @@ fun EditDeviceNameDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        // "Enter a device name:" was the builder's message, above the field rather than beside it.
         text = {
             Column {
                 Text(text = stringResource(R.string.device_name_help))

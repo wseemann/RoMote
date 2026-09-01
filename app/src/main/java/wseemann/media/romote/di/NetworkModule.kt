@@ -10,9 +10,6 @@ import wseemann.media.romote.network.ConnectivityLocalNetworkMonitor
 import wseemann.media.romote.network.LocalNetworkMonitor
 import javax.inject.Singleton
 
-/**
- * Provides the local network monitor when injected
- */
 @Module
 @InstallIn(SingletonComponent::class)
 object NetworkModule {

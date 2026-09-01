@@ -80,10 +80,6 @@ class NotificationService : Service() {
 
     private val binder: IBinder = LocalBinder()
 
-    /**
-     * Class used for the client Binder. Because we know this service always
-     * runs in the same process as its clients, we don't need to deal with IPC.
-     */
     inner class LocalBinder : Binder() {
         val service: NotificationService
             get() = this@NotificationService
@@ -132,7 +128,6 @@ class NotificationService : Service() {
 
         unregisterReceiver(updateReceiver)
 
-        // Cancel the persistent notification.
         notificationManager.cancel(NOTIFICATION)
 
         sharedPreferences.unregisterOnSharedPreferenceChangeListener(preferencesChangedListener)
@@ -142,8 +137,6 @@ class NotificationService : Service() {
     override fun onBind(intent: Intent?): IBinder = binder
 
     /**
-     * Re-reads what the device is playing and rebuilds the notification around it.
-     *
      * Only one refresh is ever in flight: [Constants.UPDATE_DEVICE_BROADCAST] is sent on every
      * device-changing key press, so without the cancel below, holding a button down would queue one
      * pair of six-second requests per press.
@@ -178,8 +171,8 @@ class NotificationService : Service() {
     }
 
     /**
-     * Runs on [ioDispatcher]: two ECP round trips and the icon decode. Returns null when the device
-     * is unreachable or is not reporting an active channel, which leaves the placeholder up.
+     * Returns null when the device is unreachable or is not reporting an active channel, which
+     * leaves the placeholder up.
      */
     private fun loadStatus(device: ConnectedDevice): Status? {
         val channel = device.performQueryActiveApp()?.firstOrNull() ?: return null
@@ -195,7 +188,7 @@ class NotificationService : Service() {
         }
     }
 
-    /** Reads the paired device. SharedPreferences plus a SQLite query, so callers stay on IO. */
+    /** SharedPreferences plus a SQLite query, so callers stay on IO. */
     @Suppress("TooGenericExceptionCaught")
     private fun connectedDevice(): ConnectedDevice? = try {
         deviceManager.getConnectedDevice()
@@ -208,8 +201,6 @@ class NotificationService : Service() {
         NotificationUtils.buildNotification(this, title, text, icon, mediaSession.sessionToken)
 
     /**
-     * Posts the playback notification, unless the user has notifications turned off.
-     *
      * NotificationManager drops these silently when POST_NOTIFICATIONS is missing (API 33+) or the
      * channel has been blocked, so asking first keeps the service from polling the Roku for
      * artwork nobody is going to see.
@@ -274,7 +265,6 @@ class NotificationService : Service() {
         mediaSession.setMetadata(builder.build())
     }
 
-    /** What a single refresh read off the device, assembled on [ioDispatcher]. */
     private data class Status(val device: Device, val channel: Channel, val icon: Bitmap)
 
     companion object {

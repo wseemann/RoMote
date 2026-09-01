@@ -50,14 +50,10 @@ public class ShakeMonitor implements SensorEventListener {
     }
 
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
-        // Do something here if sensor accuracy changes.
     }
 
     public final void onSensorChanged(SensorEvent event) {
-        // The light sensor returns a single value.
-        // Many sensors return 3 values, one for each axis.
         float [] values = event.values;
-        // Do something with this sensor value.
 
         long now = System.currentTimeMillis();
 

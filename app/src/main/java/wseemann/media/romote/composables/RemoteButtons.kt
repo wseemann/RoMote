@@ -36,38 +36,25 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import wseemann.media.romote.composables.theme.PurpleButton
 
-/** The 52dip every button row in fragment_remote.xml was fixed at. */
 private val RemoteButtonHeight = 52.dp
-
-/** 10dip of margin on each side of adjacent buttons. */
 private val RemoteButtonSpacing = 20.dp
-
-/** The interval the old XML remote repeated a held d-pad button at. */
 private const val RepeatIntervalMillis = 400L
-
-/** The 15dp corner radius of every shape in @drawable/remote_button_bg. */
 private val ButtonCornerRadius = 15.dp
 
-/** The bottom/right inset both layers of that drawable are drawn with. */
+/** The bottom/right inset both button layers are drawn with. */
 private val ButtonEdgeInset = 2.dp
 
-/** The extra top/left inset on its second layer, which is what leaves the highlight hairline. */
+/** The extra top/left inset on the second layer, which is what leaves the highlight hairline. */
 private val ButtonHighlightWidth = 1.dp
 
 private val ButtonGradientTop = Color(0xFF544C5E)
 private val ButtonGradientBottom = Color(0xFF0A0A0A)
 private val ButtonFill = Color(0xFF151218)
 
-/** The start color of @drawable/background_glow_bg, which fades out to transparent. */
+/** The start color of the d-pad press glow, which fades out to transparent. */
 private val GlowColor = Color(0xFFA0A0A0)
-
-/** @drawable/background_glow_bg is drawn at 70% of the size it sits in. */
 private const val GlowRadiusFraction = 0.7f
 
-/**
- * A row of remote buttons, matching the LinearLayouts of fragment_remote.xml: a fixed height, 20dp
- * between neighbours, and 20dp of margin at each end.
- */
 @Composable
 fun RemoteButtonRow(modifier: Modifier = Modifier, content: @Composable RowScope.() -> Unit) {
     Row(
@@ -81,9 +68,7 @@ fun RemoteButtonRow(modifier: Modifier = Modifier, content: @Composable RowScope
 }
 
 /**
- * A remote button on the redrawn @drawable/remote_button_bg background. A tap performs
- * [HapticFeedbackType.VirtualKey], which the system touch feedback setting gates, and there is no
- * ripple because the ImageButton this replaced never showed one.
+ * A tap performs [HapticFeedbackType.VirtualKey], which the system touch feedback setting gates.
  *
  * [active] tints the icon, for the one button that stays switched on after it is tapped: the
  * keyboard, which holds the soft keyboard up until it is tapped again.
@@ -112,9 +97,8 @@ fun RemoteButton(
                 }
             )
     ) {
-        // fillMaxSize plus ContentScale.Fit is the ImageView's fitCenter default, which is what
-        // scaled these icons to the row's height; ContentScale.None leaves the power button's icon
-        // at its natural size, the way its scaleType="center" did.
+        // ContentScale.Fit scales these icons to the row's height; the power button passes None to
+        // keep its icon at its natural size.
         Image(
             painter = painterResource(icon),
             contentDescription = contentDescription,
@@ -127,12 +111,11 @@ fun RemoteButton(
 
 /**
  * One cell of the d-pad. The button itself is transparent - the d-pad art is the image underneath
- * it - and shows the radial glow of @drawable/background_glow_selector while pressed.
+ * it - and shows a radial glow while pressed.
  *
  * When [repeating], holding the button starts firing [onClick] once the long press timeout elapses
- * and then every 400ms, the way the old XML remote's repeating buttons did. The long press is
- * consumed so that letting go afterwards doesn't also count as a tap, the way View suppressed
- * performClick once performLongClick had handled the gesture.
+ * and then every 400ms. The long press is consumed so that letting go afterwards doesn't also
+ * count as a tap.
  */
 @Composable
 fun DPadButton(
@@ -197,9 +180,9 @@ fun DPadButton(
 }
 
 /**
- * Redraws @drawable/remote_button_bg, a layer-list Compose can't load through painterResource: a
- * rounded rect filled with the vertical gradient, covered from 1dp in on the top and left by the
- * flat fill, both stopping 2dp short of the bottom and right edges.
+ * A rounded rect filled with the vertical gradient, covered from 1dp in on the top and left by the
+ * flat fill, both stopping 2dp short of the bottom and right edges. Drawn rather than loaded: it is
+ * a layer-list, which painterResource cannot inflate.
  */
 private fun Modifier.remoteButtonBackground(): Modifier = drawBehind {
     val edgeInset = ButtonEdgeInset.toPx()

@@ -11,9 +11,6 @@ import dagger.hilt.components.SingletonComponent
 import wseemann.media.romote.preferences.AppPreferences
 import javax.inject.Singleton
 
-/**
- * Provides SharedPreferences when injected
- */
 @Module
 @InstallIn(SingletonComponent::class)
 object PreferencesModule {

@@ -39,7 +39,6 @@ class RemoteScreenViewModel @Inject constructor(
     private val _uiState = MutableStateFlow(RemoteScreenUiState())
     val uiState = _uiState.asStateFlow()
 
-    /** Whether the connected device claims to support private listening at all. */
     private var deviceSupportsPrivateListening = false
 
     /** Whether the bound service last reported that audio is playing through the phone. */
@@ -90,7 +89,6 @@ class RemoteScreenViewModel @Inject constructor(
         }
     }
 
-    /** Whether the private listening companion app is installed, for the tab's bind decision. */
     fun isPrivateListeningInstalled(): Boolean {
         val intent = Intent().apply { component = REMOTE_AUDIO_COMPONENT }
 
@@ -100,8 +98,8 @@ class RemoteScreenViewModel @Inject constructor(
     }
 
     /**
-     * The address the private listening service should stream from. Read here rather than in the
-     * remote tab so that DeviceManager - and the SQLite read behind it - stays out of the UI.
+     * Read here rather than in the remote tab so that DeviceManager - and the SQLite read behind
+     * it - stays out of the UI.
      */
     fun connectedDeviceHost(): String? = try {
         deviceManager.getConnectedDevice()?.getDeviceInfo()?.host
@@ -144,8 +142,7 @@ class RemoteScreenViewModel @Inject constructor(
     }
 
     /**
-     * Asks the device whether it is on before deciding what the power button does. A device that
-     * can't be reached is assumed to be fully powered off, which Wake-on-LAN can fix.
+     * A device that can't be reached is assumed to be fully powered off, which Wake-on-LAN can fix.
      */
     private fun onPowerClicked() {
         viewModelScope.launch(ioDispatcher) {

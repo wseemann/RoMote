@@ -13,10 +13,8 @@ import wseemann.media.romote.composables.theme.RomoteTheme
 /**
  * The "no local network" dialog, shown whenever this phone has no transport a Roku could answer on.
  *
- * The dialog this grew out of was setCancelable(false), on the reasoning that there is nothing to
- * do in the app without a network. It is dismissible now: the check behind it used to insist on
- * wifi specifically and trapped anyone who was hardwired, and while the rule has been fixed, a
- * wrong answer should cost a dialog rather than the app.
+ * Dismissible on purpose: if the rule behind it is ever wrong, a wrong answer should cost a dialog
+ * rather than the app.
  */
 @Composable
 fun ConnectivityDialog(onOpenSettingsClick: () -> Unit, onDismiss: () -> Unit, modifier: Modifier = Modifier) {

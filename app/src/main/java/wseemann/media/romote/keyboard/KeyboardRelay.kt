@@ -33,9 +33,9 @@ class KeyboardRelay(scope: CoroutineScope, dispatcher: CoroutineDispatcher, priv
     val state = _state.asStateFlow()
 
     /**
-     * Keys waiting to go out. Typing is the one place order matters - ECPRequest.sendAsync starts a
-     * fresh thread per request, so characters posted back to back can reach the device in the wrong
-     * order - and draining them through a single consumer is what keeps them in sequence.
+     * Keys waiting to go out. ECPRequest.sendAsync starts a fresh thread per request, so characters
+     * posted back to back can reach the device out of order; draining them through a single
+     * consumer is what keeps them in sequence.
      */
     private val keyQueue = Channel<Key>(Channel.UNLIMITED)
 
@@ -51,27 +51,24 @@ class KeyboardRelay(scope: CoroutineScope, dispatcher: CoroutineDispatcher, priv
         }
     }
 
-    /** Raises the keyboard if it is down, puts it away if it is up. */
     fun toggle() {
         if (_state.value.isActive) dismiss() else _state.update { State(isActive = true) }
     }
 
-    /** The keyboard went away - by gesture, by leaving the tab, or by the app pausing. */
     fun dismiss() {
         if (_state.value.isActive) {
             _state.update { State() }
         }
     }
 
-    /** The IME's Done action: commits with Enter and puts the keyboard away. */
     fun done() {
         enqueue(Key.Named(KeyPressKeyValues.ENTER))
         dismiss()
     }
 
     /**
-     * The keyboard bar's own backspace, which is also the way to delete text the device already had
-     * before the keyboard was raised - so it always sends, even once [text] has run empty.
+     * Also the way to delete text the device already had before the keyboard was raised, so it
+     * always sends, even once [text] has run empty.
      */
     fun backspace() {
         enqueue(Key.Named(KeyPressKeyValues.BACKSPACE))
@@ -111,16 +108,15 @@ class KeyboardRelay(scope: CoroutineScope, dispatcher: CoroutineDispatcher, priv
     }
 
     /**
-     * One key press bound for the device. The two kinds stay apart all the way down because the
-     * wrapper sends them through different calls: a named key goes out under its own name, while a
-     * literal one has to be prefixed to become a Lit_ key.
+     * The two kinds stay apart all the way down because the wrapper sends them through different
+     * calls: a named key goes out under its own name, while a literal one has to be prefixed to
+     * become a Lit_ key.
      */
     sealed interface Key {
 
-        /** A key the ECP names, such as Backspace or Enter. */
         data class Named(val value: KeyPressKeyValues) : Key
 
-        /** Exactly one code point to type, which the device takes as a Lit_ key. */
+        /** Exactly one code point, which the device takes as a Lit_ key. */
         data class Literal(val text: String) : Key
     }
 

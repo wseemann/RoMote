@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -60,23 +59,11 @@ import wseemann.media.romote.data.Device
 import wseemann.media.romote.event.MainScreenUiEvent
 import wseemann.media.romote.model.MainScreenUiState
 
-/** @android:style/TextAppearance.Medium, the device name's size in device.xml. */
 private val DeviceNameFontSize = 18.sp
-
-/** @android:style/TextAppearance.Small, the two lines under the device name. */
 private val DeviceDetailFontSize = 14.sp
-
-/**
- * The dot drawn beside "Connected", small enough to sit under a 14sp line without weighing on it.
- * Only the connected device gets one, so the line below it is not indented to match.
- */
 private val ConnectedDotSize = 8.dp
 private val ConnectedDotGap = 6.dp
-
-/** The 100dip square the device icon sat in, which is what gave a row its height. */
 private val DeviceIconBoxSize = 100.dp
-
-/** The 70dip circle drawn inside it, still the placeholder for a device with no picture. */
 private val DeviceIconSize = 70.dp
 
 /**
@@ -91,28 +78,18 @@ private val DeviceImageWidth = 84.dp
 private val DeviceImageHeight = 52.dp
 private val DeviceImageCornerRadius = 10.dp
 
-/** @dimen/fab_margin. */
 private val FabMargin = 16.dp
 
-/** Keeps the last row clear of the floating action button, which draws on top of the list. */
-// private val ListBottomInset = 88.dp
-
 /**
- * The devices tab: the paired devices, then whatever else answered the last scan. Tapping a device
- * connects to it, and each row's overflow menu renames, describes or unpairs it.
- *
  * A pure function of [uiState] - starting DeviceInfoActivity and ManualConnectionActivity needs a
  * Context, so DevicesTab intercepts those two events before they get here.
  */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainScreen(uiState: MainScreenUiState, onEvent: (MainScreenUiEvent) -> Unit, modifier: Modifier = Modifier) {
-    // No background of its own: MainActivity's Scaffold already paints colorScheme.background and
-    // supplies the matching content color, which is what every other tab draws on. A Surface here
-    // would paint colorScheme.surface over it - the one role RomoteTheme leaves at the Material 3
-    // default - so the devices tab alone came out a shade off the channels grid beside it.
-    //
-    // The app is edge-to-edge, so keep the list and the button clear of the navigation bar.
+    // No background of its own: MainActivity's Scaffold already paints colorScheme.background. A
+    // Surface here would paint colorScheme.surface over it - the one role RomoteTheme leaves at the
+    // Material 3 default - so the devices tab came out a shade off the channels grid beside it.
     Box(modifier = modifier
         .fillMaxSize()
         .navigationBarsPadding()) {
@@ -120,8 +97,8 @@ fun MainScreen(uiState: MainScreenUiState, onEvent: (MainScreenUiEvent) -> Unit,
             PullToRefreshBox(
                 isRefreshing = uiState.isLoading,
                 onRefresh = { onEvent(MainScreenUiEvent.RefreshEvent) },
-                // No indicator of its own: the LinearProgressIndicator below is the one loading
-                // affordance the screen shows, and the two of them drew at once on a cold start.
+                // The LinearProgressIndicator below is the screen's only loading affordance; the
+                // two of them drew at once on a cold start.
                 indicator = {},
                 modifier = Modifier.weight(1f)
             ) {
@@ -170,9 +147,6 @@ private fun DeviceList(
     val isEmpty = uiState.pairedDevices.isEmpty() && uiState.availableDevices.isEmpty()
 
     LazyColumn(modifier = modifier.fillMaxSize()) {
-        // The section headers are dropped while there is nothing under either of them, which
-        // is what the ListView's empty view was for - it never actually showed, because the
-        // adapter counted its two headers and so was never empty.
         if (isEmpty && !uiState.isLoading) {
             item {
                 Box(
@@ -190,9 +164,8 @@ private fun DeviceList(
             return@LazyColumn
         }
 
-        // Nothing is paired until the user picks a device, and a "Paired devices" header with
-        // an empty space under it reads as a section that failed to load rather than one the
-        // user has not filled yet. The available devices below it keep their header either way.
+        // A "Paired devices" header over an empty space reads as a section that failed to load
+        // rather than one the user has not filled yet.
         if (uiState.pairedDevices.isNotEmpty()) {
             deviceSection(
                 title = R.string.paired_devices,
@@ -210,17 +183,10 @@ private fun DeviceList(
             connectedSerialNumber = uiState.connectedSerialNumber,
             onEvent = onEvent
         )
-
-        /*item {
-            Spacer(modifier = Modifier.height(ListBottomInset))
-        }*/
     }
 }
 
-/**
- * One of the two sections the SeparatedListAdapter used to stitch together. The header is drawn
- * whenever the section is, so a caller with nothing to show skips the whole call.
- */
+/** The header is drawn whenever the section is, so a caller with nothing to show skips the call. */
 private fun LazyListScope.deviceSection(
     @StringRes title: Int,
     devices: ImmutableList<Device>,
@@ -245,11 +211,6 @@ private fun LazyListScope.deviceSection(
     }
 }
 
-/**
- * ?android:attr/listSeparatorTextViewStyle, which list_item_header.xml was styled with: Body2 in
- * ?android:attr/textColorSecondary - a muted near-white in the night theme, dark grey in the day
- * one - above a divider. onSurfaceVariant is the Material 3 role that plays the same part.
- */
 @Composable
 private fun SectionHeader(title: String, modifier: Modifier = Modifier) {
     Column(modifier = modifier.fillMaxWidth()) {
@@ -272,8 +233,7 @@ private fun DeviceRow(
     onEvent: (MainScreenUiEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
-    // The serial number is the device's identity everywhere the app stores or looks one up. It is
-    // nullable on the model the discovery library returns, but a device the list can draw has one.
+    // Nullable on the model the discovery library returns, but a device the list can draw has one.
     val serialNumber = device.serialNumber.orEmpty()
 
     Row(
@@ -287,9 +247,6 @@ private fun DeviceRow(
             contentAlignment = Alignment.Center,
             modifier = Modifier.size(DeviceIconBoxSize)
         ) {
-            // The picture the device publishes of itself, when it publishes one. A device that
-            // doesn't, or whose picture hasn't loaded, keeps the flat disc the list always drew,
-            // which is also what still says at a glance which device is connected.
             val deviceImageUrl = device.deviceImageUrl
 
             if (!deviceImageUrl.isNullOrEmpty()) {
@@ -324,8 +281,6 @@ private fun DeviceRow(
         Column(modifier = Modifier
             .weight(1f)
             .padding(start = 10.dp)) {
-            // No line limit: the TextView this replaced had none either, and the row is as tall as
-            // the icon beside it, so a long name wraps rather than being cut off.
             Text(
                 text = device.displayName(),
                 fontSize = DeviceNameFontSize
@@ -336,10 +291,9 @@ private fun DeviceRow(
                 fontSize = DeviceDetailFontSize
             )
 
-            // The 70dip disc beside the row only says which device is connected when the device
-            // publishes no picture of itself; a device that does gets its art there instead. The
-            // dot is the marker that survives either branch. Decorative - the word next to it is
-            // what a screen reader reads out.
+            // The disc beside the row only marks the connected device when that device publishes
+            // no picture of itself, so the dot is the marker that survives either branch.
+            // Decorative - the word next to it is what a screen reader reads out.
             Row(verticalAlignment = Alignment.CenterVertically) {
                 if (isConnected) {
                     Box(
@@ -371,10 +325,6 @@ private fun DeviceRow(
     }
 }
 
-/**
- * The PopupMenu the row's overflow button used to open through a Handler. Unpairing is only
- * offered for a device that is actually paired, as the popup was doing by removing the item.
- */
 @Composable
 private fun DeviceOverflowMenu(
     device: Device,
@@ -436,10 +386,6 @@ private fun DeviceOverflowMenu(
     }
 }
 
-/**
- * What the row calls the device: the name the user gave it, or the model name qualified by the
- * name the device reports for itself. Carried over from DeviceAdapter.
- */
 private fun Device.displayName(): String {
     val customName = getCustomUserDeviceName()
 

@@ -8,10 +8,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import javax.inject.Qualifier
 
-/**
- * Provides the dispatchers the app launches work on, so that everything which uses one takes it
- * as a dependency rather than reaching for the global object.
- */
 @Module
 @InstallIn(SingletonComponent::class)
 object DispatchersModule {

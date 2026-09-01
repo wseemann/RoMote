@@ -19,12 +19,8 @@ import javax.inject.Singleton
 
 /**
  * The one place that talks to ConnectivityManager, translating it into the answer
- * [LocalNetworkPolicy] defines.
- *
- * This replaced a CONNECTIVITY_CHANGE BroadcastReceiver paired with a getActiveNetworkInfo() poll.
- * Registering a network callback is both the supported path since API 28 and a better fit: the
- * platform hands us the set of matching networks and every change to it, so there is no state to
- * re-derive on resume.
+ * [LocalNetworkPolicy] defines. The platform hands over the set of matching networks and every
+ * change to it, so there is no state to re-derive on resume.
  */
 @Singleton
 class ConnectivityLocalNetworkMonitor @Inject constructor(@param:ApplicationContext private val context: Context) :
@@ -93,8 +89,8 @@ class ConnectivityLocalNetworkMonitor @Inject constructor(@param:ApplicationCont
 
     /**
      * The synchronous seed. `allNetworks` is deprecated at API 31 in favour of network callbacks,
-     * which is exactly what this flow moves on to - but a callback cannot report an absence, so
-     * there is no supported replacement for this one read.
+     * which is what this flow moves on to - but a callback cannot report an absence, so there is no
+     * supported replacement for this one read.
      */
     @Suppress("DEPRECATION")
     private fun ConnectivityManager.currentLocalNetworks(): Set<Network> = allNetworks

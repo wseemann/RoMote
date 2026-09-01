@@ -12,9 +12,6 @@ import dagger.hilt.components.SingletonComponent
 import wseemann.media.romote.BuildConfig
 import javax.inject.Singleton
 
-/**
- * Provides the Play ReviewManager when injected.
- */
 @Module
 @InstallIn(SingletonComponent::class)
 object InAppReviewModule {

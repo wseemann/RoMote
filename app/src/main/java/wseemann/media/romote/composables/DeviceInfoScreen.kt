@@ -26,8 +26,6 @@ import wseemann.media.romote.data.Entry
 import wseemann.media.romote.model.DeviceInfoScreenUiState
 
 /**
- * The device info screen: everything the connected Roku reports about itself, as key/value rows.
- *
  * There is nothing to interact with here beyond leaving, so unlike the other screens this one takes
  * no `onEvent` - DeviceInfoScreenViewModel starts its one query as soon as it is created.
  */
@@ -92,8 +90,7 @@ private fun DeviceInfoRow(entry: Entry, modifier: Modifier = Modifier) {
         supportingContent = { Text(text = entry.value) },
         // ListItem's container defaults to colorScheme.surface, which RomoteTheme leaves at the
         // tinted Material 3 default (#FEF7FF / #141218) rather than the window background it pins
-        // for `background`. Staying transparent keeps the rows, the empty state and the space below
-        // the last row all on the Activity's background, the way the ListView here used to.
+        // for `background`. Staying transparent keeps every row on the Activity's background.
         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
         modifier = modifier
     )
