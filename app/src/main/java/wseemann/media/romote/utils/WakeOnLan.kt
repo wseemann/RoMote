@@ -68,7 +68,7 @@ class WakeOnLan {
             deviceManager: DeviceManager,
             ioDispatcher: CoroutineDispatcher,
             mainDispatcher: CoroutineDispatcher,
-            callback: WakeCallback,
+            callback: WakeCallback
         ) {
             CoroutineScope(ioDispatcher).launch {
                 val result = try {
@@ -234,7 +234,7 @@ class WakeOnLan {
                     ByteArray(IPV4_OCTETS) { index ->
                         val shift = BITS_PER_OCTET * (IPV4_OCTETS - 1 - index)
                         (broadcast ushr shift).toByte()
-                    },
+                    }
                 )
             } catch (ex: Exception) {
                 Timber.e(ex, "Failed to derive broadcast address for %s/%s", address, prefixLength)

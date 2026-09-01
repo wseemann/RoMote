@@ -20,7 +20,7 @@ object LocalNetworkPolicy {
     private val LOCAL_TRANSPORTS = setOf(
         NetworkTransport.WIFI,
         NetworkTransport.ETHERNET,
-        NetworkTransport.USB,
+        NetworkTransport.USB
     )
 
     fun isLocalNetwork(transports: Set<NetworkTransport>): Boolean = transports.any { it in LOCAL_TRANSPORTS }

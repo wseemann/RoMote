@@ -17,6 +17,6 @@ data class RemoteScreenUiState(
     enum class PrivateListening {
         UNAVAILABLE,
         AVAILABLE,
-        ACTIVE,
+        ACTIVE
     }
 }

@@ -130,7 +130,7 @@ class RemoteScreenViewModel @Inject constructor(
                     deviceName = deviceName,
                     isDeviceConnected = isDeviceConnected,
                     showVolumeControls = showVolumeControls,
-                    privateListening = resolvePrivateListening(),
+                    privateListening = resolvePrivateListening()
                 )
             }
         }
@@ -226,7 +226,7 @@ class RemoteScreenViewModel @Inject constructor(
 
         val REMOTE_AUDIO_COMPONENT = ComponentName(
             "wseemann.media.romote.audio",
-            "wseemann.media.romote.audio.remoteaudio.RemoteAudio",
+            "wseemann.media.romote.audio.remoteaudio.RemoteAudio"
         )
     }
 }

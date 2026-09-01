@@ -52,7 +52,7 @@ class ManualConnectionScreenViewModel @Inject constructor(
             val device = DeviceConnection(
                 Device().apply {
                     host = deviceUrl
-                },
+                }
             )
 
             device.queryDeviceInfo()?.let { deviceInfo ->

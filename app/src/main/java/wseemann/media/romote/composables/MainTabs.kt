@@ -41,7 +41,7 @@ fun DevicesTab(viewModel: MainScreenViewModel, modifier: Modifier = Modifier) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val manualConnectionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.StartActivityForResult(),
+        ActivityResultContracts.StartActivityForResult()
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             viewModel.onHandleEvent(MainScreenUiEvent.RefreshEvent)
@@ -56,7 +56,7 @@ fun DevicesTab(viewModel: MainScreenViewModel, modifier: Modifier = Modifier) {
                     Toast.makeText(
                         context,
                         context.getString(R.string.device_connected, event.device.serialNumber),
-                        Toast.LENGTH_SHORT,
+                        Toast.LENGTH_SHORT
                     ).show()
 
                     BroadcastUtils.sendWidgetUpdateBroadcast(context)
@@ -69,20 +69,20 @@ fun DevicesTab(viewModel: MainScreenViewModel, modifier: Modifier = Modifier) {
                         Intent(context, DeviceInfoActivity::class.java).apply {
                             putExtra("serial_number", event.serialNumber)
                             putExtra("host", event.host)
-                        },
+                        }
                     )
                 }
 
                 is MainScreenUiEvent.AddDeviceClickedEvent -> {
                     manualConnectionLauncher.launch(
-                        Intent(context, ManualConnectionActivity::class.java),
+                        Intent(context, ManualConnectionActivity::class.java)
                     )
                 }
 
                 else -> viewModel.onHandleEvent(event)
             }
         },
-        modifier = modifier,
+        modifier = modifier
     )
 }
 
@@ -126,7 +126,7 @@ fun RemoteTab(viewModel: RemoteScreenViewModel, isCurrentPage: Boolean, modifier
             context,
             receiver,
             IntentFilter(Constants.UPDATE_DEVICE_BROADCAST),
-            ContextCompat.RECEIVER_NOT_EXPORTED,
+            ContextCompat.RECEIVER_NOT_EXPORTED
         )
 
         onDispose { context.unregisterReceiver(receiver) }
@@ -170,7 +170,7 @@ fun RemoteTab(viewModel: RemoteScreenViewModel, isCurrentPage: Boolean, modifier
 
                 is RemoteScreenUiEvent.InstallPrivateListeningConfirmedEvent -> {
                     context.startActivity(
-                        Intent(Intent.ACTION_VIEW, Constants.PRIVATE_LISTENING_URL.toUri()),
+                        Intent(Intent.ACTION_VIEW, Constants.PRIVATE_LISTENING_URL.toUri())
                     )
 
                     viewModel.onHandleEvent(event)
@@ -179,7 +179,7 @@ fun RemoteTab(viewModel: RemoteScreenViewModel, isCurrentPage: Boolean, modifier
                 else -> viewModel.onHandleEvent(event)
             }
         },
-        modifier = modifier,
+        modifier = modifier
     )
 }
 
@@ -207,7 +207,7 @@ fun ChannelsTab(viewModel: ChannelScreenViewModel, isCurrentPage: Boolean, modif
             context,
             receiver,
             IntentFilter(Constants.UPDATE_DEVICE_BROADCAST),
-            ContextCompat.RECEIVER_NOT_EXPORTED,
+            ContextCompat.RECEIVER_NOT_EXPORTED
         )
 
         onDispose { context.unregisterReceiver(receiver) }
@@ -236,7 +236,7 @@ fun ChannelsTab(viewModel: ChannelScreenViewModel, isCurrentPage: Boolean, modif
 
             viewModel.onHandleEvent(event)
         },
-        modifier = modifier,
+        modifier = modifier
     )
 }
 
@@ -252,7 +252,7 @@ fun StoreTab(viewModel: StoreScreenViewModel, isCurrentPage: Boolean, modifier: 
         uiState = uiState,
         isCurrentPage = isCurrentPage,
         onEvent = viewModel::onHandleEvent,
-        modifier = modifier,
+        modifier = modifier
     )
 }
 
@@ -260,5 +260,5 @@ fun StoreTab(viewModel: StoreScreenViewModel, isCurrentPage: Boolean, modifier: 
 private val DEVICE_CHANGING_KEYS = setOf(
     KeyPressKeyValues.BACK,
     KeyPressKeyValues.HOME,
-    KeyPressKeyValues.SELECT,
+    KeyPressKeyValues.SELECT
 )

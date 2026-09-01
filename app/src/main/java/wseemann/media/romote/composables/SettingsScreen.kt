@@ -51,16 +51,16 @@ fun SettingsScreen(
     onRateClick: () -> Unit,
     onDonateClick: () -> Unit,
     onBackClick: () -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
             RomoteTopAppBar(
                 title = stringResource(R.string.title_settings),
-                onBackClick = onBackClick,
+                onBackClick = onBackClick
             )
-        },
+        }
     ) { contentPadding ->
         // The padding goes inside the scrolling column so the rows pass under the navigation bar
         // rather than stopping short of it.
@@ -68,27 +68,27 @@ fun SettingsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(rememberScrollState())
-                .padding(contentPadding),
+                .padding(contentPadding)
         ) {
             SettingsSwitchRow(
                 title = stringResource(R.string.shake_to_pause_title_checkbox_preference),
                 summary = stringResource(R.string.shake_to_pause_summary_checkbox_preference),
                 checked = uiState.shakeToPauseEnabled,
-                onCheckedChange = { onEvent(SettingsScreenUiEvent.ShakeToPauseToggledEvent(it)) },
+                onCheckedChange = { onEvent(SettingsScreenUiEvent.ShakeToPauseToggledEvent(it)) }
             )
 
             SettingsSwitchRow(
                 title = stringResource(R.string.notification_title_checkbox_preference),
                 summary = stringResource(R.string.notification_to_pause_summary_checkbox_preference),
                 checked = uiState.notificationWidgetEnabled,
-                onCheckedChange = rememberNotificationWidgetToggle(onEvent),
+                onCheckedChange = rememberNotificationWidgetToggle(onEvent)
             )
 
             SettingsSwitchRow(
                 title = stringResource(R.string.haptic_feedback_title_checkbox_preference),
                 summary = stringResource(R.string.haptic_feedback_summary_checkbox_preference),
                 checked = uiState.hapticFeedbackEnabled,
-                onCheckedChange = { onEvent(SettingsScreenUiEvent.HapticFeedbackToggledEvent(it)) },
+                onCheckedChange = { onEvent(SettingsScreenUiEvent.HapticFeedbackToggledEvent(it)) }
             )
 
             SettingsCategoryHeader(title = stringResource(R.string.settings_other_category))
@@ -97,25 +97,25 @@ fun SettingsScreen(
                 title = stringResource(R.string.find_remote_title_preference),
                 summary = stringResource(R.string.find_remote_summary_preference),
                 enabled = uiState.findRemoteSupported,
-                onClick = { onEvent(SettingsScreenUiEvent.FindRemoteClickedEvent) },
+                onClick = { onEvent(SettingsScreenUiEvent.FindRemoteClickedEvent) }
             )
 
             SettingsActionRow(
                 title = stringResource(R.string.open_source_licenses_title_preference),
                 summary = null,
-                onClick = onLicensesClick,
+                onClick = onLicensesClick
             )
 
             SettingsActionRow(
                 title = stringResource(R.string.rate_app_title_preference),
                 summary = stringResource(R.string.rate_app_summary_preference),
-                onClick = onRateClick,
+                onClick = onRateClick
             )
 
             SettingsActionRow(
                 title = stringResource(R.string.donate_title_preference),
                 summary = stringResource(R.string.donate_summary_preference),
-                onClick = onDonateClick,
+                onClick = onDonateClick
             )
         }
     }
@@ -136,7 +136,7 @@ private fun rememberNotificationWidgetToggle(onEvent: (SettingsScreenUiEvent) ->
     val context = LocalContext.current
 
     val permissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission(),
+        ActivityResultContracts.RequestPermission()
     ) { granted ->
         if (granted) {
             onEvent(SettingsScreenUiEvent.NotificationWidgetToggledEvent(true))
@@ -146,7 +146,7 @@ private fun rememberNotificationWidgetToggle(onEvent: (SettingsScreenUiEvent) ->
             Toast.makeText(
                 context,
                 R.string.notification_permission_denied,
-                Toast.LENGTH_LONG,
+                Toast.LENGTH_LONG
             ).show()
         }
     }
@@ -178,7 +178,7 @@ private fun SettingsCategoryHeader(title: String, modifier: Modifier = Modifier)
         text = title,
         style = MaterialTheme.typography.titleSmall,
         color = MaterialTheme.colorScheme.primary,
-        modifier = modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp),
+        modifier = modifier.padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 8.dp)
     )
 }
 
@@ -188,7 +188,7 @@ private fun SettingsSwitchRow(
     summary: String,
     checked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     SettingsListItem(
         title = title,
@@ -201,8 +201,8 @@ private fun SettingsSwitchRow(
         modifier = modifier.toggleable(
             value = checked,
             role = Role.Switch,
-            onValueChange = onCheckedChange,
-        ),
+            onValueChange = onCheckedChange
+        )
     )
 }
 
@@ -212,14 +212,14 @@ private fun SettingsActionRow(
     summary: String?,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    enabled: Boolean = true,
+    enabled: Boolean = true
 ) {
     SettingsListItem(
         title = title,
         summary = summary,
         enabled = enabled,
         trailingContent = null,
-        modifier = modifier.clickable(enabled = enabled, onClick = onClick),
+        modifier = modifier.clickable(enabled = enabled, onClick = onClick)
     )
 }
 
@@ -237,7 +237,7 @@ private fun SettingsListItem(
     summary: String?,
     enabled: Boolean,
     trailingContent: (@Composable () -> Unit)?,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     val contentAlpha = if (enabled) 1f else 0.38f
 
@@ -248,9 +248,9 @@ private fun SettingsListItem(
         colors = ListItemDefaults.colors(
             containerColor = Color.Transparent,
             headlineColor = MaterialTheme.colorScheme.onSurface.copy(alpha = contentAlpha),
-            supportingColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = contentAlpha),
+            supportingColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = contentAlpha)
         ),
-        modifier = modifier,
+        modifier = modifier
     )
 }
 
@@ -263,13 +263,13 @@ private fun SettingsScreenPreview() {
                 shakeToPauseEnabled = true,
                 notificationWidgetEnabled = false,
                 hapticFeedbackEnabled = true,
-                findRemoteSupported = true,
+                findRemoteSupported = true
             ),
             onEvent = {},
             onLicensesClick = {},
             onRateClick = {},
             onDonateClick = {},
-            onBackClick = {},
+            onBackClick = {}
         )
     }
 }

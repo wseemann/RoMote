@@ -134,12 +134,12 @@ fun RemoteScreen(uiState: RemoteScreenUiState, onEvent: (RemoteScreenUiEvent) ->
                 if (uiState.isDeviceConnected) {
                     Modifier.paint(
                         painterResource(R.drawable.remote_bg),
-                        contentScale = ContentScale.FillBounds,
+                        contentScale = ContentScale.FillBounds
                     )
                 } else {
                     Modifier
-                },
-            ),
+                }
+            )
     ) {
         if (!uiState.isDeviceConnected) {
             // Deliberately the same centered bodyMedium in the scheme's own content color that
@@ -148,7 +148,7 @@ fun RemoteScreen(uiState: RemoteScreenUiState, onEvent: (RemoteScreenUiEvent) ->
             Text(
                 text = stringResource(R.string.no_device_connected),
                 style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.align(Alignment.Center),
+                modifier = Modifier.align(Alignment.Center)
             )
         } else {
             // The app is edge-to-edge, so keep the bottom row clear of the navigation bar.
@@ -164,7 +164,7 @@ fun RemoteScreen(uiState: RemoteScreenUiState, onEvent: (RemoteScreenUiEvent) ->
                         .fillMaxWidth()
                         .height(DeviceNameHeight)
                         .padding(horizontal = 30.dp)
-                        .padding(top = 6.dp),
+                        .padding(top = 6.dp)
                 )
 
                 RemoteButtonRow(modifier = Modifier.padding(top = RowSpacing)) {
@@ -172,19 +172,19 @@ fun RemoteScreen(uiState: RemoteScreenUiState, onEvent: (RemoteScreenUiEvent) ->
                         icon = R.mipmap.remote_back,
                         contentDescription = stringResource(R.string.remote_back),
                         onClick = { onEvent(keyPressed(KeyPressKeyValues.BACK)) },
-                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                        modifier = Modifier.weight(1f).fillMaxHeight()
                     )
                     RemoteButton(
                         icon = R.mipmap.remote_options,
                         contentDescription = stringResource(R.string.remote_options),
                         onClick = { onEvent(keyPressed(KeyPressKeyValues.INFO)) },
-                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                        modifier = Modifier.weight(1f).fillMaxHeight()
                     )
                     RemoteButton(
                         icon = R.mipmap.remote_home,
                         contentDescription = stringResource(R.string.remote_home),
                         onClick = { onEvent(keyPressed(KeyPressKeyValues.HOME)) },
-                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                        modifier = Modifier.weight(1f).fillMaxHeight()
                     )
                     RemoteButton(
                         icon = R.mipmap.remote_power,
@@ -192,7 +192,7 @@ fun RemoteScreen(uiState: RemoteScreenUiState, onEvent: (RemoteScreenUiEvent) ->
                         onClick = { onEvent(RemoteScreenUiEvent.PowerClickedEvent) },
                         // scaleType="center": the icon keeps its natural size in the square button.
                         contentScale = ContentScale.None,
-                        modifier = Modifier.size(PowerButtonSize),
+                        modifier = Modifier.size(PowerButtonSize)
                     )
                 }
 
@@ -202,7 +202,7 @@ fun RemoteScreen(uiState: RemoteScreenUiState, onEvent: (RemoteScreenUiEvent) ->
                         .weight(1f)
                         .fillMaxWidth()
                         .padding(horizontal = 30.dp)
-                        .padding(top = RowSpacing),
+                        .padding(top = RowSpacing)
                 )
 
                 RemoteButtonRow(modifier = Modifier.padding(top = RowSpacing)) {
@@ -210,43 +210,43 @@ fun RemoteScreen(uiState: RemoteScreenUiState, onEvent: (RemoteScreenUiEvent) ->
                         icon = R.mipmap.remote_rw,
                         contentDescription = stringResource(R.string.remote_rewind),
                         onClick = { onEvent(keyPressed(KeyPressKeyValues.REV)) },
-                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                        modifier = Modifier.weight(1f).fillMaxHeight()
                     )
                     RemoteButton(
                         icon = R.mipmap.remote_playpause,
                         contentDescription = stringResource(R.string.remote_play_pause),
                         onClick = { onEvent(keyPressed(KeyPressKeyValues.PLAY)) },
-                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                        modifier = Modifier.weight(1f).fillMaxHeight()
                     )
                     RemoteButton(
                         icon = R.mipmap.remote_ff,
                         contentDescription = stringResource(R.string.remote_fast_forward),
                         onClick = { onEvent(keyPressed(KeyPressKeyValues.FWD)) },
-                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                        modifier = Modifier.weight(1f).fillMaxHeight()
                     )
                 }
 
                 RemoteButtonRow(
-                    modifier = Modifier.padding(top = RowSpacing, bottom = RowSpacing),
+                    modifier = Modifier.padding(top = RowSpacing, bottom = RowSpacing)
                 ) {
                     RemoteButton(
                         icon = R.mipmap.remote_replay,
                         contentDescription = stringResource(R.string.remote_instant_replay),
                         onClick = { onEvent(keyPressed(KeyPressKeyValues.INTANT_REPLAY)) },
-                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                        modifier = Modifier.weight(1f).fillMaxHeight()
                     )
                     RemoteButton(
                         icon = R.mipmap.remote_keyboard_2,
                         contentDescription = stringResource(R.string.keyboard),
                         onClick = { onEvent(RemoteScreenUiEvent.KeyboardEvent.ClickedEvent) },
                         modifier = Modifier.weight(1f).fillMaxHeight(),
-                        active = uiState.keyboardActive,
+                        active = uiState.keyboardActive
                     )
                     RemoteButton(
                         icon = uiState.privateListening.icon(),
                         contentDescription = stringResource(R.string.remote_private_listening),
                         onClick = { onEvent(RemoteScreenUiEvent.PrivateListeningClickedEvent) },
-                        modifier = Modifier.weight(1f).fillMaxHeight(),
+                        modifier = Modifier.weight(1f).fillMaxHeight()
                     )
                 }
 
@@ -256,19 +256,19 @@ fun RemoteScreen(uiState: RemoteScreenUiState, onEvent: (RemoteScreenUiEvent) ->
                             icon = R.mipmap.remote_vol_mute,
                             contentDescription = stringResource(R.string.remote_volume_mute),
                             onClick = { onEvent(keyPressed(KeyPressKeyValues.VOLUME_MUTE)) },
-                            modifier = Modifier.weight(1f).fillMaxHeight(),
+                            modifier = Modifier.weight(1f).fillMaxHeight()
                         )
                         RemoteButton(
                             icon = R.mipmap.remote_vol_down,
                             contentDescription = stringResource(R.string.remote_volume_down),
                             onClick = { onEvent(keyPressed(KeyPressKeyValues.VOLUME_DOWN)) },
-                            modifier = Modifier.weight(1f).fillMaxHeight(),
+                            modifier = Modifier.weight(1f).fillMaxHeight()
                         )
                         RemoteButton(
                             icon = R.mipmap.remote_vol_up,
                             contentDescription = stringResource(R.string.remote_volume_up),
                             onClick = { onEvent(keyPressed(KeyPressKeyValues.VOLUME_UP)) },
-                            modifier = Modifier.weight(1f).fillMaxHeight(),
+                            modifier = Modifier.weight(1f).fillMaxHeight()
                         )
                     }
                 }
@@ -279,7 +279,7 @@ fun RemoteScreen(uiState: RemoteScreenUiState, onEvent: (RemoteScreenUiEvent) ->
             KeyboardBar(
                 text = uiState.typedText,
                 onEvent = onEvent,
-                modifier = Modifier.align(Alignment.BottomCenter),
+                modifier = Modifier.align(Alignment.BottomCenter)
             )
         }
     }
@@ -298,7 +298,7 @@ fun RemoteScreen(uiState: RemoteScreenUiState, onEvent: (RemoteScreenUiEvent) ->
                 TextButton(onClick = { onEvent(RemoteScreenUiEvent.PowerOffDismissedEvent) }) {
                     Text(text = stringResource(android.R.string.cancel))
                 }
-            },
+            }
         )
     }
 
@@ -312,7 +312,7 @@ fun RemoteScreen(uiState: RemoteScreenUiState, onEvent: (RemoteScreenUiEvent) ->
                 TextButton(
                     onClick = {
                         onEvent(RemoteScreenUiEvent.InstallPrivateListeningConfirmedEvent)
-                    },
+                    }
                 ) {
                     Text(text = stringResource(R.string.install_channel_dialog_button))
                 }
@@ -321,11 +321,11 @@ fun RemoteScreen(uiState: RemoteScreenUiState, onEvent: (RemoteScreenUiEvent) ->
                 TextButton(
                     onClick = {
                         onEvent(RemoteScreenUiEvent.InstallPrivateListeningDismissedEvent)
-                    },
+                    }
                 ) {
                     Text(text = stringResource(R.string.close))
                 }
-            },
+            }
         )
     }
 }
@@ -370,7 +370,7 @@ private fun KeyboardBar(text: String, onEvent: (RemoteScreenUiEvent) -> Unit, mo
             .windowInsetsPadding(WindowInsets.ime.union(WindowInsets.navigationBars))
             .height(KeyboardBarHeight)
             .background(KeyboardBarBackground)
-            .padding(start = 16.dp, end = 4.dp),
+            .padding(start = 16.dp, end = 4.dp)
     ) {
         Box(modifier = Modifier.weight(1f), contentAlignment = Alignment.CenterStart) {
             BasicTextField(
@@ -386,10 +386,10 @@ private fun KeyboardBar(text: String, onEvent: (RemoteScreenUiEvent) -> Unit, mo
                     autoCorrectEnabled = false,
                     capitalization = KeyboardCapitalization.None,
                     keyboardType = KeyboardType.Ascii,
-                    imeAction = ImeAction.Done,
+                    imeAction = ImeAction.Done
                 ),
                 keyboardActions = KeyboardActions(
-                    onDone = { onEvent(RemoteScreenUiEvent.KeyboardEvent.DoneEvent) },
+                    onDone = { onEvent(RemoteScreenUiEvent.KeyboardEvent.DoneEvent) }
                 ),
                 modifier = Modifier
                     .fillMaxWidth()
@@ -406,7 +406,7 @@ private fun KeyboardBar(text: String, onEvent: (RemoteScreenUiEvent) -> Unit, mo
                         } else {
                             false
                         }
-                    },
+                    }
             )
 
             if (text.isEmpty()) {
@@ -414,7 +414,7 @@ private fun KeyboardBar(text: String, onEvent: (RemoteScreenUiEvent) -> Unit, mo
                     text = stringResource(R.string.keyboard_hint),
                     color = Color.White.copy(alpha = 0.5f),
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }
@@ -423,7 +423,7 @@ private fun KeyboardBar(text: String, onEvent: (RemoteScreenUiEvent) -> Unit, mo
             Icon(
                 imageVector = Icons.AutoMirrored.Filled.ArrowBack,
                 contentDescription = stringResource(R.string.keyboard_backspace),
-                tint = Color.White,
+                tint = Color.White
             )
         }
     }
@@ -440,7 +440,7 @@ private fun DPad(onEvent: (RemoteScreenUiEvent) -> Unit, modifier: Modifier = Mo
             painter = painterResource(R.mipmap.remote_dpad_bg),
             contentDescription = null,
             contentScale = ContentScale.Fit,
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize()
         )
 
         Column(modifier = Modifier.fillMaxSize().padding(horizontal = 10.dp)) {
@@ -450,7 +450,7 @@ private fun DPad(onEvent: (RemoteScreenUiEvent) -> Unit, modifier: Modifier = Mo
                     onClick = { onEvent(keyPressed(KeyPressKeyValues.UP)) },
                     repeating = true,
                     contentDescription = stringResource(R.string.remote_up),
-                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                    modifier = Modifier.weight(1f).fillMaxHeight()
                 )
                 Spacer(modifier = Modifier.weight(1f))
             }
@@ -460,19 +460,19 @@ private fun DPad(onEvent: (RemoteScreenUiEvent) -> Unit, modifier: Modifier = Mo
                     onClick = { onEvent(keyPressed(KeyPressKeyValues.LEFT)) },
                     repeating = true,
                     contentDescription = stringResource(R.string.remote_left),
-                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                    modifier = Modifier.weight(1f).fillMaxHeight()
                 )
                 DPadButton(
                     onClick = { onEvent(keyPressed(KeyPressKeyValues.SELECT)) },
                     repeating = false,
                     contentDescription = stringResource(R.string.remote_select),
-                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                    modifier = Modifier.weight(1f).fillMaxHeight()
                 )
                 DPadButton(
                     onClick = { onEvent(keyPressed(KeyPressKeyValues.RIGHT)) },
                     repeating = true,
                     contentDescription = stringResource(R.string.remote_right),
-                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                    modifier = Modifier.weight(1f).fillMaxHeight()
                 )
             }
 
@@ -482,7 +482,7 @@ private fun DPad(onEvent: (RemoteScreenUiEvent) -> Unit, modifier: Modifier = Mo
                     onClick = { onEvent(keyPressed(KeyPressKeyValues.DOWN)) },
                     repeating = true,
                     contentDescription = stringResource(R.string.remote_down),
-                    modifier = Modifier.weight(1f).fillMaxHeight(),
+                    modifier = Modifier.weight(1f).fillMaxHeight()
                 )
                 Spacer(modifier = Modifier.weight(1f))
             }
@@ -494,7 +494,7 @@ private fun DPad(onEvent: (RemoteScreenUiEvent) -> Unit, modifier: Modifier = Mo
 private fun ColumnScope.DPadRow(content: @Composable RowScope.() -> Unit) {
     Row(
         modifier = Modifier.fillMaxWidth().weight(1f),
-        content = content,
+        content = content
     )
 }
 
@@ -513,9 +513,9 @@ private fun RemoteScreenPreview() {
         RemoteScreen(
             uiState = RemoteScreenUiState(
                 deviceName = "Living Room TV",
-                privateListening = PrivateListening.AVAILABLE,
+                privateListening = PrivateListening.AVAILABLE
             ),
-            onEvent = {},
+            onEvent = {}
         )
     }
 }
@@ -528,9 +528,9 @@ private fun RemoteScreenStickPreview() {
             uiState = RemoteScreenUiState(
                 deviceName = "Bedroom Stick",
                 showVolumeControls = false,
-                privateListening = PrivateListening.ACTIVE,
+                privateListening = PrivateListening.ACTIVE
             ),
-            onEvent = {},
+            onEvent = {}
         )
     }
 }
@@ -541,7 +541,7 @@ private fun RemoteScreenNoDevicePreview() {
     RomoteTheme {
         RemoteScreen(
             uiState = RemoteScreenUiState(isDeviceConnected = false),
-            onEvent = {},
+            onEvent = {}
         )
     }
 }
@@ -554,9 +554,9 @@ private fun RemoteScreenKeyboardPreview() {
             uiState = RemoteScreenUiState(
                 deviceName = "Living Room TV",
                 keyboardActive = true,
-                typedText = "breaking bad",
+                typedText = "breaking bad"
             ),
-            onEvent = {},
+            onEvent = {}
         )
     }
 }

@@ -31,10 +31,10 @@ object DeviceModule {
     @Provides
     fun provideDeviceRepository(
         deviceDatabase: DeviceDatabase,
-        sharedPreferences: SharedPreferences,
+        sharedPreferences: SharedPreferences
     ): DeviceRepository = DeviceRepository(
         deviceDatabase = deviceDatabase,
-        sharedPreferences = sharedPreferences,
+        sharedPreferences = sharedPreferences
     )
 
     @Provides

@@ -112,7 +112,7 @@ class MainActivity : ShakeActivity() {
         bindService(
             Intent(this, NotificationService::class.java),
             connection,
-            Context.BIND_AUTO_CREATE,
+            Context.BIND_AUTO_CREATE
         )
     }
 
@@ -141,7 +141,7 @@ class MainActivity : ShakeActivity() {
         // viewPager.setCurrentItem(1) used to.
         val pagerState = rememberPagerState(
             initialPage = if (deviceManager.getConnectedDevice() != null) REMOTE_PAGE else DEVICES_PAGE,
-            pageCount = { PAGE_COUNT },
+            pageCount = { PAGE_COUNT }
         )
 
         var isSearchDialogVisible by rememberSaveable { mutableStateOf(false) }
@@ -193,7 +193,7 @@ class MainActivity : ShakeActivity() {
                         title = stringResource(R.string.app_name),
                         actions = {
                             MainActions { isSearchDialogVisible = true }
-                        },
+                        }
                     )
 
                     MainTabRow(pagerState = pagerState, scope = scope)
@@ -201,29 +201,29 @@ class MainActivity : ShakeActivity() {
             },
             // The screens apply navigationBarsPadding() themselves - they had to, hanging off a
             // ViewPager - so letting the Scaffold inset the content too would pad the bottom twice.
-            contentWindowInsets = WindowInsets(0),
+            contentWindowInsets = WindowInsets(0)
         ) { contentPadding ->
             HorizontalPager(
                 state = pagerState,
                 beyondViewportPageCount = offscreenPages,
-                modifier = Modifier.padding(contentPadding),
+                modifier = Modifier.padding(contentPadding)
             ) { page ->
                 when (page) {
                     DEVICES_PAGE -> DevicesTab(viewModel = mainScreenViewModel)
 
                     REMOTE_PAGE -> RemoteTab(
                         viewModel = remoteScreenViewModel,
-                        isCurrentPage = pagerState.currentPage == REMOTE_PAGE,
+                        isCurrentPage = pagerState.currentPage == REMOTE_PAGE
                     )
 
                     CHANNELS_PAGE -> ChannelsTab(
                         viewModel = channelScreenViewModel,
-                        isCurrentPage = pagerState.currentPage == CHANNELS_PAGE,
+                        isCurrentPage = pagerState.currentPage == CHANNELS_PAGE
                     )
 
                     else -> StoreTab(
                         viewModel = storeScreenViewModel,
-                        isCurrentPage = pagerState.currentPage == STORE_PAGE,
+                        isCurrentPage = pagerState.currentPage == STORE_PAGE
                     )
                 }
             }
@@ -236,7 +236,7 @@ class MainActivity : ShakeActivity() {
                     isSearchDialogVisible = false
                     performSearch(searchText)
                 },
-                onDismiss = { isSearchDialogVisible = false },
+                onDismiss = { isSearchDialogVisible = false }
             )
         }
 
@@ -248,10 +248,10 @@ class MainActivity : ShakeActivity() {
                     dismissRemoteAccessHelp()
 
                     startActivity(
-                        Intent(Intent.ACTION_VIEW, Constants.ROKU_MOBILE_APP_SETUP_URL.toUri()),
+                        Intent(Intent.ACTION_VIEW, Constants.ROKU_MOBILE_APP_SETUP_URL.toUri())
                     )
                 },
-                onDismiss = { dismissRemoteAccessHelp() },
+                onDismiss = { dismissRemoteAccessHelp() }
             )
         }
     }
@@ -266,27 +266,27 @@ class MainActivity : ShakeActivity() {
         IconButton(onClick = onSearchClick) {
             Icon(
                 imageVector = Icons.Default.Search,
-                contentDescription = stringResource(R.string.action_search),
+                contentDescription = stringResource(R.string.action_search)
             )
         }
 
         IconButton(onClick = { isOverflowExpanded = true }) {
             Icon(
                 imageVector = Icons.Default.MoreVert,
-                contentDescription = stringResource(R.string.more_options_content_description),
+                contentDescription = stringResource(R.string.more_options_content_description)
             )
         }
 
         DropdownMenu(
             expanded = isOverflowExpanded,
-            onDismissRequest = { isOverflowExpanded = false },
+            onDismissRequest = { isOverflowExpanded = false }
         ) {
             DropdownMenuItem(
                 text = { Text(text = stringResource(R.string.action_settings)) },
                 onClick = {
                     isOverflowExpanded = false
                     startActivity(Intent(this@MainActivity, SettingsActivity::class.java))
-                },
+                }
             )
         }
     }
@@ -298,7 +298,7 @@ class MainActivity : ShakeActivity() {
             stringResource(R.string.title_devices),
             stringResource(R.string.title_remote),
             stringResource(R.string.title_channels),
-            stringResource(R.string.title_store),
+            stringResource(R.string.title_store)
         )
 
         SecondaryTabRow(
@@ -310,16 +310,16 @@ class MainActivity : ShakeActivity() {
             indicator = {
                 TabRowDefaults.SecondaryIndicator(
                     modifier = Modifier.tabIndicatorOffset(pagerState.currentPage),
-                    color = MaterialTheme.colorScheme.tertiary,
+                    color = MaterialTheme.colorScheme.tertiary
                 )
             },
-            divider = {},
+            divider = {}
         ) {
             titles.forEachIndexed { index, title ->
                 Tab(
                     selected = pagerState.currentPage == index,
                     onClick = { scope.launch { pagerState.animateScrollToPage(index) } },
-                    text = { Text(text = title) },
+                    text = { Text(text = title) }
                 )
             }
         }

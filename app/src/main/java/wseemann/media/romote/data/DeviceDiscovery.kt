@@ -27,7 +27,7 @@ import javax.inject.Singleton
 @Singleton
 class DeviceDiscovery @Inject constructor(
     @param:ApplicationContext private val context: Context,
-    @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
+    @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher
 ) {
 
     private val mutex = Mutex()
@@ -75,7 +75,7 @@ class DeviceDiscovery @Inject constructor(
             Timber.tag(TAG).d(
                 "Device: " + clientScanResult.device +
                     " HW Address: " + clientScanResult.hwAddr +
-                    " IP Address:  " + clientScanResult.ipAddr,
+                    " IP Address:  " + clientScanResult.ipAddr
             )
 
             val host = "http://" + clientScanResult.ipAddr + ":" + ECP_PORT

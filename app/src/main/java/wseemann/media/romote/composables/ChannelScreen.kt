@@ -55,12 +55,12 @@ private val ThumbnailCornerRadius = 5.dp
 fun ChannelScreen(
     uiState: ChannelScreenUiState,
     onEvent: (ChannelScreenUiEvent) -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     PullToRefreshBox(
         isRefreshing = uiState.isLoading,
         onRefresh = { onEvent(ChannelScreenUiEvent.LoadChannelsEvent) },
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize()
     ) {
         // The empty state has to fill the viewport so the pull gesture still has somewhere to
         // travel when there is nothing to show, and LazyGridItemScope offers no fillParentMaxSize
@@ -74,7 +74,7 @@ fun ChannelScreen(
                 verticalArrangement = Arrangement.spacedBy(ThumbnailSpacing),
                 contentPadding = PaddingValues(ThumbnailSpacing),
                 // The app is edge-to-edge, so keep the last row clear of the navigation bar.
-                modifier = Modifier.fillMaxSize().navigationBarsPadding(),
+                modifier = Modifier.fillMaxSize().navigationBarsPadding()
             ) {
                 if (uiState.channels.isEmpty() && !uiState.isLoading) {
                     // An empty grid means one of two different things, and saying "no channels"
@@ -89,11 +89,11 @@ fun ChannelScreen(
                     item(span = { GridItemSpan(maxLineSpan) }) {
                         Box(
                             contentAlignment = Alignment.Center,
-                            modifier = Modifier.fillMaxWidth().height(viewportHeight),
+                            modifier = Modifier.fillMaxWidth().height(viewportHeight)
                         ) {
                             Text(
                                 text = stringResource(emptyMessage),
-                                style = MaterialTheme.typography.bodyMedium,
+                                style = MaterialTheme.typography.bodyMedium
                             )
                         }
                     }
@@ -104,7 +104,7 @@ fun ChannelScreen(
                         channel = channel,
                         onClick = {
                             onEvent(ChannelScreenUiEvent.ChannelClickedEvent(channel.id))
-                        },
+                        }
                     )
                 }
             }
@@ -122,7 +122,7 @@ private fun ChannelGridItem(channel: ChannelItem, onClick: () -> Unit, modifier:
         modifier = modifier
             .aspectRatio(ThumbnailAspectRatio)
             .clip(RoundedCornerShape(ThumbnailCornerRadius))
-            .clickable(onClick = onClick),
+            .clickable(onClick = onClick)
     )
 }
 
@@ -135,10 +135,10 @@ private fun ChannelScreenPreview() {
                 channels = persistentListOf(
                     ChannelItem(id = "12", title = "Netflix", iconUrl = ""),
                     ChannelItem(id = "13", title = "Prime Video", iconUrl = ""),
-                    ChannelItem(id = "837", title = "YouTube", iconUrl = ""),
-                ),
+                    ChannelItem(id = "837", title = "YouTube", iconUrl = "")
+                )
             ),
-            onEvent = {},
+            onEvent = {}
         )
     }
 }
@@ -149,7 +149,7 @@ private fun ChannelScreenEmptyPreview() {
     RomoteTheme {
         ChannelScreen(
             uiState = ChannelScreenUiState(),
-            onEvent = {},
+            onEvent = {}
         )
     }
 }
@@ -160,7 +160,7 @@ private fun ChannelScreenNoDevicePreview() {
     RomoteTheme {
         ChannelScreen(
             uiState = ChannelScreenUiState(isDeviceConnected = false),
-            onEvent = {},
+            onEvent = {}
         )
     }
 }

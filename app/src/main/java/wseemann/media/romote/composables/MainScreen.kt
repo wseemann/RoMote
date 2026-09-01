@@ -117,7 +117,7 @@ fun MainScreen(uiState: MainScreenUiState, onEvent: (MainScreenUiEvent) -> Unit,
             PullToRefreshBox(
                 isRefreshing = uiState.isLoading,
                 onRefresh = { onEvent(MainScreenUiEvent.RefreshEvent) },
-                modifier = Modifier.weight(1f),
+                modifier = Modifier.weight(1f)
             ) {
                 DeviceList(uiState = uiState, onEvent = onEvent)
             }
@@ -127,11 +127,11 @@ fun MainScreen(uiState: MainScreenUiState, onEvent: (MainScreenUiEvent) -> Unit,
             onClick = { onEvent(MainScreenUiEvent.AddDeviceClickedEvent) },
             containerColor = Purple,
             contentColor = Color.White,
-            modifier = Modifier.align(Alignment.BottomEnd).padding(FabMargin),
+            modifier = Modifier.align(Alignment.BottomEnd).padding(FabMargin)
         ) {
             Icon(
                 imageVector = Icons.Default.Add,
-                contentDescription = stringResource(R.string.connect_manually),
+                contentDescription = stringResource(R.string.connect_manually)
             )
         }
     }
@@ -140,7 +140,7 @@ fun MainScreen(uiState: MainScreenUiState, onEvent: (MainScreenUiEvent) -> Unit,
         EditDeviceNameDialog(
             initialName = target.currentName,
             onConfirm = { onEvent(MainScreenUiEvent.RenameDeviceConfirmedEvent(it)) },
-            onDismiss = { onEvent(MainScreenUiEvent.RenameDeviceDismissedEvent) },
+            onDismiss = { onEvent(MainScreenUiEvent.RenameDeviceDismissedEvent) }
         )
     }
 }
@@ -149,7 +149,7 @@ fun MainScreen(uiState: MainScreenUiState, onEvent: (MainScreenUiEvent) -> Unit,
 private fun DeviceList(
     uiState: MainScreenUiState,
     onEvent: (MainScreenUiEvent) -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     val isEmpty = uiState.pairedDevices.isEmpty() && uiState.availableDevices.isEmpty()
 
@@ -163,11 +163,11 @@ private fun DeviceList(
                     Box(
                         contentAlignment = Alignment.Center,
                         // Fills the viewport so the pull gesture still has somewhere to travel.
-                        modifier = Modifier.fillParentMaxSize(),
+                        modifier = Modifier.fillParentMaxSize()
                     ) {
                         Text(
                             text = stringResource(R.string.empty_list),
-                            style = MaterialTheme.typography.bodyMedium,
+                            style = MaterialTheme.typography.bodyMedium
                         )
                     }
                 }
@@ -181,7 +181,7 @@ private fun DeviceList(
             devices = uiState.pairedDevices,
             isPaired = true,
             connectedSerialNumber = uiState.connectedSerialNumber,
-            onEvent = onEvent,
+            onEvent = onEvent
         )
 
         deviceSection(
@@ -189,7 +189,7 @@ private fun DeviceList(
             devices = uiState.availableDevices,
             isPaired = false,
             connectedSerialNumber = uiState.connectedSerialNumber,
-            onEvent = onEvent,
+            onEvent = onEvent
         )
 
         item {
@@ -207,7 +207,7 @@ private fun LazyListScope.deviceSection(
     devices: ImmutableList<Device>,
     isPaired: Boolean,
     connectedSerialNumber: String?,
-    onEvent: (MainScreenUiEvent) -> Unit,
+    onEvent: (MainScreenUiEvent) -> Unit
 ) {
     item(key = "header-$title") {
         SectionHeader(title = stringResource(title))
@@ -218,7 +218,7 @@ private fun LazyListScope.deviceSection(
             device = device,
             isPaired = isPaired,
             isConnected = device.serialNumber == connectedSerialNumber,
-            onEvent = onEvent,
+            onEvent = onEvent
         )
     }
 }
@@ -235,7 +235,7 @@ private fun SectionHeader(title: String, modifier: Modifier = Modifier) {
             text = title,
             style = MaterialTheme.typography.titleSmall,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
-            modifier = Modifier.padding(start = 5.dp, top = 2.dp, bottom = 2.dp),
+            modifier = Modifier.padding(start = 5.dp, top = 2.dp, bottom = 2.dp)
         )
 
         HorizontalDivider()
@@ -247,11 +247,11 @@ private fun DiscoveringDevicesHeader(modifier: Modifier = Modifier) {
     Row(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier.fillMaxWidth().height(ProgressHeaderHeight),
+        modifier = modifier.fillMaxWidth().height(ProgressHeaderHeight)
     ) {
         Text(
             text = stringResource(R.string.discovering_devices),
-            fontSize = DeviceNameFontSize,
+            fontSize = DeviceNameFontSize
         )
 
         CircularProgressIndicator(modifier = Modifier.padding(start = 8.dp).size(24.dp))
@@ -264,7 +264,7 @@ private fun DeviceRow(
     isPaired: Boolean,
     isConnected: Boolean,
     onEvent: (MainScreenUiEvent) -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     // The serial number is the device's identity everywhere the app stores or looks one up. It is
     // nullable on the model the discovery library returns, but a device the list can draw has one.
@@ -275,11 +275,11 @@ private fun DeviceRow(
         modifier = modifier
             .fillMaxWidth()
             .clickable { onEvent(MainScreenUiEvent.DeviceSelectedEvent(device)) }
-            .padding(1.dp),
+            .padding(1.dp)
     ) {
         Box(
             contentAlignment = Alignment.Center,
-            modifier = Modifier.size(DeviceIconBoxSize),
+            modifier = Modifier.size(DeviceIconBoxSize)
         ) {
             // The picture the device publishes of itself, when it publishes one. A device that
             // doesn't, or whose picture hasn't loaded, keeps the flat disc the list always drew,
@@ -297,7 +297,7 @@ private fun DeviceRow(
                     modifier = Modifier
                         .size(width = DeviceImageWidth, height = DeviceImageHeight)
                         .clip(RoundedCornerShape(DeviceImageCornerRadius))
-                        .background(DeviceIconBackground),
+                        .background(DeviceIconBackground)
                 )
             } else {
                 Box(
@@ -309,8 +309,8 @@ private fun DeviceRow(
                                 Purple
                             } else {
                                 SemiTransparentBlack
-                            },
-                        ),
+                            }
+                        )
                 )
             }
         }
@@ -320,19 +320,19 @@ private fun DeviceRow(
             // the icon beside it, so a long name wraps rather than being cut off.
             Text(
                 text = device.displayName(),
-                fontSize = DeviceNameFontSize,
+                fontSize = DeviceNameFontSize
             )
 
             Text(
                 text = stringResource(R.string.serial_number, serialNumber),
-                fontSize = DeviceDetailFontSize,
+                fontSize = DeviceDetailFontSize
             )
 
             Text(
                 text = stringResource(
-                    if (isConnected) R.string.connected else R.string.not_connected,
+                    if (isConnected) R.string.connected else R.string.not_connected
                 ),
-                fontSize = DeviceDetailFontSize,
+                fontSize = DeviceDetailFontSize
             )
         }
 
@@ -341,7 +341,7 @@ private fun DeviceRow(
             serialNumber = serialNumber,
             isPaired = isPaired,
             onEvent = onEvent,
-            modifier = Modifier.padding(end = 12.dp),
+            modifier = Modifier.padding(end = 12.dp)
         )
     }
 }
@@ -356,7 +356,7 @@ private fun DeviceOverflowMenu(
     serialNumber: String,
     isPaired: Boolean,
     onEvent: (MainScreenUiEvent) -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     var isExpanded by remember { mutableStateOf(false) }
 
@@ -364,13 +364,13 @@ private fun DeviceOverflowMenu(
         IconButton(onClick = { isExpanded = true }) {
             Icon(
                 imageVector = Icons.Default.MoreVert,
-                contentDescription = stringResource(R.string.device_options_content_description),
+                contentDescription = stringResource(R.string.device_options_content_description)
             )
         }
 
         DropdownMenu(
             expanded = isExpanded,
-            onDismissRequest = { isExpanded = false },
+            onDismissRequest = { isExpanded = false }
         ) {
             DropdownMenuItem(
                 text = { Text(text = stringResource(R.string.action_rename)) },
@@ -379,10 +379,10 @@ private fun DeviceOverflowMenu(
                     onEvent(
                         MainScreenUiEvent.RenameDeviceClickedEvent(
                             serialNumber = serialNumber,
-                            currentName = device.getCustomUserDeviceName().orEmpty(),
-                        ),
+                            currentName = device.getCustomUserDeviceName().orEmpty()
+                        )
                     )
-                },
+                }
             )
 
             DropdownMenuItem(
@@ -392,10 +392,10 @@ private fun DeviceOverflowMenu(
                     onEvent(
                         MainScreenUiEvent.DeviceInfoClickedEvent(
                             serialNumber = serialNumber,
-                            host = device.host.orEmpty(),
-                        ),
+                            host = device.host.orEmpty()
+                        )
                     )
-                },
+                }
             )
 
             if (isPaired) {
@@ -404,7 +404,7 @@ private fun DeviceOverflowMenu(
                     onClick = {
                         isExpanded = false
                         onEvent(MainScreenUiEvent.ForgetDeviceEvent(serialNumber))
-                    },
+                    }
                 )
             }
         }
@@ -438,14 +438,14 @@ private fun MainScreenPreview() {
         MainScreen(
             uiState = MainScreenUiState(
                 pairedDevices = persistentListOf(
-                    previewDevice(serialNumber = "X0055FR4M4NG", userDeviceName = "Living room"),
+                    previewDevice(serialNumber = "X0055FR4M4NG", userDeviceName = "Living room")
                 ),
                 availableDevices = persistentListOf(
-                    previewDevice(serialNumber = "X0055FR4M4NH", userDeviceName = "Bedroom"),
+                    previewDevice(serialNumber = "X0055FR4M4NH", userDeviceName = "Bedroom")
                 ),
-                connectedSerialNumber = "X0055FR4M4NG",
+                connectedSerialNumber = "X0055FR4M4NG"
             ),
-            onEvent = {},
+            onEvent = {}
         )
     }
 }
@@ -456,7 +456,7 @@ private fun MainScreenLoadingPreview() {
     RomoteTheme {
         MainScreen(
             uiState = MainScreenUiState(isLoading = true),
-            onEvent = {},
+            onEvent = {}
         )
     }
 }
@@ -467,7 +467,7 @@ private fun MainScreenEmptyPreview() {
     RomoteTheme {
         MainScreen(
             uiState = MainScreenUiState(),
-            onEvent = {},
+            onEvent = {}
         )
     }
 }

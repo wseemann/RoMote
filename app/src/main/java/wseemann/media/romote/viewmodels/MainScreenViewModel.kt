@@ -94,7 +94,7 @@ class MainScreenViewModel @Inject constructor(
                             .toPersistentList(),
                         pairedDevices = pairedDevices.toPersistentList(),
                         connectedSerialNumber = connectedSerialNumber(),
-                        isLoading = false,
+                        isLoading = false
                     )
                 }
             } catch (ex: CancellationException) {
@@ -180,7 +180,7 @@ class MainScreenViewModel @Inject constructor(
                 it.copy(
                     availableDevices = persistentListOf(),
                     pairedDevices = deviceRepository.getAllDevices().toPersistentList(),
-                    connectedSerialNumber = device.serialNumber,
+                    connectedSerialNumber = device.serialNumber
                 )
             }
         }
@@ -210,7 +210,7 @@ class MainScreenViewModel @Inject constructor(
             _uiState.update {
                 it.copy(
                     pairedDevices = deviceRepository.getAllDevices().toPersistentList(),
-                    connectedSerialNumber = connectedSerialNumber(),
+                    connectedSerialNumber = connectedSerialNumber()
                 )
             }
 
@@ -224,8 +224,8 @@ class MainScreenViewModel @Inject constructor(
             it.copy(
                 renameTarget = MainScreenUiState.RenameTarget(
                     serialNumber = event.serialNumber,
-                    currentName = event.currentName,
-                ),
+                    currentName = event.currentName
+                )
             )
         }
     }
@@ -256,7 +256,7 @@ class MainScreenViewModel @Inject constructor(
             _uiState.update {
                 it.copy(
                     availableDevices = persistentListOf(),
-                    pairedDevices = deviceRepository.getAllDevices().toPersistentList(),
+                    pairedDevices = deviceRepository.getAllDevices().toPersistentList()
                 )
             }
         }

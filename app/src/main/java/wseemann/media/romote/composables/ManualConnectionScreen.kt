@@ -52,7 +52,7 @@ fun ManualConnectionScreen(
     uiState: ManualConnectionScreenUiState,
     onEvent: (ManualConnectionScreenUiEvent) -> Unit,
     onBackClick: () -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     val focusRequester = remember { FocusRequester() }
 
@@ -78,14 +78,14 @@ fun ManualConnectionScreen(
         topBar = {
             RomoteTopAppBar(
                 title = stringResource(R.string.title_connect_manually),
-                onBackClick = onBackClick,
+                onBackClick = onBackClick
             )
-        },
+        }
     ) { contentPadding ->
         Column(
             modifier = Modifier
                 .padding(contentPadding)
-                .imePadding(),
+                .imePadding()
         ) {
             Text(
                 text = stringResource(R.string.connect_help),
@@ -93,7 +93,7 @@ fun ManualConnectionScreen(
                 textAlign = TextAlign.Center,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 12.dp, vertical = 10.dp),
+                    .padding(horizontal = 12.dp, vertical = 10.dp)
             )
 
             OutlinedTextField(
@@ -110,15 +110,15 @@ fun ManualConnectionScreen(
                     // Decimal rather than Number: the field no longer starts with the dotted
                     // prefix, so the keypad has to offer the separator the user now types.
                     keyboardType = KeyboardType.Decimal,
-                    imeAction = ImeAction.Done,
+                    imeAction = ImeAction.Done
                 ),
                 keyboardActions = KeyboardActions(
-                    onDone = { onEvent(ManualConnectionScreenUiEvent.ConnectClickedEvent) },
+                    onDone = { onEvent(ManualConnectionScreenUiEvent.ConnectClickedEvent) }
                 ),
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 10.dp)
-                    .focusRequester(focusRequester),
+                    .focusRequester(focusRequester)
             )
 
             Button(
@@ -127,17 +127,17 @@ fun ManualConnectionScreen(
                 shape = RoundedCornerShape(ConnectButtonCornerRadius),
                 colors = ButtonDefaults.buttonColors(
                     containerColor = PurpleButton,
-                    contentColor = Color.White,
+                    contentColor = Color.White
                 ),
                 // The padding comes before the height so the button is a full 64dp tall, the way
                 // the MaterialButton's layout_height plus layout_margin used to be.
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 8.dp, end = 8.dp, top = 10.dp),
+                    .padding(start = 8.dp, end = 8.dp, top = 10.dp)
             ) {
                 Text(
                     text = stringResource(R.string.connect),
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.titleMedium
                 )
             }
 
@@ -149,7 +149,7 @@ fun ManualConnectionScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(horizontal = 12.dp)
-                        .padding(top = 10.dp),
+                        .padding(top = 10.dp)
                 )
             }
 
@@ -163,7 +163,7 @@ fun ManualConnectionScreen(
                         textAlign = TextAlign.Center,
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(top = 8.dp),
+                            .padding(top = 8.dp)
                     )
                 }
             }
@@ -178,7 +178,7 @@ private fun ManualConnectionScreenPreview() {
         ManualConnectionScreen(
             uiState = ManualConnectionScreenUiState(),
             onEvent = {},
-            onBackClick = {},
+            onBackClick = {}
         )
     }
 }
@@ -190,7 +190,7 @@ private fun ManualConnectionScreenLoadingPreview() {
         ManualConnectionScreen(
             uiState = ManualConnectionScreenUiState(ipAddress = "192.168.1.42", isLoading = true),
             onEvent = {},
-            onBackClick = {},
+            onBackClick = {}
         )
     }
 }
@@ -202,7 +202,7 @@ private fun ManualConnectionScreenErrorPreview() {
         ManualConnectionScreen(
             uiState = ManualConnectionScreenUiState(ipAddress = "192.168.1.254", hasError = true),
             onEvent = {},
-            onBackClick = {},
+            onBackClick = {}
         )
     }
 }

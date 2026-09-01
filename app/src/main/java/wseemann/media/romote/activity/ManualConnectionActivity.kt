@@ -36,7 +36,7 @@ class ManualConnectionActivity : ShakeActivity() {
                 ManualConnectionScreen(
                     uiState = uiState,
                     onEvent = manualConnectionScreenViewModel::onHandleEvent,
-                    onBackClick = { finish() },
+                    onBackClick = { finish() }
                 )
 
                 ConnectivityDialogHost(viewModel = connectivityViewModel)

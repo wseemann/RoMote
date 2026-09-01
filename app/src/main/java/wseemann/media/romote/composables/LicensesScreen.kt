@@ -39,7 +39,7 @@ fun LicensesScreen(onBackClick: () -> Unit, modifier: Modifier = Modifier) {
                 libraries = loaded.libraries.filter { library ->
                     library.name.contains(query, ignoreCase = true) ||
                         library.uniqueId.contains(query, ignoreCase = true)
-                },
+                }
             )
         }
     }
@@ -49,9 +49,9 @@ fun LicensesScreen(onBackClick: () -> Unit, modifier: Modifier = Modifier) {
         topBar = {
             RomoteTopAppBar(
                 title = stringResource(R.string.open_source_licenses_title_preference),
-                onBackClick = onBackClick,
+                onBackClick = onBackClick
             )
-        },
+        }
     ) { contentPadding ->
         Column(modifier = Modifier.padding(contentPadding)) {
             OutlinedTextField(
@@ -61,12 +61,12 @@ fun LicensesScreen(onBackClick: () -> Unit, modifier: Modifier = Modifier) {
                 singleLine = true,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
             )
 
             LibrariesContainer(
                 libraries = filteredLibraries,
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier.fillMaxSize()
             )
         }
     }

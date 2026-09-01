@@ -29,7 +29,7 @@ fun StoreScreen(
     uiState: StoreScreenUiState,
     isCurrentPage: Boolean,
     onEvent: (StoreScreenUiEvent) -> Unit,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     var webView by remember { mutableStateOf<WebView?>(null) }
 
@@ -68,7 +68,7 @@ fun StoreScreen(
                     loadUrl(uiState.url)
                     webView = this
                 }
-            },
+            }
         )
     }
 }
@@ -81,7 +81,7 @@ private fun StoreScreenPreview() {
             StoreScreen(
                 uiState = StoreScreenUiState(isLoading = true),
                 isCurrentPage = true,
-                onEvent = {},
+                onEvent = {}
             )
         }
     }

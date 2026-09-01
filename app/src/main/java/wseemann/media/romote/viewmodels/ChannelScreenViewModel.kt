@@ -54,7 +54,7 @@ class ChannelScreenViewModel @Inject constructor(
                     it.copy(
                         channels = persistentListOf(),
                         isLoading = false,
-                        isDeviceConnected = false,
+                        isDeviceConnected = false
                     )
                 }
 

@@ -56,7 +56,7 @@ class Device(private val device: Device) {
                     ChannelItem(
                         id = channel.id.orEmpty(),
                         title = channel.title.orEmpty(),
-                        iconUrl = host + "/query/icon/" + channel.id,
+                        iconUrl = host + "/query/icon/" + channel.id
                     )
                 }
         } catch (ex: Exception) {
@@ -112,7 +112,7 @@ class Device(private val device: Device) {
                 null,
                 null,
                 null,
-                null,
+                null
             )
         } catch (ex: Exception) {
             Timber.tag(TAG).e(ex, "Failed to perform search")

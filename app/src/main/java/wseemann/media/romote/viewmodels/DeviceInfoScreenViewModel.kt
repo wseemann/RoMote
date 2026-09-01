@@ -92,7 +92,7 @@ class DeviceInfoScreenViewModel @Inject constructor(
         Entry("notifications-enabled", device.notificationsEnabled.orEmpty()),
         Entry("notifications-first-use", device.notificationsFirstUse.orEmpty()),
         Entry("supports-private-listening", device.supportsPrivateListening.orEmpty()),
-        Entry("headphones-connected", device.headphonesConnected.orEmpty()),
+        Entry("headphones-connected", device.headphonesConnected.orEmpty())
     ).toPersistentList()
 
     companion object {

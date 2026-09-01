@@ -34,7 +34,7 @@ fun ConnectivityDialog(onOpenSettingsClick: () -> Unit, onDismiss: () -> Unit, m
                 Text(text = stringResource(R.string.connectivity_dialog_dismiss_button))
             }
         },
-        modifier = modifier,
+        modifier = modifier
     )
 }
 

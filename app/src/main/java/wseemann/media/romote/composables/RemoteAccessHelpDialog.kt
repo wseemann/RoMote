@@ -39,13 +39,13 @@ fun RemoteAccessHelpDialog(onLearnMoreClick: () -> Unit, onDismiss: () -> Unit, 
         text = {
             Column(
                 verticalArrangement = Arrangement.spacedBy(4.dp),
-                modifier = Modifier.verticalScroll(rememberScrollState()),
+                modifier = Modifier.verticalScroll(rememberScrollState())
             ) {
                 Text(text = stringResource(R.string.remote_access_dialog_message))
 
                 Column(
                     verticalArrangement = Arrangement.spacedBy(4.dp),
-                    modifier = Modifier.padding(top = 4.dp),
+                    modifier = Modifier.padding(top = 4.dp)
                 ) {
                     Text(text = stringResource(R.string.remote_access_dialog_step_1))
                     Text(text = stringResource(R.string.remote_access_dialog_step_2))
@@ -57,7 +57,7 @@ fun RemoteAccessHelpDialog(onLearnMoreClick: () -> Unit, onDismiss: () -> Unit, 
                 Text(
                     text = stringResource(R.string.remote_access_dialog_note),
                     style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(top = 4.dp),
+                    modifier = Modifier.padding(top = 4.dp)
                 )
             }
         },
@@ -73,7 +73,7 @@ fun RemoteAccessHelpDialog(onLearnMoreClick: () -> Unit, onDismiss: () -> Unit, 
                 Text(text = stringResource(R.string.remote_access_dialog_learn_more))
             }
         },
-        modifier = modifier,
+        modifier = modifier
     )
 }
 
@@ -83,7 +83,7 @@ private fun RemoteAccessHelpDialogPreview() {
     RomoteTheme {
         RemoteAccessHelpDialog(
             onLearnMoreClick = {},
-            onDismiss = {},
+            onDismiss = {}
         )
     }
 }

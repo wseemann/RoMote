@@ -36,12 +36,12 @@ class ConnectivityViewModel @Inject constructor(localNetworkMonitor: LocalNetwor
                         state.copy(
                             isLocalNetworkAvailable = true,
                             isDialogVisible = false,
-                            isDismissed = false,
+                            isDismissed = false
                         )
                     } else {
                         state.copy(
                             isLocalNetworkAvailable = false,
-                            isDialogVisible = !state.isDismissed,
+                            isDialogVisible = !state.isDismissed
                         )
                     }
                 }

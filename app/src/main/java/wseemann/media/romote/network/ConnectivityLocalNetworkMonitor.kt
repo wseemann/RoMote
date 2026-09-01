@@ -63,7 +63,7 @@ class ConnectivityLocalNetworkMonitor @Inject constructor(@param:ApplicationCont
         connectivityManager.registerNetworkCallback(
             localNetworkRequest(),
             callback,
-            Handler(Looper.getMainLooper()),
+            Handler(Looper.getMainLooper())
         )
 
         awaitClose { connectivityManager.unregisterNetworkCallback(callback) }

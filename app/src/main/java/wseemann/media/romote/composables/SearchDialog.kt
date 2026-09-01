@@ -72,12 +72,12 @@ fun SearchDialog(onSearch: (String) -> Unit, onDismiss: () -> Unit, modifier: Mo
                     label = { Text(text = stringResource(R.string.action_search)) },
                     keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
                     keyboardActions = KeyboardActions(
-                        onDone = { onSearch(searchValue.text) },
+                        onDone = { onSearch(searchValue.text) }
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(top = 8.dp)
-                        .focusRequester(focusRequester),
+                        .focusRequester(focusRequester)
                 )
             }
         },
@@ -91,7 +91,7 @@ fun SearchDialog(onSearch: (String) -> Unit, onDismiss: () -> Unit, modifier: Mo
                 Text(text = stringResource(android.R.string.cancel))
             }
         },
-        modifier = modifier,
+        modifier = modifier
     )
 }
 
@@ -101,7 +101,7 @@ private fun SearchDialogPreview() {
     RomoteTheme {
         SearchDialog(
             onSearch = {},
-            onDismiss = {},
+            onDismiss = {}
         )
     }
 }

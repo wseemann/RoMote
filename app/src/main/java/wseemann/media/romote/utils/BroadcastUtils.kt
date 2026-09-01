@@ -23,7 +23,7 @@ object BroadcastUtils {
         val intent = Intent(AppWidgetManager.ACTION_APPWIDGET_UPDATE).apply {
             putExtra(
                 AppWidgetManager.EXTRA_APPWIDGET_IDS,
-                widgetManager.getAppWidgetIds(widgetComponent),
+                widgetManager.getAppWidgetIds(widgetComponent)
             )
         }
 

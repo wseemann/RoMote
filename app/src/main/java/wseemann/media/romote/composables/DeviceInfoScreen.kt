@@ -38,9 +38,9 @@ fun DeviceInfoScreen(uiState: DeviceInfoScreenUiState, onBackClick: () -> Unit, 
         topBar = {
             RomoteTopAppBar(
                 title = stringResource(R.string.title_device_info),
-                onBackClick = onBackClick,
+                onBackClick = onBackClick
             )
-        },
+        }
     ) { contentPadding ->
         DeviceInfoContent(uiState = uiState, contentPadding = contentPadding)
     }
@@ -50,21 +50,21 @@ fun DeviceInfoScreen(uiState: DeviceInfoScreenUiState, onBackClick: () -> Unit, 
 private fun DeviceInfoContent(
     uiState: DeviceInfoScreenUiState,
     contentPadding: PaddingValues,
-    modifier: Modifier = Modifier,
+    modifier: Modifier = Modifier
 ) {
     if (uiState.entries.isEmpty()) {
         Box(
             contentAlignment = Alignment.Center,
             modifier = modifier
                 .fillMaxSize()
-                .padding(contentPadding),
+                .padding(contentPadding)
         ) {
             if (uiState.isLoading) {
                 CircularProgressIndicator()
             } else {
                 Text(
                     text = stringResource(R.string.no_device_info),
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodyMedium
                 )
             }
         }
@@ -76,7 +76,7 @@ private fun DeviceInfoContent(
     // bar instead of stopping short of it.
     LazyColumn(
         contentPadding = contentPadding,
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier.fillMaxSize()
     ) {
         items(uiState.entries, key = { entry -> entry.key }) { entry ->
             DeviceInfoRow(entry = entry)
@@ -95,7 +95,7 @@ private fun DeviceInfoRow(entry: Entry, modifier: Modifier = Modifier) {
         // for `background`. Staying transparent keeps the rows, the empty state and the space below
         // the last row all on the Activity's background, the way the ListView here used to.
         colors = ListItemDefaults.colors(containerColor = Color.Transparent),
-        modifier = modifier,
+        modifier = modifier
     )
 }
 
@@ -110,11 +110,11 @@ private fun DeviceInfoScreenPreview() {
                     Entry("serial-number", "X00500ABCDEF"),
                     Entry("vendor-name", "Roku"),
                     Entry("model-name", "Roku Ultra"),
-                    Entry("software-version", "13.0.0"),
+                    Entry("software-version", "13.0.0")
                 ),
-                isLoading = false,
+                isLoading = false
             ),
-            onBackClick = {},
+            onBackClick = {}
         )
     }
 }

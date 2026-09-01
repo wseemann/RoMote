@@ -32,7 +32,7 @@ fun ConnectivityDialogHost(viewModel: ConnectivityViewModel, modifier: Modifier 
                 context.openWifiSettings()
             },
             onDismiss = { viewModel.onHandleEvent(ConnectivityUiEvent.DismissedEvent) },
-            modifier = modifier,
+            modifier = modifier
         )
     }
 }

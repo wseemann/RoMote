@@ -38,10 +38,10 @@ class SettingsActivity : ComponentActivity() {
                     onRateClick = { openPlayStoreListing() },
                     onDonateClick = {
                         startActivity(
-                            Intent(Intent.ACTION_VIEW, Constants.PAYPAL_DONATION_LINK.toUri()),
+                            Intent(Intent.ACTION_VIEW, Constants.PAYPAL_DONATION_LINK.toUri())
                         )
                     },
-                    onBackClick = { finish() },
+                    onBackClick = { finish() }
                 )
             }
         }

@@ -44,7 +44,7 @@ class AppReviewManager @Inject constructor(
         val state = ReviewState(
             engagedSessionCount = appPreferences.getEngagedSessionCount(),
             firstLaunchMillis = appPreferences.getFirstLaunchMillis(),
-            lastPromptMillis = appPreferences.getLastReviewPromptMillis(),
+            lastPromptMillis = appPreferences.getLastReviewPromptMillis()
         )
 
         if (!ReviewEligibility.isEligible(state, System.currentTimeMillis())) {

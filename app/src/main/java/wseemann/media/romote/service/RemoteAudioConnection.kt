@@ -128,7 +128,7 @@ class RemoteAudioConnection(private val context: Context, private val onStateCha
 
         val REMOTE_AUDIO_COMPONENT = ComponentName(
             "wseemann.media.romote.audio",
-            "wseemann.media.romote.audio.remoteaudio.RemoteAudio",
+            "wseemann.media.romote.audio.remoteaudio.RemoteAudio"
         )
     }
 }

@@ -97,7 +97,7 @@ class NotificationService : Service() {
         registerReceiver(
             updateReceiver,
             IntentFilter(Constants.UPDATE_DEVICE_BROADCAST),
-            ContextCompat.RECEIVER_NOT_EXPORTED,
+            ContextCompat.RECEIVER_NOT_EXPORTED
         )
 
         notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
@@ -105,7 +105,7 @@ class NotificationService : Service() {
         val channel = NotificationChannel(
             getString(R.string.app_name),
             getString(R.string.app_name),
-            NotificationManager.IMPORTANCE_LOW,
+            NotificationManager.IMPORTANCE_LOW
         )
         channel.description = TAG
         channel.enableLights(false)
@@ -171,8 +171,8 @@ class NotificationService : Service() {
                 buildNotification(
                     title = status.device.modelName,
                     text = status.channel.title,
-                    icon = status.icon,
-                ),
+                    icon = status.icon
+                )
             )
         }
     }
@@ -250,7 +250,7 @@ class NotificationService : Service() {
         mediaSession.setActive(true)
         mediaSession.setFlags(
             MediaSession.FLAG_HANDLES_MEDIA_BUTTONS or
-                MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS,
+                MediaSession.FLAG_HANDLES_TRANSPORT_CONTROLS
         )
         mediaSession.setPlaybackState(
             PlaybackState.Builder()
@@ -259,9 +259,9 @@ class NotificationService : Service() {
                     PlaybackState.ACTION_PAUSE or
                         PlaybackState.ACTION_PLAY or
                         PlaybackState.ACTION_REWIND or
-                        PlaybackState.ACTION_FAST_FORWARD,
+                        PlaybackState.ACTION_FAST_FORWARD
                 )
-                .build(),
+                .build()
         )
         mediaSession.setMetadata(MediaMetadata.Builder().build())
     }

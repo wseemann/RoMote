@@ -72,7 +72,7 @@ class DeviceRepository(
             arrayOf(serialNumber),
             null,
             null,
-            null,
+            null
         ).use { cursor ->
             if (cursor.moveToNext()) parseDevice(cursor) else null
         }
@@ -140,7 +140,7 @@ class DeviceRepository(
         val rowsAffected = db.delete(
             DeviceDatabase.DEVICES_TABLE_NAME,
             DeviceDatabase.SERIAL_NUMBER + " = ?",
-            arrayOf(serialNumber),
+            arrayOf(serialNumber)
         )
 
         return rowsAffected
@@ -156,7 +156,7 @@ class DeviceRepository(
             arrayOf(serialNumber),
             null,
             null,
-            null,
+            null
         ).use { cursor ->
             cursor.moveToNext()
         }
