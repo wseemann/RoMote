@@ -81,19 +81,9 @@ class MainActivity : ShakeActivity() {
 
     private var isBound = false
 
-    /** Gates the splash screen; see [onCreate]. */
-    private var isContentReady = false
-
     override fun onCreate(savedInstanceState: Bundle?) {
-        val splashScreen = installSplashScreen()
+        installSplashScreen()
         super.onCreate(savedInstanceState)
-
-        // Without this the splash comes down at the window's first frame, which is only
-        // AppTheme.NoActionBar's windowBackground - a flat white or #121212 rectangle where the
-        // purple app bar and tab strip are about to be. Holding it until the first composition
-        // makes the handoff splash -> content, with no bare window in between. The flag is flipped
-        // from inside setContent below, so it is always eventually released.
-        splashScreen.setKeepOnScreenCondition { !isContentReady }
 
         appReviewManager.onAppSessionStarted()
 
@@ -101,14 +91,8 @@ class MainActivity : ShakeActivity() {
             RomoteTheme {
                 MainContent()
             }
-
-            // Runs on the main thread once the first composition is done, before the frame it
-            // belongs to is drawn - so the splash is released exactly when there is something
-            // behind it.
-            LaunchedEffect(Unit) { isContentReady = true }
         }
 
-        // Bind to NotificationService
         bindService(
             Intent(this, NotificationService::class.java),
             connection,
@@ -137,10 +121,14 @@ class MainActivity : ShakeActivity() {
     private fun MainContent() {
         val scope = rememberCoroutineScope()
 
-        // Opens on the remote when there is already a device to drive, the way
-        // viewPager.setCurrentItem(1) used to.
+        val initialPage = if (deviceManager.getConnectedDevice() != null) {
+            REMOTE_PAGE
+        } else {
+            DEVICES_PAGE
+        }
+
         val pagerState = rememberPagerState(
-            initialPage = if (deviceManager.getConnectedDevice() != null) REMOTE_PAGE else DEVICES_PAGE,
+            initialPage = initialPage,
             pageCount = { PAGE_COUNT }
         )
 
@@ -166,12 +154,6 @@ class MainActivity : ShakeActivity() {
         var offscreenPages by remember { mutableIntStateOf(0) }
         LaunchedEffect(Unit) { offscreenPages = PAGE_COUNT - 1 }
 
-        // What ConnectivityActivity.onWifiConnected() did: the channels grid can't have loaded
-        // while the device was unreachable, so reload it once the phone is back on a local
-        // network. Only a *return* to the network counts - the grid's first load belongs to
-        // ChannelsTab, which does it when the tab is first selected. The ViewModel is held by this
-        // activity rather than by a fragment, so this no longer has to reach for a fragment
-        // instance the pager may not have created yet.
         LaunchedEffect(Unit) {
             var wasAvailable = connectivityViewModel.uiState.value.isLocalNetworkAvailable
 
@@ -231,7 +213,6 @@ class MainActivity : ShakeActivity() {
 
         if (isSearchDialogVisible) {
             SearchDialog(
-                // The old dialog dismissed itself from both buttons; keep that.
                 onSearch = { searchText ->
                     isSearchDialogVisible = false
                     performSearch(searchText)
@@ -256,9 +237,6 @@ class MainActivity : ShakeActivity() {
         }
     }
 
-    /**
-     * What menu/main.xml held: search shown as an icon, settings in the overflow.
-     */
     @Composable
     private fun MainActions(onSearchClick: () -> Unit) {
         var isOverflowExpanded by remember { mutableStateOf(false) }
