@@ -97,28 +97,6 @@ class Device(private val device: Device) {
         }
     }
 
-    fun performSearch(searchText: String) {
-        val host = device.host ?: return
-
-        try {
-            SearchRequests.searchRequest(
-                host,
-                searchText,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null
-            )
-        } catch (ex: Exception) {
-            Timber.tag(TAG).e(ex, "Failed to perform search")
-        }
-    }
-
     private companion object {
         const val TAG = "Device"
     }

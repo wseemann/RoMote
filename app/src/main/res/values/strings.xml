@@ -22,7 +22,6 @@
     <string name="connect_help">Enter your Roku device\'s complete IP address</string>
     <string name="ip_address_hint" translatable="false">192.168.1.100</string>
     <string name="connect">Connect</string>
-    <string name="search_help">Enter your search criteria:</string>
     <string name="go">Go</string>
     <string name="checking_ip_address">Checking IP Address ...</string>
     <string name="no_roku_device">No Roku device could be found at this IP Address. Please check the IP address and try again.</string>

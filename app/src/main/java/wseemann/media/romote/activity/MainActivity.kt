@@ -16,7 +16,6 @@ import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
@@ -51,7 +50,6 @@ import wseemann.media.romote.composables.DevicesTab
 import wseemann.media.romote.composables.RemoteAccessHelpDialog
 import wseemann.media.romote.composables.RemoteTab
 import wseemann.media.romote.composables.RomoteTopAppBar
-import wseemann.media.romote.composables.SearchDialog
 import wseemann.media.romote.composables.StoreTab
 import wseemann.media.romote.composables.theme.OnPurple
 import wseemann.media.romote.composables.theme.Purple
@@ -132,8 +130,6 @@ class MainActivity : ShakeActivity() {
             pageCount = { PAGE_COUNT }
         )
 
-        var isSearchDialogVisible by rememberSaveable { mutableStateOf(false) }
-
         // Seeded from preferences rather than re-read on every recomposition, and saveable so a
         // rotation doesn't take the dialog down: it is only marked seen once the user closes it.
         var isRemoteAccessHelpVisible by rememberSaveable {
@@ -174,7 +170,7 @@ class MainActivity : ShakeActivity() {
                     RomoteTopAppBar(
                         title = stringResource(R.string.app_name),
                         actions = {
-                            MainActions { isSearchDialogVisible = true }
+                            MainActions()
                         }
                     )
 
@@ -211,16 +207,6 @@ class MainActivity : ShakeActivity() {
             }
         }
 
-        if (isSearchDialogVisible) {
-            SearchDialog(
-                onSearch = { searchText ->
-                    isSearchDialogVisible = false
-                    performSearch(searchText)
-                },
-                onDismiss = { isSearchDialogVisible = false }
-            )
-        }
-
         ConnectivityDialogHost(viewModel = connectivityViewModel)
 
         if (isRemoteAccessHelpVisible) {
@@ -238,15 +224,8 @@ class MainActivity : ShakeActivity() {
     }
 
     @Composable
-    private fun MainActions(onSearchClick: () -> Unit) {
+    private fun MainActions() {
         var isOverflowExpanded by remember { mutableStateOf(false) }
-
-        IconButton(onClick = onSearchClick) {
-            Icon(
-                imageVector = Icons.Default.Search,
-                contentDescription = stringResource(R.string.action_search)
-            )
-        }
 
         IconButton(onClick = { isOverflowExpanded = true }) {
             Icon(
@@ -300,12 +279,6 @@ class MainActivity : ShakeActivity() {
                     text = { Text(text = title) }
                 )
             }
-        }
-    }
-
-    private fun performSearch(searchText: String) {
-        lifecycleScope.launch(ioDispatcher) {
-            deviceManager.getConnectedDevice()?.performSearch(searchText)
         }
     }
 
