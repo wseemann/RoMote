@@ -6,5 +6,5 @@ import wseemann.media.romote.data.Entry
 
 data class DeviceInfoScreenUiState(
     val entries: ImmutableList<Entry> = persistentListOf(),
-    val isLoading: Boolean = true,
+    val isLoading: Boolean = true
 )

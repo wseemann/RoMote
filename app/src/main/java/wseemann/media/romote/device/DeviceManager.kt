@@ -6,7 +6,7 @@ class DeviceManager(private val deviceRepository: DeviceRepository) {
         deviceRepository.setConnectedDevice(serialNumber)
     }
 
-    fun getConnectedDevice(): Device? = deviceRepository.getConnectedDevice()?.let {
-        Device(it)
+    fun getConnectedDevice(): Device? {
+        return deviceRepository.getConnectedDevice()?.let { Device(it) }
     }
 }

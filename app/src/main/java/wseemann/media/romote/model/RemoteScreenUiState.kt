@@ -11,7 +11,7 @@ data class RemoteScreenUiState(
     val typedText: String = "",
     val showPowerOffConfirmation: Boolean = false,
     val showInstallPrivateListening: Boolean = false,
-    @field:StringRes val messageResId: Int? = null,
+    @field:StringRes val messageResId: Int? = null
 ) {
 
     enum class PrivateListening {

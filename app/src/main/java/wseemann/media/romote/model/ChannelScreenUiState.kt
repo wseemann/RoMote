@@ -7,5 +7,5 @@ import wseemann.media.romote.data.ChannelItem
 data class ChannelScreenUiState(
     val channels: ImmutableList<ChannelItem> = persistentListOf(),
     val isLoading: Boolean = false,
-    val isDeviceConnected: Boolean = true,
+    val isDeviceConnected: Boolean = true
 )

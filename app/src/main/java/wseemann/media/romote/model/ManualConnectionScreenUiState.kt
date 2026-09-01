@@ -4,5 +4,5 @@ data class ManualConnectionScreenUiState(
     val ipAddress: String = "",
     val isLoading: Boolean = false,
     val isConnected: Boolean = false,
-    val hasError: Boolean = false,
+    val hasError: Boolean = false
 )

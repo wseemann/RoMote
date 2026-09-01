@@ -9,7 +9,7 @@ data class MainScreenUiState(
     val pairedDevices: ImmutableList<Device> = persistentListOf(),
     val connectedSerialNumber: String? = null,
     val isLoading: Boolean = false,
-    val renameTarget: RenameTarget? = null,
+    val renameTarget: RenameTarget? = null
 ) {
     data class RenameTarget(val serialNumber: String, val currentName: String)
 }
