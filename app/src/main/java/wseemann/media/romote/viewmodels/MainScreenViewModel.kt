@@ -198,7 +198,7 @@ class MainScreenViewModel @Inject constructor(
             val connectedSerialNumber = connectedSerialNumber()
 
             if (connectedSerialNumber == null || connectedSerialNumber == serialNumber) {
-                deviceManager.setConnectedDevice("")
+                deviceManager.setConnectedDevice(null)
 
                 // Nothing else announces this: onRefresh below reaches refreshConnectedDevice,
                 // which now returns early because there is no connected device left to refresh.

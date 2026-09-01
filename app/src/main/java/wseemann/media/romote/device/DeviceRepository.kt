@@ -5,6 +5,7 @@ import android.content.SharedPreferences
 import android.database.Cursor
 import wseemann.media.romote.data.Device
 import wseemann.media.romote.database.DeviceDatabase
+import androidx.core.content.edit
 
 class DeviceRepository(
     private val deviceDatabase: DeviceDatabase,
@@ -96,18 +97,15 @@ class DeviceRepository(
     }
 
     fun setConnectedDevice(serialNumber: String?) {
-        val editor = sharedPreferences.edit()
-        editor.putString("serial_number", serialNumber)
-        editor.commit()
+        sharedPreferences.edit(commit = true) {
+            putString("serial_number", serialNumber)
+        }
     }
 
     fun getConnectedDevice(): Device? {
         val serialNumber = sharedPreferences.getString("serial_number", null) ?: return null
 
-        // getDevice returns null when nothing is paired, so the guard below is load bearing.
-        val device = getDevice(serialNumber) ?: return null
-
-        return device
+        return getDevice(serialNumber)
     }
 
     fun updateDevice(device: Device): Long {
