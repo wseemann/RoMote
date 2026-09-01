@@ -24,7 +24,6 @@ import wseemann.media.romote.inappreview.AppReviewManager
 import wseemann.media.romote.keyboard.KeyboardRelay
 import wseemann.media.romote.model.RemoteScreenUiState
 import wseemann.media.romote.model.RemoteScreenUiState.PrivateListening
-import wseemann.media.romote.utils.PreferenceUtils
 import wseemann.media.romote.utils.WakeOnLan
 import javax.inject.Inject
 
@@ -34,7 +33,7 @@ class RemoteScreenViewModel @Inject constructor(
     @param:MainDispatcher private val mainDispatcher: CoroutineDispatcher,
     @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     private val deviceManager: DeviceManager,
-    private val appReviewManager: AppReviewManager,
+    private val appReviewManager: AppReviewManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(RemoteScreenUiState())
@@ -68,27 +67,15 @@ class RemoteScreenViewModel @Inject constructor(
     fun onHandleEvent(event: RemoteScreenUiEvent) {
         when (event) {
             is RemoteScreenUiEvent.KeyPressedEvent -> onKeyPressed(event.key)
-
             is RemoteScreenUiEvent.PowerClickedEvent -> onPowerClicked()
-
             is RemoteScreenUiEvent.PowerOffConfirmedEvent -> onPowerOffConfirmed()
-
             is RemoteScreenUiEvent.PowerOffDismissedEvent -> onPowerOffDismissed()
-
             is RemoteScreenUiEvent.PrivateListeningClickedEvent -> onPrivateListeningClicked()
-
-            is RemoteScreenUiEvent.PrivateListeningChangedEvent ->
-                onPrivateListeningChanged(event.isActive)
-
+            is RemoteScreenUiEvent.PrivateListeningChangedEvent -> onPrivateListeningChanged(event.isActive)
             is RemoteScreenUiEvent.InstallPrivateListeningConfirmedEvent,
-            is RemoteScreenUiEvent.InstallPrivateListeningDismissedEvent,
-            ->
-                onInstallPrivateListeningClosed()
-
+            is RemoteScreenUiEvent.InstallPrivateListeningDismissedEvent -> onInstallPrivateListeningClosed()
             is RemoteScreenUiEvent.DeviceChangedEvent -> onDeviceChanged()
-
             is RemoteScreenUiEvent.MessageShownEvent -> onMessageShown()
-
             is RemoteScreenUiEvent.KeyboardEvent -> onKeyboardEvent(event)
         }
     }
@@ -96,14 +83,9 @@ class RemoteScreenViewModel @Inject constructor(
     private fun onKeyboardEvent(event: RemoteScreenUiEvent.KeyboardEvent) {
         when (event) {
             is RemoteScreenUiEvent.KeyboardEvent.ClickedEvent -> keyboardRelay.toggle()
-
-            is RemoteScreenUiEvent.KeyboardEvent.TextChangedEvent ->
-                keyboardRelay.onTextChanged(event.text)
-
+            is RemoteScreenUiEvent.KeyboardEvent.TextChangedEvent -> keyboardRelay.onTextChanged(event.text)
             is RemoteScreenUiEvent.KeyboardEvent.BackspaceEvent -> keyboardRelay.backspace()
-
             is RemoteScreenUiEvent.KeyboardEvent.DoneEvent -> keyboardRelay.done()
-
             is RemoteScreenUiEvent.KeyboardEvent.DismissedEvent -> keyboardRelay.dismiss()
         }
     }
@@ -128,37 +110,20 @@ class RemoteScreenViewModel @Inject constructor(
         null
     }
 
-    /**
-     * Re-reads the connected device. This goes to the IO dispatcher because
-     * [PreferenceUtils.connectedDevice] reads SQLite - RemoteFragment used to do it on the main
-     * thread on every broadcast.
-     */
     private fun onDeviceChanged() {
         viewModelScope.launch(ioDispatcher) {
-            var deviceName = ""
-            var showVolumeControls = true
-            var isDeviceConnected = true
+            val device = deviceManager.getConnectedDevice()
+            val isDeviceConnected = device != null
+            val deviceName = device?.getDeviceInfo()?.getCustomUserDeviceName()
+                ?.takeIf { it.isNotEmpty() }
+                ?: device?.getDeviceInfo()?.userDeviceName.orEmpty()
 
-            try {
-                val device = deviceManager.getConnectedDevice()
+            val showVolumeControls =
+                (device?.getDeviceInfo()?.supportsAudioGuide
+                    ?: device?.getDeviceInfo()?.tv)?.toBoolean()
+                    ?: false
 
-                deviceName = device?.getDeviceInfo()?.getCustomUserDeviceName()
-                    ?.takeIf { it.isNotEmpty() }
-                    ?: device?.getDeviceInfo()?.userDeviceName.orEmpty()
-
-                showVolumeControls =
-                    (device?.getDeviceInfo()?.supportsAudioGuide ?: device?.getDeviceInfo()?.tv)?.toBoolean()
-                        ?: showVolumeControls
-
-                deviceSupportsPrivateListening = device?.getDeviceInfo()?.supportsPrivateListening.toBoolean()
-            } catch (ex: Exception) {
-                Timber.tag(TAG).e(ex, "Error reading the newly connected device")
-                // connectedDevice throws both when nothing is paired and when the read itself
-                // fails. The remote has no device to drive either way, which is the same call
-                // CommandHelper makes by handing back an empty url.
-                isDeviceConnected = false
-                deviceSupportsPrivateListening = false
-            }
+            deviceSupportsPrivateListening = device?.getDeviceInfo()?.supportsPrivateListening.toBoolean()
 
             _uiState.update {
                 it.copy(

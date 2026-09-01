@@ -54,17 +54,11 @@ class MainScreenViewModel @Inject constructor(
     fun onHandleEvent(event: MainScreenUiEvent) {
         when (event) {
             is MainScreenUiEvent.RefreshEvent -> onRefresh()
-
             is MainScreenUiEvent.DeviceSelectedEvent -> onDeviceSelected(event.device)
-
             is MainScreenUiEvent.ForgetDeviceEvent -> onForgetDevice(event.serialNumber)
-
             is MainScreenUiEvent.RenameDeviceClickedEvent -> onRenameDeviceClicked(event)
-
             is MainScreenUiEvent.RenameDeviceConfirmedEvent -> onRenameDeviceConfirmed(event.name)
-
             is MainScreenUiEvent.RenameDeviceDismissedEvent -> onRenameDeviceDismissed()
-
             // DevicesTab handles these two: starting an activity needs its Context.
             is MainScreenUiEvent.DeviceInfoClickedEvent,
             is MainScreenUiEvent.AddDeviceClickedEvent,

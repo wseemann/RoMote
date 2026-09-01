@@ -43,17 +43,14 @@ class SettingsScreenViewModel @Inject constructor(
     fun onHandleEvent(event: SettingsScreenUiEvent) {
         when (event) {
             is SettingsScreenUiEvent.FindRemoteClickedEvent -> onFindRemoteClicked()
-
             is SettingsScreenUiEvent.ShakeToPauseToggledEvent -> {
                 _uiState.update { it.copy(shakeToPauseEnabled = event.enabled) }
                 appPreferences.setShakeToPauseEnabled(event.enabled)
             }
-
             is SettingsScreenUiEvent.NotificationWidgetToggledEvent -> {
                 _uiState.update { it.copy(notificationWidgetEnabled = event.enabled) }
                 appPreferences.setNotificationWidgetEnabled(event.enabled)
             }
-
             is SettingsScreenUiEvent.HapticFeedbackToggledEvent -> {
                 _uiState.update { it.copy(hapticFeedbackEnabled = event.enabled) }
                 appPreferences.setHapticFeedbackEnabled(event.enabled)
