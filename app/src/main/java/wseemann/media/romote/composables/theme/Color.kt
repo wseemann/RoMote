@@ -3,8 +3,10 @@ package wseemann.media.romote.composables.theme
 import androidx.compose.ui.graphics.Color
 
 /**
- * Brand colors, kept in sync with res/values/colors.xml so the Compose theme and the
- * remaining XML screens (styles.xml -> AppTheme) render the same purples.
+ * Brand colors. This file is the source of truth now that every screen is Compose;
+ * res/values/colors.xml keeps only the subset the widget layout and the drawables still
+ * reference (@color/purple, @color/purple_accent, @color/semi_transparent,
+ * @color/dark_grey_button), so not every constant here has an XML twin.
  */
 internal val Purple = Color(0xFF65318F)
 internal val PurpleAccent = Color(0xFF843ABC)

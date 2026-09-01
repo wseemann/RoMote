@@ -2,8 +2,6 @@
 <resources>
     <color name="purple">#65318f</color>
     <color name="purple_accent">#843abc</color>
-    <color name="purple_accent_two">#8F318A</color>
-    <color name="on_purple">#ebebeb</color>
     <color name="semi_transparent">#66000000</color>
     <color name="dark_grey_button">#2a2530</color>
 </resources>

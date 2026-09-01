@@ -269,7 +269,7 @@ class MainActivity : ShakeActivity() {
         }
     }
 
-    /** The purple tab strip, matching styles.xml -> AppTheme.TabLayout. */
+    /** The purple tab strip the XML screens used to get from a Material TabLayout. */
     @Composable
     private fun MainTabRow(pagerState: PagerState, scope: CoroutineScope) {
         val titles = listOf(

@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- minSdkVersion is 26, so this adaptive icon is the launcher icon on every
      supported device and is the only definition @mipmap/ic_launcher has - there
-     are deliberately no density-bucket PNGs behind it. The widget header art
-     that used to live under this name is now @mipmap/ic_widget_header.
+     are deliberately no density-bucket PNGs behind it.
 
      <monochrome> is an API 33 attribute; it is ignored harmlessly on 26-32, so
      no separate anydpi-v33 variant is needed. -->

@@ -10,17 +10,6 @@
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/purple_accent</item>
         <item name="colorSecondaryVariant">@color/purple</item>
-
-        <!-- Material 3 sizes a small top app bar at 64dp, which is what Compose's TopAppBar lays
-             out to. The remaining XML toolbars all read ?attr/actionBarSize, so overriding it here
-             keeps them the same height as the Compose screens. -->
-        <item name="actionBarSize">64dp</item>
-
-        <item name="android:actionBarStyle">@style/MyActionBar</item>
-
-        <!-- Support library compatibility -->
-        <item name="actionBarStyle">@style/MyActionBar</item>
-        <item name="toolbarStyle">@style/ToolbarStyle</item>
     </style>
 
     <style name="AppTheme.Starting" parent="Theme.SplashScreen">
@@ -38,28 +27,11 @@
         <item name="postSplashScreenTheme">@style/AppTheme.NoActionBar</item>
     </style>
 
-    <!-- ActionBar styles -->
-    <style name="MyActionBar" parent="@style/Widget.MaterialComponents.ActionBar.Solid">
-        <item name="android:background">@color/purple</item>
-
-        <!-- Support library compatibility -->
-        <item name="background">@color/purple</item>
-    </style>
-
     <!-- Inherits AppTheme's purple palette (parent="AppTheme"), then strips the framework
-         ActionBar so each Activity can supply its own Toolbar and draw behind the status bar. -->
+         ActionBar so each Activity can supply its own Compose top app bar and draw behind the
+         status bar. Every Activity in the manifest uses this theme or AppTheme.Starting. -->
     <style name="AppTheme.NoActionBar" parent="AppTheme">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-    </style>
-
-    <style name="AppTheme.TabLayout" parent="Widget.MaterialComponents.TabLayout.Colored">
-        <item name="tabIndicatorColor">@color/purple_accent_two</item>
-        <item name="tabTextColor">@android:color/white</item>
-    </style>
-
-    <style name="ToolbarStyle" parent ="Widget.MaterialComponents.Toolbar">
-        <item name="android:background">@color/purple</item>
-        <item name="titleTextColor">@color/on_purple</item>
     </style>
 </resources>

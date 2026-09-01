@@ -13,7 +13,6 @@ import androidx.compose.runtime.Composable
  *   colorAccent /
  *   colorSecondary      -> secondary
  *   colorSecondaryVariant -> tertiary
- *   ToolbarStyle titleTextColor -> onPrimary
  *
  * There is no values-night/styles.xml override, so the XML theme resolves the same brand purples in
  * light and dark. The Compose chrome that wants that branded purple bar - the top app bar, the tab

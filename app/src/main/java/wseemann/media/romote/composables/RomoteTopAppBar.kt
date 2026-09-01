@@ -17,9 +17,9 @@ import wseemann.media.romote.composables.theme.OnPurple
 import wseemann.media.romote.composables.theme.Purple
 
 /**
- * The purple app bar the XML screens used to get from AppBarLayout + Toolbar (see styles.xml ->
- * AppTheme.AppBarOverlay). The colors come from the theme rather than the `purple` color resource
- * so the bar follows RomoteTheme the way the rest of the Compose screens do.
+ * The purple app bar the XML screens used to get from AppBarLayout + Toolbar. The colors come from
+ * the theme rather than the `purple` color resource so the bar follows RomoteTheme the way the rest
+ * of the Compose screens do.
  *
  * Hosted in a Scaffold's `topBar` slot, this also consumes the status bar inset, which is what
  * applyStatusBarTopPadding used to do for the XML app bars.
