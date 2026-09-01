@@ -26,8 +26,7 @@ class SettingsScreenViewModel @Inject constructor(
 
     private val _uiState = MutableStateFlow(SettingsScreenUiState(
             shakeToPauseEnabled = appPreferences.isShakeToPauseEnabled(),
-            notificationWidgetEnabled = appPreferences.isNotificationWidgetEnabled(),
-            hapticFeedbackEnabled = appPreferences.isHapticFeedbackEnabled()
+            notificationWidgetEnabled = appPreferences.isNotificationWidgetEnabled()
         )
     )
     val uiState = _uiState.asStateFlow()
@@ -49,10 +48,6 @@ class SettingsScreenViewModel @Inject constructor(
             is SettingsScreenUiEvent.NotificationWidgetToggledEvent -> {
                 _uiState.update { it.copy(notificationWidgetEnabled = event.enabled) }
                 appPreferences.setNotificationWidgetEnabled(event.enabled)
-            }
-            is SettingsScreenUiEvent.HapticFeedbackToggledEvent -> {
-                _uiState.update { it.copy(hapticFeedbackEnabled = event.enabled) }
-                appPreferences.setHapticFeedbackEnabled(event.enabled)
             }
         }
     }

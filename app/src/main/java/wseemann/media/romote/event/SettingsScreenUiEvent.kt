@@ -6,6 +6,4 @@ sealed interface SettingsScreenUiEvent {
     data class ShakeToPauseToggledEvent(val enabled: Boolean) : SettingsScreenUiEvent
 
     data class NotificationWidgetToggledEvent(val enabled: Boolean) : SettingsScreenUiEvent
-
-    data class HapticFeedbackToggledEvent(val enabled: Boolean) : SettingsScreenUiEvent
 }

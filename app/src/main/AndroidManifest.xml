@@ -13,7 +13,6 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="wseemann.media.romote.audio.REMOTE_AUDIO" />
 
     <!-- ACCESS_WIFI_STATE otherwise implies a hard android.hardware.wifi requirement on Play. A

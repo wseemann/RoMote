@@ -84,13 +84,6 @@ fun SettingsScreen(
                 onCheckedChange = rememberNotificationWidgetToggle(onEvent)
             )
 
-            SettingsSwitchRow(
-                title = stringResource(R.string.haptic_feedback_title_checkbox_preference),
-                summary = stringResource(R.string.haptic_feedback_summary_checkbox_preference),
-                checked = uiState.hapticFeedbackEnabled,
-                onCheckedChange = { onEvent(SettingsScreenUiEvent.HapticFeedbackToggledEvent(it)) }
-            )
-
             SettingsCategoryHeader(title = stringResource(R.string.settings_other_category))
 
             SettingsActionRow(
@@ -262,7 +255,6 @@ private fun SettingsScreenPreview() {
             uiState = SettingsScreenUiState(
                 shakeToPauseEnabled = true,
                 notificationWidgetEnabled = false,
-                hapticFeedbackEnabled = true,
                 findRemoteSupported = true
             ),
             onEvent = {},

@@ -9,7 +9,6 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import wseemann.media.romote.preferences.AppPreferences
-import wseemann.media.romote.utils.PreferenceUtils
 import javax.inject.Singleton
 
 /**
@@ -27,15 +26,4 @@ object PreferencesModule {
     @Singleton
     @Provides
     fun provideAppPreferences(sharedPreferences: SharedPreferences): AppPreferences = AppPreferences(sharedPreferences)
-
-    @Singleton
-    @Provides
-    fun providePreferenceUtils(appPreferences: AppPreferences): PreferenceUtils {
-        PreferenceUtilsSingleton.preferenceUtils = PreferenceUtils(appPreferences)
-        return PreferenceUtilsSingleton.preferenceUtils
-    }
-
-    object PreferenceUtilsSingleton {
-        lateinit var preferenceUtils: PreferenceUtils
-    }
 }

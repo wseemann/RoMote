@@ -101,7 +101,7 @@ class RemoteScreenViewModel @Inject constructor(
 
     /**
      * The address the private listening service should stream from. Read here rather than in the
-     * remote tab so that PreferenceUtils - and the SQLite read behind it - stays out of the UI.
+     * remote tab so that DeviceManager - and the SQLite read behind it - stays out of the UI.
      */
     fun connectedDeviceHost(): String? = try {
         deviceManager.getConnectedDevice()?.getDeviceInfo()?.host

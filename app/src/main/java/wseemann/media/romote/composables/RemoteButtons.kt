@@ -27,14 +27,14 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.platform.LocalHapticFeedback
 import androidx.compose.ui.platform.LocalViewConfiguration
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.delay
 import wseemann.media.romote.composables.theme.PurpleButton
-import wseemann.media.romote.utils.ViewUtils
 
 /** The 52dip every button row in fragment_remote.xml was fixed at. */
 private val RemoteButtonHeight = 52.dp
@@ -42,10 +42,7 @@ private val RemoteButtonHeight = 52.dp
 /** 10dip of margin on each side of adjacent buttons. */
 private val RemoteButtonSpacing = 20.dp
 
-/** The duration VibratingImageButton and RepeatingImageButton both vibrated for. */
-private const val VibrateDurationMillis = 100
-
-/** The interval the old XML remote passed to RepeatingImageButton.setRepeatListener. */
+/** The interval the old XML remote repeated a held d-pad button at. */
 private const val RepeatIntervalMillis = 400L
 
 /** The 15dp corner radius of every shape in @drawable/remote_button_bg. */
@@ -84,9 +81,9 @@ fun RemoteButtonRow(modifier: Modifier = Modifier, content: @Composable RowScope
 }
 
 /**
- * Replaces VibratingImageButton on @drawable/remote_button_bg. The haptics still run through
- * [ViewUtils.provideHapticFeedback] so the user's "vibrate" preference keeps gating them, and there
- * is no ripple because the ImageButton this replaced never showed one.
+ * A remote button on the redrawn @drawable/remote_button_bg background. A tap performs
+ * [HapticFeedbackType.VirtualKey], which the system touch feedback setting gates, and there is no
+ * ripple because the ImageButton this replaced never showed one.
  *
  * [active] tints the icon, for the one button that stays switched on after it is tapped: the
  * keyboard, which holds the soft keyboard up until it is tapped again.
@@ -100,7 +97,7 @@ fun RemoteButton(
     contentScale: ContentScale = ContentScale.Fit,
     active: Boolean = false
 ) {
-    val view = LocalView.current
+    val haptics = LocalHapticFeedback.current
 
     Box(
         contentAlignment = Alignment.Center,
@@ -110,7 +107,7 @@ fun RemoteButton(
                 interactionSource = remember { MutableInteractionSource() },
                 indication = null,
                 onClick = {
-                    ViewUtils.provideHapticFeedback(view, VibrateDurationMillis)
+                    haptics.performHapticFeedback(HapticFeedbackType.VirtualKey)
                     onClick()
                 }
             )
@@ -129,12 +126,11 @@ fun RemoteButton(
 }
 
 /**
- * Replaces RepeatingImageButton and the VibratingImageButton at the centre of the d-pad. The button
- * itself is transparent - the d-pad art is the image underneath it - and shows the radial glow of
- * @drawable/background_glow_selector while pressed.
+ * One cell of the d-pad. The button itself is transparent - the d-pad art is the image underneath
+ * it - and shows the radial glow of @drawable/background_glow_selector while pressed.
  *
  * When [repeating], holding the button starts firing [onClick] once the long press timeout elapses
- * and then every 400ms, which is what RepeatingImageButton's repeater did. The long press is
+ * and then every 400ms, the way the old XML remote's repeating buttons did. The long press is
  * consumed so that letting go afterwards doesn't also count as a tap, the way View suppressed
  * performClick once performLongClick had handled the gesture.
  */
@@ -145,7 +141,7 @@ fun DPadButton(
     modifier: Modifier = Modifier,
     contentDescription: String? = null
 ) {
-    val view = LocalView.current
+    val haptics = LocalHapticFeedback.current
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
     val longPressTimeoutMillis = LocalViewConfiguration.current.longPressTimeoutMillis
@@ -154,7 +150,7 @@ fun DPadButton(
     val currentOnClick by rememberUpdatedState(onClick)
 
     fun press() {
-        ViewUtils.provideHapticFeedback(view, VibrateDurationMillis)
+        haptics.performHapticFeedback(HapticFeedbackType.VirtualKey)
         currentOnClick()
     }
 
@@ -191,6 +187,10 @@ fun DPadButton(
                 // Present only so a hold is treated as handled; the repeat effect above is what
                 // actually fires while the button is held.
                 onLongClick = if (repeating) ({}) else null,
+                // combinedClickable performs its own long press haptic whenever onLongClick is
+                // non-null, which would land on top of the repeater's first press(); this leaves
+                // press() as the only thing that fires one.
+                hapticFeedbackEnabled = false,
                 onClick = { press() }
             )
     )
