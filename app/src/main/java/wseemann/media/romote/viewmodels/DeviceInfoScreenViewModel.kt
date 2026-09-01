@@ -28,7 +28,7 @@ class DeviceInfoScreenViewModel @Inject constructor(
     @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     private val deviceManager: DeviceManager,
     private val deviceRepository: DeviceRepository,
-    savedStateHandle: SavedStateHandle,
+    savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(DeviceInfoScreenUiState())

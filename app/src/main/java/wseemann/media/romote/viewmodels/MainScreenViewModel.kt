@@ -31,7 +31,7 @@ class MainScreenViewModel @Inject constructor(
     @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     private val deviceManager: DeviceManager,
     private val deviceRepository: DeviceRepository,
-    private val deviceDiscovery: DeviceDiscovery,
+    private val deviceDiscovery: DeviceDiscovery
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainScreenUiState())
@@ -61,8 +61,7 @@ class MainScreenViewModel @Inject constructor(
             is MainScreenUiEvent.RenameDeviceDismissedEvent -> onRenameDeviceDismissed()
             // DevicesTab handles these two: starting an activity needs its Context.
             is MainScreenUiEvent.DeviceInfoClickedEvent,
-            is MainScreenUiEvent.AddDeviceClickedEvent,
-            -> Unit
+            is MainScreenUiEvent.AddDeviceClickedEvent -> Unit
         }
     }
 

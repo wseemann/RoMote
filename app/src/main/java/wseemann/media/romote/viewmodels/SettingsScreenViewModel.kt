@@ -21,15 +21,14 @@ import javax.inject.Inject
 class SettingsScreenViewModel @Inject constructor(
     @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     private val deviceManager: DeviceManager,
-    private val appPreferences: AppPreferences,
+    private val appPreferences: AppPreferences
 ) : ViewModel() {
 
-    private val _uiState = MutableStateFlow(
-        SettingsScreenUiState(
+    private val _uiState = MutableStateFlow(SettingsScreenUiState(
             shakeToPauseEnabled = appPreferences.isShakeToPauseEnabled(),
             notificationWidgetEnabled = appPreferences.isNotificationWidgetEnabled(),
             hapticFeedbackEnabled = appPreferences.isHapticFeedbackEnabled(),
-        ),
+        )
     )
     val uiState = _uiState.asStateFlow()
 

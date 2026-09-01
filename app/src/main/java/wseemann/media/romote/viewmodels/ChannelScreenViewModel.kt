@@ -20,7 +20,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ChannelScreenViewModel @Inject constructor(
     @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-    private val deviceManager: DeviceManager,
+    private val deviceManager: DeviceManager
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ChannelScreenUiState())
