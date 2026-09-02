@@ -10,6 +10,19 @@ If RoMote fails to detect your Roku device or send commands to it,
 make sure the **Control by mobile apps** setting in your Roku [is
 enabled](https://support.roku.com/article/217288467#section-2).
 
+Building
+--------
+
+The app has two product flavors:
+
+| Flavor | Build command | Notes |
+|---|---|---|
+| `play` | `./gradlew assemblePlayRelease` | Google Play build. Adds `com.google.android.play:review-ktx` for the in-app review prompt. |
+| `foss` | `./gradlew assembleFossRelease` | Fully free build, used by F-Droid. Contains no proprietary dependencies; the review prompt is a no-op. |
+
+`play` is the default flavor for local development. The only difference between the two is the
+in-app review implementation, supplied per flavor from `app/src/play` and `app/src/foss`.
+
 Privacy
 -------
 

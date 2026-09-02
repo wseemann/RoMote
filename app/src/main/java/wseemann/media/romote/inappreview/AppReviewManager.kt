@@ -1,9 +1,6 @@
 package wseemann.media.romote.inappreview
 
 import android.app.Activity
-import com.google.android.play.core.ktx.launchReview
-import com.google.android.play.core.ktx.requestReview
-import com.google.android.play.core.review.ReviewManager
 import timber.log.Timber
 import wseemann.media.romote.preferences.AppPreferences
 import javax.inject.Inject
@@ -12,7 +9,7 @@ import javax.inject.Singleton
 @Singleton
 class AppReviewManager @Inject constructor(
     private val appPreferences: AppPreferences,
-    private val reviewManager: ReviewManager
+    private val reviewLauncher: ReviewLauncher
 ) {
 
     @Volatile
@@ -54,12 +51,11 @@ class AppReviewManager @Inject constructor(
         promptAttempted = true
 
         try {
-            val reviewInfo = reviewManager.requestReview()
-            reviewManager.launchReview(activity, reviewInfo)
+            if (reviewLauncher.launchReviewFlow(activity)) {
+                appPreferences.setLastReviewPromptMillis(System.currentTimeMillis())
 
-            appPreferences.setLastReviewPromptMillis(System.currentTimeMillis())
-
-            Timber.tag(TAG).d("In-app review flow finished")
+                Timber.tag(TAG).d("In-app review flow finished")
+            }
         } catch (ex: Exception) {
             Timber.tag(TAG).e(ex, "In-app review flow failed")
         }

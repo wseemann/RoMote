@@ -10,6 +10,8 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import wseemann.media.romote.BuildConfig
+import wseemann.media.romote.inappreview.PlayReviewLauncher
+import wseemann.media.romote.inappreview.ReviewLauncher
 import javax.inject.Singleton
 
 @Module
@@ -18,9 +20,17 @@ object InAppReviewModule {
 
     @Singleton
     @Provides
-    fun provideReviewManager(@ApplicationContext context: Context): ReviewManager = if (BuildConfig.DEBUG) {
-        FakeReviewManager(context)
-    } else {
-        ReviewManagerFactory.create(context)
+    fun provideReviewManager(@ApplicationContext context: Context): ReviewManager {
+        return if (BuildConfig.DEBUG) {
+            FakeReviewManager(context)
+        } else {
+            ReviewManagerFactory.create(context)
+        }
+    }
+
+    @Singleton
+    @Provides
+    fun provideReviewLauncher(playReviewLauncher: PlayReviewLauncher): ReviewLauncher {
+        return playReviewLauncher
     }
 }

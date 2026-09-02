@@ -27,6 +27,17 @@ android {
         versionCode 30
         versionName "2.0.0"
     }
+    flavorDimensions = ["distribution"]
+
+    productFlavors {
+        create("play") {
+            dimension = "distribution"
+            isDefault = true
+        }
+        create("foss") {
+            dimension = "distribution"
+        }
+    }
     buildTypes {
         getByName("release") {
             signingConfig = signingConfigs.getByName("releaseConfig")
@@ -99,7 +110,7 @@ dependencies {
     ksp(libs.hilt.compiler)
     implementation(libs.jdom)
     implementation(libs.kotlinx.collections.immutable)
-    implementation(libs.play.review.ktx)
+    playImplementation(libs.play.review.ktx)
     implementation(libs.roku.ecp.wrapper.kotlin)
     implementation(libs.timber)
 
