@@ -194,7 +194,10 @@ class MainActivity : ShakeActivity() {
                 modifier = Modifier.padding(contentPadding)
             ) { page ->
                 when (page) {
-                    DEVICES_PAGE -> DevicesTab(viewModel = mainScreenViewModel)
+                    DEVICES_PAGE -> DevicesTab(
+                        viewModel = mainScreenViewModel,
+                        isCurrentPage = pagerState.currentPage == DEVICES_PAGE
+                    )
 
                     REMOTE_PAGE -> RemoteTab(
                         viewModel = remoteScreenViewModel,

@@ -5,6 +5,8 @@ import wseemann.media.romote.data.Device
 sealed interface MainScreenUiEvent {
     data object RefreshEvent : MainScreenUiEvent
 
+    data object TabSelectedEvent : MainScreenUiEvent
+
     data class DeviceSelectedEvent(val device: Device) : MainScreenUiEvent
 
     data class ForgetDeviceEvent(val serialNumber: String) : MainScreenUiEvent

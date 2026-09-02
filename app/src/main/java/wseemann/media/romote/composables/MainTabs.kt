@@ -34,8 +34,12 @@ import wseemann.media.romote.viewmodels.ChannelScreenViewModel
 import wseemann.media.romote.viewmodels.MainScreenViewModel
 import wseemann.media.romote.viewmodels.RemoteScreenViewModel
 
+/**
+ * [isCurrentPage] is what rescans on the way back to this tab. The pager keeps every page composed, so
+ * without it the list would keep showing whatever the scan at startup found.
+ */
 @Composable
-fun DevicesTab(viewModel: MainScreenViewModel, modifier: Modifier = Modifier) {
+fun DevicesTab(viewModel: MainScreenViewModel, isCurrentPage: Boolean, modifier: Modifier = Modifier) {
     val context = LocalContext.current
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
@@ -44,6 +48,12 @@ fun DevicesTab(viewModel: MainScreenViewModel, modifier: Modifier = Modifier) {
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
             viewModel.onHandleEvent(MainScreenUiEvent.RefreshEvent)
+        }
+    }
+
+    LaunchedEffect(isCurrentPage) {
+        if (isCurrentPage) {
+            viewModel.onHandleEvent(MainScreenUiEvent.TabSelectedEvent)
         }
     }
 

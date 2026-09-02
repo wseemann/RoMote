@@ -9,6 +9,7 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -44,6 +45,9 @@ class MainScreenViewModel @Inject constructor(
      */
     private val scanGeneration = AtomicInteger()
 
+    /** The scan started by the most recent [onRefresh]; what [onTabSelected] checks before starting its own. */
+    private var scanJob: Job? = null
+
     init {
         onRefresh()
     }
@@ -51,6 +55,7 @@ class MainScreenViewModel @Inject constructor(
     fun onHandleEvent(event: MainScreenUiEvent) {
         when (event) {
             is MainScreenUiEvent.RefreshEvent -> onRefresh()
+            is MainScreenUiEvent.TabSelectedEvent -> onTabSelected()
             is MainScreenUiEvent.DeviceSelectedEvent -> onDeviceSelected(event.device)
             is MainScreenUiEvent.ForgetDeviceEvent -> onForgetDevice(event.serialNumber)
             is MainScreenUiEvent.RenameDeviceClickedEvent -> onRenameDeviceClicked(event)
@@ -62,10 +67,23 @@ class MainScreenViewModel @Inject constructor(
         }
     }
 
+    /**
+     * A scan already in flight is the fresh result this would have asked for, so re-entering the tab while
+     * one runs - including the scan [init] starts before the tab is first drawn - is a no-op. The job is
+     * checked rather than isLoading, which the scan only sets once it reaches the IO dispatcher.
+     */
+    private fun onTabSelected() {
+        if (scanJob?.isActive == true) {
+            return
+        }
+
+        onRefresh()
+    }
+
     private fun onRefresh() {
         val generation = scanGeneration.incrementAndGet()
 
-        viewModelScope.launch(ioDispatcher) {
+        scanJob = viewModelScope.launch(ioDispatcher) {
             _uiState.update { it.copy(isLoading = true) }
 
             val pairedDevices = deviceRepository.getAllDevices()
