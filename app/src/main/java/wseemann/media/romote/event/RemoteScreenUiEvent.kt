@@ -37,9 +37,5 @@ sealed interface RemoteScreenUiEvent {
 
     data object MessageShownEvent : RemoteScreenUiEvent
 
-    data object RecentsPeekClickedEvent : RemoteScreenUiEvent
-
-    data object RecentsSheetDismissedEvent : RemoteScreenUiEvent
-
     data class RecentChannelClickedEvent(val channel: ChannelItem) : RemoteScreenUiEvent
 }

@@ -95,14 +95,7 @@ class RemoteScreenViewModel @Inject constructor(
                     }
                 }
                 .collect { recentChannels ->
-                    _uiState.update {
-                        it.copy(
-                            recentChannels = recentChannels,
-                            // Nothing left to show means nothing left to keep open, and the peek
-                            // that opened the sheet is gone too.
-                            showRecentsSheet = it.showRecentsSheet && recentChannels.isNotEmpty()
-                        )
-                    }
+                    _uiState.update { it.copy(recentChannels = recentChannels) }
                 }
         }
     }
@@ -129,10 +122,6 @@ class RemoteScreenViewModel @Inject constructor(
             is RemoteScreenUiEvent.MessageShownEvent -> onMessageShown()
 
             is RemoteScreenUiEvent.KeyboardEvent -> onKeyboardEvent(event)
-
-            is RemoteScreenUiEvent.RecentsPeekClickedEvent -> onRecentsPeekClicked()
-
-            is RemoteScreenUiEvent.RecentsSheetDismissedEvent -> onRecentsSheetDismissed()
 
             is RemoteScreenUiEvent.RecentChannelClickedEvent -> onRecentChannelClicked(event.channel)
         }
@@ -284,20 +273,10 @@ class RemoteScreenViewModel @Inject constructor(
         return if (privateListeningActive) PrivateListening.ACTIVE else PrivateListening.AVAILABLE
     }
 
-    private fun onRecentsPeekClicked() {
-        _uiState.update { it.copy(showRecentsSheet = true) }
-    }
-
-    private fun onRecentsSheetDismissed() {
-        _uiState.update { it.copy(showRecentsSheet = false) }
-    }
-
     /**
      * Recorded again on the way out, which is what moves the channel back to the front of the row.
      */
     private fun onRecentChannelClicked(channel: ChannelItem) {
-        _uiState.update { it.copy(showRecentsSheet = false) }
-
         viewModelScope.launch(ioDispatcher) {
             val device = deviceManager.getConnectedDevice() ?: return@launch
 

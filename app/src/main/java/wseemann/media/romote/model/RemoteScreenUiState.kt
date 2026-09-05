@@ -16,7 +16,6 @@ data class RemoteScreenUiState(
     val showInstallPrivateListening: Boolean = false,
     /** Empty until something has been launched from RoMote, which is what hides the peek. */
     val recentChannels: ImmutableList<ChannelItem> = persistentListOf(),
-    val showRecentsSheet: Boolean = false,
     @field:StringRes val messageResId: Int? = null
 ) {
 

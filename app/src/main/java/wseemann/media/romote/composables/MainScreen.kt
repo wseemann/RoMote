@@ -15,7 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -43,6 +43,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -171,6 +172,9 @@ private fun DeviceList(
                 title = R.string.paired_devices,
                 devices = uiState.pairedDevices,
                 isPaired = true,
+                // The "Available devices" header comes next and draws a divider of its own, so a
+                // divider under the last paired row would read as a doubled line.
+                showTrailingDivider = false,
                 connectedSerialNumber = uiState.connectedSerialNumber,
                 onEvent = onEvent
             )
@@ -180,6 +184,7 @@ private fun DeviceList(
             title = R.string.available_devices,
             devices = uiState.availableDevices,
             isPaired = false,
+            showTrailingDivider = true,
             connectedSerialNumber = uiState.connectedSerialNumber,
             onEvent = onEvent
         )
@@ -191,6 +196,7 @@ private fun LazyListScope.deviceSection(
     @StringRes title: Int,
     devices: ImmutableList<Device>,
     isPaired: Boolean,
+    showTrailingDivider: Boolean,
     connectedSerialNumber: String?,
     onEvent: (MainScreenUiEvent) -> Unit
 ) {
@@ -201,11 +207,15 @@ private fun LazyListScope.deviceSection(
         )
     }
 
-    items(devices, key = { device -> "$isPaired-${device.serialNumber}" }) { device ->
+    itemsIndexed(
+        devices,
+        key = { _, device -> "$isPaired-${device.serialNumber}" }
+    ) { index, device ->
         DeviceRow(
             device = device,
             isPaired = isPaired,
             isConnected = device.serialNumber == connectedSerialNumber,
+            showDivider = showTrailingDivider || index < devices.lastIndex,
             onEvent = onEvent
         )
     }
@@ -230,98 +240,109 @@ private fun DeviceRow(
     device: Device,
     isPaired: Boolean,
     isConnected: Boolean,
+    showDivider: Boolean,
     onEvent: (MainScreenUiEvent) -> Unit,
     modifier: Modifier = Modifier
 ) {
     // Nullable on the model the discovery library returns, but a device the list can draw has one.
     val serialNumber = device.serialNumber.orEmpty()
 
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier = modifier
-            .fillMaxWidth()
-            .clickable { onEvent(MainScreenUiEvent.DeviceSelectedEvent(device)) }
-            .padding(1.dp)
-    ) {
-        Box(
-            contentAlignment = Alignment.Center,
-            modifier = Modifier.size(DeviceIconBoxSize)
+    Column(modifier = modifier) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onEvent(MainScreenUiEvent.DeviceSelectedEvent(device)) }
+                .padding(1.dp)
         ) {
-            val deviceImageUrl = device.deviceImageUrl
+            Box(
+                contentAlignment = Alignment.Center,
+                modifier = Modifier.size(DeviceIconBoxSize)
+            ) {
+                val deviceImageUrl = device.deviceImageUrl
 
-            if (!deviceImageUrl.isNullOrEmpty()) {
-                AsyncImage(
-                    model = deviceImageUrl,
-                    // Decorative: displayName() is read out immediately to its right.
-                    contentDescription = null,
-                    // Fit, never Crop: the art is mostly transparent padding, so cropping it to
-                    // fill a square scales past the device and takes its ends off.
-                    contentScale = ContentScale.Fit,
-                    modifier = Modifier
-                        .size(width = DeviceImageWidth, height = DeviceImageHeight)
-                        .clip(RoundedCornerShape(DeviceImageCornerRadius))
-                        .background(DeviceIconBackground)
-                )
-            } else {
-                Box(
-                    modifier = Modifier
-                        .size(DeviceIconSize)
-                        .clip(CircleShape)
-                        .background(
-                            if (isConnected) {
-                                Purple
-                            } else {
-                                SemiTransparentBlack
-                            }
-                        )
-                )
-            }
-        }
-
-        Column(modifier = Modifier
-            .weight(1f)
-            .padding(start = 10.dp)) {
-            Text(
-                text = device.displayName(),
-                fontSize = DeviceNameFontSize
-            )
-
-            Text(
-                text = stringResource(R.string.serial_number, serialNumber),
-                fontSize = DeviceDetailFontSize
-            )
-
-            // The disc beside the row only marks the connected device when that device publishes
-            // no picture of itself, so the dot is the marker that survives either branch.
-            // Decorative - the word next to it is what a screen reader reads out.
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                if (isConnected) {
+                if (!deviceImageUrl.isNullOrEmpty()) {
+                    AsyncImage(
+                        model = deviceImageUrl,
+                        // Decorative: displayName() is read out immediately to its right.
+                        contentDescription = null,
+                        // Fit, never Crop: the art is mostly transparent padding, so cropping it to
+                        // fill a square scales past the device and takes its ends off.
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier
+                            .size(width = DeviceImageWidth, height = DeviceImageHeight)
+                            .clip(RoundedCornerShape(DeviceImageCornerRadius))
+                            .background(DeviceIconBackground)
+                    )
+                } else {
                     Box(
                         modifier = Modifier
-                            .size(ConnectedDotSize)
+                            .size(DeviceIconSize)
                             .clip(CircleShape)
-                            .background(Purple)
+                            .background(
+                                if (isConnected) {
+                                    Purple
+                                } else {
+                                    SemiTransparentBlack
+                                }
+                            )
                     )
-
-                    Spacer(modifier = Modifier.width(ConnectedDotGap))
                 }
+            }
+
+            Column(modifier = Modifier
+                .weight(1f)
+                .padding(start = 10.dp)) {
+                Text(
+                    text = device.displayName(),
+                    fontSize = DeviceNameFontSize,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
 
                 Text(
-                    text = stringResource(
-                        if (isConnected) R.string.connected else R.string.not_connected
-                    ),
-                    fontSize = DeviceDetailFontSize
+                    text = stringResource(R.string.serial_number, serialNumber),
+                    fontSize = DeviceDetailFontSize,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
+
+                // The disc beside the row only marks the connected device when that device publishes
+                // no picture of itself, so the dot is the marker that survives either branch.
+                // Decorative - the word next to it is what a screen reader reads out.
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    if (isConnected) {
+                        Box(
+                            modifier = Modifier
+                                .size(ConnectedDotSize)
+                                .clip(CircleShape)
+                                .background(Purple)
+                        )
+
+                        Spacer(modifier = Modifier.width(ConnectedDotGap))
+                    }
+
+                    Text(
+                        text = stringResource(
+                            if (isConnected) R.string.connected else R.string.not_connected
+                        ),
+                        fontSize = DeviceDetailFontSize
+                    )
+                }
             }
+
+            DeviceOverflowMenu(
+                device = device,
+                serialNumber = serialNumber,
+                isPaired = isPaired,
+                onEvent = onEvent,
+                modifier = Modifier.padding(end = 12.dp)
+            )
         }
 
-        DeviceOverflowMenu(
-            device = device,
-            serialNumber = serialNumber,
-            isPaired = isPaired,
-            onEvent = onEvent,
-            modifier = Modifier.padding(end = 12.dp)
-        )
+        if (showDivider) {
+            HorizontalDivider()
+        }
     }
 }
 
@@ -347,18 +368,20 @@ private fun DeviceOverflowMenu(
             expanded = isExpanded,
             onDismissRequest = { isExpanded = false }
         ) {
-            DropdownMenuItem(
-                text = { Text(text = stringResource(R.string.action_rename)) },
-                onClick = {
-                    isExpanded = false
-                    onEvent(
-                        MainScreenUiEvent.RenameDeviceClickedEvent(
-                            serialNumber = serialNumber,
-                            currentName = device.getCustomUserDeviceName().orEmpty()
+            if (isPaired) {
+                DropdownMenuItem(
+                    text = { Text(text = stringResource(R.string.action_rename)) },
+                    onClick = {
+                        isExpanded = false
+                        onEvent(
+                            MainScreenUiEvent.RenameDeviceClickedEvent(
+                                serialNumber = serialNumber,
+                                currentName = device.getCustomUserDeviceName().orEmpty()
+                            )
                         )
-                    )
-                }
-            )
+                    }
+                )
+            }
 
             DropdownMenuItem(
                 text = { Text(text = stringResource(R.string.action_info)) },
