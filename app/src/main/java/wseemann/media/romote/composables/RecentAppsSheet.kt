@@ -29,6 +29,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -85,6 +86,8 @@ fun RecentAppsSheet(
     // open comes back open.
     var savedValue by rememberSaveable { mutableStateOf(RecentsSheetValue.Collapsed) }
     val state = remember { AnchoredDraggableState(savedValue) }
+    // Read back below to place the channels, which trail the sheet on its way down.
+    var collapsedOffsetPx by remember { mutableFloatStateOf(0f) }
     val scope = rememberCoroutineScope()
     val density = LocalDensity.current
     val peekHeightPx = with(density) { RecentsPeekHeight.roundToPx() }
@@ -100,14 +103,16 @@ fun RecentAppsSheet(
             .fillMaxWidth()
             .anchoredDraggable(state, Orientation.Vertical)
             // Measured before the offset below is read, so the anchors are in place for the frame
-            // the sheet first appears in. Collapsed hangs everything but the handle off the bottom
-            // of the window, which clips it.
+            // the sheet first appears in. Collapsed hangs everything but the handle and the strip
+            // behind the navigation bar off the bottom of the window, which clips it.
             .onSizeChanged { size ->
+                collapsedOffsetPx =
+                    (size.height - peekHeightPx - navigationBarHeightPx).toFloat()
+
                 state.updateAnchors(
                     DraggableAnchors {
                         RecentsSheetValue.Expanded at 0f
-                        RecentsSheetValue.Collapsed at
-                            (size.height - peekHeightPx - navigationBarHeightPx).toFloat()
+                        RecentsSheetValue.Collapsed at collapsedOffsetPx
                     }
                 )
             }
@@ -152,7 +157,24 @@ fun RecentAppsSheet(
 
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(TileSpacing),
-            contentPadding = PaddingValues(SheetPadding)
+            contentPadding = PaddingValues(SheetPadding),
+            // Closing, the channels fall behind the sheet a navigation bar's worth, so what
+            // shows in the strip behind the navigation buttons is the sheet's own background and
+            // not channel artwork - white on white by night. Open, the shift is spent and the row
+            // sits under the label as before. Read at placement time, like the sheet's own offset,
+            // so the row follows the drag without recomposing; before the first measurement there
+            // is nothing to divide by and the value the sheet settled at stands in, which is what
+            // a rotation restores.
+            modifier = Modifier.offset {
+                val sheetOffset = state.offset
+                val closed = if (sheetOffset.isNaN() || collapsedOffsetPx <= 0f) {
+                    if (state.settledValue == RecentsSheetValue.Collapsed) 1f else 0f
+                } else {
+                    (sheetOffset / collapsedOffsetPx).coerceIn(0f, 1f)
+                }
+
+                IntOffset(x = 0, y = (closed * navigationBarHeightPx).roundToInt())
+            }
         ) {
             items(recentChannels, key = { channel -> channel.id }) { channel ->
                 ChannelThumbnail(
@@ -167,7 +189,8 @@ fun RecentAppsSheet(
         }
 
         // Carries the sheet's own black behind the navigation bar, so the expanded sheet reaches
-        // the bottom of the window rather than stopping short of it.
+        // the bottom of the window rather than stopping short of it. Collapsed, that strip is the
+        // room the channels are pushed into instead.
         Spacer(modifier = Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
     }
 }
