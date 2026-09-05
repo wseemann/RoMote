@@ -3,6 +3,9 @@
 .gradle
 build/
 
+# Kotlin compiler session and error logs
+.kotlin/
+
 # Ignore Gradle GUI config
 gradle-app.setting
 
