@@ -102,9 +102,6 @@ fun RecentAppsSheet(
         modifier = modifier
             .fillMaxWidth()
             .anchoredDraggable(state, Orientation.Vertical)
-            // Measured before the offset below is read, so the anchors are in place for the frame
-            // the sheet first appears in. Collapsed hangs everything but the handle and the strip
-            // behind the navigation bar off the bottom of the window, which clips it.
             .onSizeChanged { size ->
                 collapsedOffsetPx =
                     (size.height - peekHeightPx - navigationBarHeightPx).toFloat()
@@ -124,8 +121,6 @@ fun RecentAppsSheet(
             .clip(
                 RoundedCornerShape(topStart = SheetCornerRadius, topEnd = SheetCornerRadius)
             )
-            // The remote buttons' flat fill rather than a Material surface: the artwork behind the
-            // sheet is dark in both themes, so a surface color would be white on artwork by day.
             .background(KeyboardBarBackground)
     ) {
         Column(
@@ -158,13 +153,6 @@ fun RecentAppsSheet(
         LazyRow(
             horizontalArrangement = Arrangement.spacedBy(TileSpacing),
             contentPadding = PaddingValues(SheetPadding),
-            // Closing, the channels fall behind the sheet a navigation bar's worth, so what
-            // shows in the strip behind the navigation buttons is the sheet's own background and
-            // not channel artwork - white on white by night. Open, the shift is spent and the row
-            // sits under the label as before. Read at placement time, like the sheet's own offset,
-            // so the row follows the drag without recomposing; before the first measurement there
-            // is nothing to divide by and the value the sheet settled at stands in, which is what
-            // a rotation restores.
             modifier = Modifier.offset {
                 val sheetOffset = state.offset
                 val closed = if (sheetOffset.isNaN() || collapsedOffsetPx <= 0f) {
@@ -188,9 +176,6 @@ fun RecentAppsSheet(
             }
         }
 
-        // Carries the sheet's own black behind the navigation bar, so the expanded sheet reaches
-        // the bottom of the window rather than stopping short of it. Collapsed, that strip is the
-        // room the channels are pushed into instead.
         Spacer(modifier = Modifier.windowInsetsBottomHeight(WindowInsets.navigationBars))
     }
 }
