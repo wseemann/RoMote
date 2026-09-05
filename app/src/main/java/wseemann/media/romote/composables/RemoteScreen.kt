@@ -3,7 +3,12 @@ package wseemann.media.romote.composables
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.draggable
+import androidx.compose.foundation.gestures.rememberDraggableState
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -23,8 +28,10 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.union
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -45,6 +52,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.paint
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -69,8 +77,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wseemann.ecp.core.KeyPressKeyValues
+import kotlinx.collections.immutable.persistentListOf
 import wseemann.media.romote.R
 import wseemann.media.romote.composables.theme.RomoteTheme
+import wseemann.media.romote.data.ChannelItem
 import wseemann.media.romote.event.RemoteScreenUiEvent
 import wseemann.media.romote.model.RemoteScreenUiState
 import wseemann.media.romote.model.RemoteScreenUiState.PrivateListening
@@ -80,6 +90,13 @@ private val DeviceNameFontSize = 18.sp
 private val RowSpacing = 10.dp
 private val PowerButtonSize = 52.dp
 private val KeyboardBarHeight = 48.dp
+private val RecentsPeekHeight = 52.dp
+private val RecentsPeekCornerRadius = 16.dp
+private val RecentsHandleWidth = 32.dp
+private val RecentsHandleHeight = 4.dp
+
+/** A flick up opens the sheet; below this it reads as a scroll the remote should ignore. */
+private const val RECENTS_OPEN_VELOCITY = -300f
 
 /** The remote buttons' flat fill, so the keyboard bar sits on the same black as they do. */
 private val KeyboardBarBackground = Color(0xFF151218)
@@ -118,6 +135,8 @@ fun RemoteScreen(uiState: RemoteScreenUiState, onEvent: (RemoteScreenUiEvent) ->
         }
     }
 
+    val showRecentsPeek = uiState.showsRecentsPeek()
+
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -143,7 +162,14 @@ fun RemoteScreen(uiState: RemoteScreenUiState, onEvent: (RemoteScreenUiEvent) ->
                 modifier = Modifier.align(Alignment.Center)
             )
         } else {
-            Column(modifier = Modifier.fillMaxSize().navigationBarsPadding()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .navigationBarsPadding()
+                    // The d-pad is the weight(1f) child, so this is what it gives up to the peek -
+                    // and nothing at all before anything has been launched.
+                    .padding(bottom = if (showRecentsPeek) RecentsPeekHeight else 0.dp)
+            ) {
                 Text(
                     text = uiState.deviceName,
                     color = Color.White,
@@ -280,6 +306,13 @@ fun RemoteScreen(uiState: RemoteScreenUiState, onEvent: (RemoteScreenUiEvent) ->
             )
         }
 
+        if (showRecentsPeek) {
+            RecentsPeek(
+                onOpen = { onEvent(RemoteScreenUiEvent.RecentsPeekClickedEvent) },
+                modifier = Modifier.align(Alignment.BottomCenter)
+            )
+        }
+
         if (uiState.keyboardActive) {
             KeyboardBar(
                 text = uiState.typedText,
@@ -288,6 +321,8 @@ fun RemoteScreen(uiState: RemoteScreenUiState, onEvent: (RemoteScreenUiEvent) ->
             )
         }
     }
+
+    RecentApps(uiState = uiState, onEvent = onEvent)
 
     if (uiState.showPowerOffConfirmation) {
         AlertDialog(
@@ -331,6 +366,80 @@ fun RemoteScreen(uiState: RemoteScreenUiState, onEvent: (RemoteScreenUiEvent) ->
                     Text(text = stringResource(R.string.close))
                 }
             }
+        )
+    }
+}
+
+/**
+ * The keyboard bar takes the same bottom slot as the peek, and it wins: it is the only record of
+ * what is being typed, whereas the peek is a shortcut that can wait.
+ */
+private fun RemoteScreenUiState.showsRecentsPeek(): Boolean {
+    return isDeviceConnected && recentChannels.isNotEmpty() && !keyboardActive
+}
+
+@Composable
+private fun RecentApps(uiState: RemoteScreenUiState, onEvent: (RemoteScreenUiEvent) -> Unit) {
+    if (!uiState.showRecentsSheet) {
+        return
+    }
+
+    RecentAppsSheet(
+        recentChannels = uiState.recentChannels,
+        onChannelClick = { channel ->
+            onEvent(RemoteScreenUiEvent.RecentChannelClickedEvent(channel))
+        },
+        onDismissRequest = { onEvent(RemoteScreenUiEvent.RecentsSheetDismissedEvent) }
+    )
+}
+
+/**
+ * The handle that sits at the bottom of the remote when there is something in the recents list.
+ *
+ * Drawn on the same flat black as the remote buttons rather than a Material surface, because the
+ * artwork behind it is dark in both themes - a surface color would be white-on-artwork by day.
+ */
+@Composable
+private fun RecentsPeek(onOpen: () -> Unit, modifier: Modifier = Modifier) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+        modifier = modifier
+            .fillMaxWidth()
+            .navigationBarsPadding()
+            .height(RecentsPeekHeight)
+            .clip(
+                RoundedCornerShape(
+                    topStart = RecentsPeekCornerRadius,
+                    topEnd = RecentsPeekCornerRadius
+                )
+            )
+            .background(KeyboardBarBackground)
+            .clickable(onClick = onOpen)
+            // A flick up opens it too, which is the gesture the handle invites.
+            .draggable(
+                state = rememberDraggableState { },
+                orientation = Orientation.Vertical,
+                onDragStopped = { velocity ->
+                    if (velocity < RECENTS_OPEN_VELOCITY) {
+                        onOpen()
+                    }
+                }
+            )
+    ) {
+        Box(
+            modifier = Modifier
+                .width(RecentsHandleWidth)
+                .height(RecentsHandleHeight)
+                .clip(RoundedCornerShape(percent = 50))
+                .background(Color.White.copy(alpha = 0.4f))
+        )
+
+        Text(
+            text = stringResource(R.string.recent_apps),
+            color = Color.White,
+            style = MaterialTheme.typography.labelLarge,
+            modifier = Modifier.padding(top = 6.dp)
         )
     }
 }
@@ -541,6 +650,23 @@ private fun RemoteScreenNoDevicePreview() {
     RomoteTheme {
         RemoteScreen(
             uiState = RemoteScreenUiState(isDeviceConnected = false),
+            onEvent = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun RemoteScreenRecentsPreview() {
+    RomoteTheme {
+        RemoteScreen(
+            uiState = RemoteScreenUiState(
+                deviceName = "Living Room TV",
+                recentChannels = persistentListOf(
+                    ChannelItem(id = "12", title = "Netflix", iconUrl = ""),
+                    ChannelItem(id = "13", title = "Prime Video", iconUrl = "")
+                )
+            ),
             onEvent = {}
         )
     }

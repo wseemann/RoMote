@@ -4,7 +4,7 @@ import android.content.ContentValues
 import android.content.SharedPreferences
 import android.database.Cursor
 import wseemann.media.romote.data.Device
-import wseemann.media.romote.database.DeviceDatabase
+import wseemann.media.romote.database.device.DeviceDatabase
 import androidx.core.content.edit
 
 class DeviceRepository(

@@ -111,6 +111,9 @@ dependencies {
     implementation(libs.jdom)
     implementation(libs.kotlinx.collections.immutable)
     playImplementation(libs.play.review.ktx)
+    implementation(libs.androidx.room.runtime)
+    implementation(libs.androidx.room.ktx)
+    ksp(libs.androidx.room.compiler)
     implementation(libs.roku.ecp.wrapper.kotlin)
     implementation(libs.timber)
 
