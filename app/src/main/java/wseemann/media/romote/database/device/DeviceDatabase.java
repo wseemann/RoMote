@@ -1,4 +1,4 @@
-package wseemann.media.romote.database;
+package wseemann.media.romote.database.device;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;

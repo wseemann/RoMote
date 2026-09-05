@@ -1,6 +1,7 @@
 package wseemann.media.romote.event
 
 import com.wseemann.ecp.core.KeyPressKeyValues
+import wseemann.media.romote.data.ChannelItem
 
 sealed interface RemoteScreenUiEvent {
     data class KeyPressedEvent(val key: KeyPressKeyValues) : RemoteScreenUiEvent
@@ -35,4 +36,6 @@ sealed interface RemoteScreenUiEvent {
     data object DeviceChangedEvent : RemoteScreenUiEvent
 
     data object MessageShownEvent : RemoteScreenUiEvent
+
+    data class RecentChannelClickedEvent(val channel: ChannelItem) : RemoteScreenUiEvent
 }

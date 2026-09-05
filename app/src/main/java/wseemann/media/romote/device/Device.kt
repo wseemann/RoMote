@@ -56,7 +56,7 @@ class Device(private val device: Device) {
                     ChannelItem(
                         id = channel.id.orEmpty(),
                         title = channel.title.orEmpty(),
-                        iconUrl = host + "/query/icon/" + channel.id
+                        iconUrl = ChannelItem.iconUrl(host, channel.id.orEmpty())
                     )
                 }
         } catch (ex: Exception) {

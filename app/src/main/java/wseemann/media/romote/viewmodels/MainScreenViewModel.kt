@@ -22,6 +22,7 @@ import wseemann.media.romote.device.DeviceRepository
 import wseemann.media.romote.di.IoDispatcher
 import wseemann.media.romote.event.MainScreenUiEvent
 import wseemann.media.romote.model.MainScreenUiState
+import wseemann.media.romote.recents.RecentChannelsRepository
 import wseemann.media.romote.utils.BroadcastUtils
 import java.util.concurrent.atomic.AtomicInteger
 import javax.inject.Inject
@@ -32,7 +33,8 @@ class MainScreenViewModel @Inject constructor(
     @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     private val deviceManager: DeviceManager,
     private val deviceRepository: DeviceRepository,
-    private val deviceDiscovery: DeviceDiscovery
+    private val deviceDiscovery: DeviceDiscovery,
+    private val recentChannelsRepository: RecentChannelsRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(MainScreenUiState())
@@ -221,6 +223,7 @@ class MainScreenViewModel @Inject constructor(
             }
 
             deviceRepository.removeDevice(serialNumber)
+            recentChannelsRepository.clearForDevice(serialNumber)
 
             val connectedSerialNumber = connectedSerialNumber()
 
@@ -234,8 +237,6 @@ class MainScreenViewModel @Inject constructor(
                 BroadcastUtils.sendUpdateDeviceBroadcast(context)
             }
 
-            // Read outside the update lambda, which re-runs if another coroutine wins the race to
-            // publish - the database should not be read again for that.
             val pairedDevices = deviceRepository.getAllDevices()
             val updatedConnectedSerialNumber = connectedSerialNumber()
 
@@ -288,7 +289,6 @@ class MainScreenViewModel @Inject constructor(
                 BroadcastUtils.sendUpdateDeviceBroadcast(context)
             }
 
-            // A renamed device is a paired one, and has no business in both lists.
             _uiState.update {
                 it.copy(
                     availableDevices = persistentListOf(),

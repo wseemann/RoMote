@@ -9,13 +9,20 @@ import androidx.lifecycle.viewModelScope
 import com.wseemann.ecp.core.KeyPressKeyValues
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import wseemann.media.romote.R
+import wseemann.media.romote.data.ChannelItem
 import wseemann.media.romote.device.DeviceManager
 import wseemann.media.romote.di.IoDispatcher
 import wseemann.media.romote.di.MainDispatcher
@@ -24,20 +31,33 @@ import wseemann.media.romote.inappreview.AppReviewManager
 import wseemann.media.romote.keyboard.KeyboardRelay
 import wseemann.media.romote.model.RemoteScreenUiState
 import wseemann.media.romote.model.RemoteScreenUiState.PrivateListening
+import wseemann.media.romote.recents.RecentChannels
+import wseemann.media.romote.recents.RecentChannelsRepository
 import wseemann.media.romote.utils.WakeOnLan
 import javax.inject.Inject
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class RemoteScreenViewModel @Inject constructor(
     @param:ApplicationContext private val context: Context,
     @param:MainDispatcher private val mainDispatcher: CoroutineDispatcher,
     @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
     private val deviceManager: DeviceManager,
-    private val appReviewManager: AppReviewManager
+    private val appReviewManager: AppReviewManager,
+    private val recentChannelsRepository: RecentChannelsRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(RemoteScreenUiState())
     val uiState = _uiState.asStateFlow()
+
+    /**
+     * The connected device, as a flow, because the recents query is keyed by it. There is no
+     * observable source for it - DeviceManager is a blocking prefs read plus a SQLite query,
+     * announced by UPDATE_DEVICE_BROADCAST - so [onDeviceChanged] pushes into this instead.
+     *
+     * The host rides along because the icon urls are rebuilt from it.
+     */
+    private val connectedDevice = MutableStateFlow<ConnectedDevice?>(null)
 
     private var deviceSupportsPrivateListening = false
 
@@ -61,21 +81,49 @@ class RemoteScreenViewModel @Inject constructor(
                 }
             }
         }
+
+        viewModelScope.launch {
+            connectedDevice
+                .flatMapLatest { connected ->
+                    if (connected == null) {
+                        flowOf<ImmutableList<ChannelItem>>(persistentListOf())
+                    } else {
+                        recentChannelsRepository.observeRecents(connected.serialNumber)
+                            .map { recentChannels ->
+                                RecentChannels.toChannelItems(recentChannels, connected.host)
+                            }
+                    }
+                }
+                .collect { recentChannels ->
+                    _uiState.update { it.copy(recentChannels = recentChannels) }
+                }
+        }
     }
 
     fun onHandleEvent(event: RemoteScreenUiEvent) {
         when (event) {
             is RemoteScreenUiEvent.KeyPressedEvent -> onKeyPressed(event.key)
+
             is RemoteScreenUiEvent.PowerClickedEvent -> onPowerClicked()
+
             is RemoteScreenUiEvent.PowerOffConfirmedEvent -> onPowerOffConfirmed()
+
             is RemoteScreenUiEvent.PowerOffDismissedEvent -> onPowerOffDismissed()
+
             is RemoteScreenUiEvent.PrivateListeningClickedEvent -> onPrivateListeningClicked()
+
             is RemoteScreenUiEvent.PrivateListeningChangedEvent -> onPrivateListeningChanged(event.isActive)
+
             is RemoteScreenUiEvent.InstallPrivateListeningConfirmedEvent,
             is RemoteScreenUiEvent.InstallPrivateListeningDismissedEvent -> onInstallPrivateListeningClosed()
+
             is RemoteScreenUiEvent.DeviceChangedEvent -> onDeviceChanged()
+
             is RemoteScreenUiEvent.MessageShownEvent -> onMessageShown()
+
             is RemoteScreenUiEvent.KeyboardEvent -> onKeyboardEvent(event)
+
+            is RemoteScreenUiEvent.RecentChannelClickedEvent -> onRecentChannelClicked(event.channel)
         }
     }
 
@@ -122,6 +170,19 @@ class RemoteScreenViewModel @Inject constructor(
                     ?: false
 
             deviceSupportsPrivateListening = device?.getDeviceInfo()?.supportsPrivateListening.toBoolean()
+
+            // Distinct by value, so the repeated broadcasts that a key press sends do not restart
+            // the recents query for a device that has not actually changed.
+            connectedDevice.value = device?.getDeviceInfo()?.let { deviceInfo ->
+                val serialNumber = deviceInfo.serialNumber
+                val host = deviceInfo.host
+
+                if (serialNumber == null || host == null) {
+                    null
+                } else {
+                    ConnectedDevice(serialNumber = serialNumber, host = host)
+                }
+            }
 
             _uiState.update {
                 it.copy(
@@ -212,9 +273,27 @@ class RemoteScreenViewModel @Inject constructor(
         return if (privateListeningActive) PrivateListening.ACTIVE else PrivateListening.AVAILABLE
     }
 
+    /**
+     * Recorded again on the way out, which is what moves the channel back to the front of the row.
+     */
+    private fun onRecentChannelClicked(channel: ChannelItem) {
+        viewModelScope.launch(ioDispatcher) {
+            val device = deviceManager.getConnectedDevice() ?: return@launch
+
+            device.performLaunchApp(channel.id)
+            appReviewManager.onDeviceCommandSucceeded()
+
+            device.getDeviceInfo().serialNumber?.let { serialNumber ->
+                recentChannelsRepository.recordLaunch(serialNumber, channel.id, channel.title)
+            }
+        }
+    }
+
     private fun onMessageShown() {
         _uiState.update { it.copy(messageResId = null) }
     }
+
+    private data class ConnectedDevice(val serialNumber: String, val host: String)
 
     private companion object {
         const val TAG = "RemoteScreenViewModel"

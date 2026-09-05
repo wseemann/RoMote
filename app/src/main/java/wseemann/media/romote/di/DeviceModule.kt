@@ -7,7 +7,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import wseemann.media.romote.database.DeviceDatabase
+import wseemann.media.romote.database.device.DeviceDatabase
 import wseemann.media.romote.device.DeviceManager
 import wseemann.media.romote.device.DeviceRepository
 import javax.inject.Singleton
@@ -15,6 +15,11 @@ import javax.inject.Singleton
 @Module
 @InstallIn(SingletonComponent::class)
 object DeviceModule {
+
+    @Provides
+    fun provideDeviceDatabase(@ApplicationContext context: Context): DeviceDatabase {
+        return DeviceDatabase(context)
+    }
 
     @Singleton
     @Provides
@@ -32,9 +37,6 @@ object DeviceModule {
         deviceDatabase = deviceDatabase,
         sharedPreferences = sharedPreferences
     )
-
-    @Provides
-    fun provideDeviceDatabase(@ApplicationContext context: Context): DeviceDatabase = DeviceDatabase(context)
 
     object DeviceManagerSingleton {
         lateinit var deviceManager: DeviceManager

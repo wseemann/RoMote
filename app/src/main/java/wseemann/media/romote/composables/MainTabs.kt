@@ -163,10 +163,13 @@ fun RemoteTab(viewModel: RemoteScreenViewModel, isCurrentPage: Boolean, modifier
                     viewModel.onHandleEvent(event)
                 }
 
+                is RemoteScreenUiEvent.RecentChannelClickedEvent -> {
+                    BroadcastUtils.sendUpdateDeviceBroadcast(context)
+                    viewModel.onHandleEvent(event)
+                }
+
                 is RemoteScreenUiEvent.PrivateListeningClickedEvent -> {
                     if (viewModel.isPrivateListeningInstalled()) {
-                        // Handled here; only an uninstalled companion app reaches the ViewModel,
-                        // which is what puts the install dialog up.
                         remoteAudio.toggle(viewModel.connectedDeviceHost())
                     } else {
                         viewModel.onHandleEvent(event)

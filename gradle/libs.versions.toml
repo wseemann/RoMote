@@ -15,6 +15,7 @@ kotlinx-collections-immutable = "0.5.2"
 kotlinx-coroutines = "1.10.2"
 play-review = "2.0.2"
 roku-ecp-wrapper-kotlin = "1.5.0"
+room = "2.8.2"
 timber = "5.0.1"
 junit = "4.13.2"
 
@@ -43,6 +44,9 @@ kotlinx-collections-immutable = { module = "org.jetbrains.kotlinx:kotlinx-collec
 kotlinx-coroutines-test = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-test", version.ref = "kotlinx-coroutines" }
 play-review-ktx = { module = "com.google.android.play:review-ktx", version.ref = "play-review" }
 roku-ecp-wrapper-kotlin = { module = "com.github.wseemann:roku-ecp-wrapper-kotlin", version.ref = "roku-ecp-wrapper-kotlin" }
+androidx-room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
+androidx-room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
+androidx-room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 timber = { module = "com.jakewharton.timber:timber", version.ref = "timber" }
 junit = { module = "junit:junit", version.ref = "junit" }
 

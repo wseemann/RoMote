@@ -4,6 +4,7 @@ import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
@@ -23,6 +24,7 @@ import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.union
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.windowInsetsBottomHeight
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.text.BasicTextField
@@ -69,8 +71,10 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wseemann.ecp.core.KeyPressKeyValues
+import kotlinx.collections.immutable.persistentListOf
 import wseemann.media.romote.R
 import wseemann.media.romote.composables.theme.RomoteTheme
+import wseemann.media.romote.data.ChannelItem
 import wseemann.media.romote.event.RemoteScreenUiEvent
 import wseemann.media.romote.model.RemoteScreenUiState
 import wseemann.media.romote.model.RemoteScreenUiState.PrivateListening
@@ -80,9 +84,8 @@ private val DeviceNameFontSize = 18.sp
 private val RowSpacing = 10.dp
 private val PowerButtonSize = 52.dp
 private val KeyboardBarHeight = 48.dp
-
-/** The remote buttons' flat fill, so the keyboard bar sits on the same black as they do. */
-private val KeyboardBarBackground = Color(0xFF151218)
+/** The remote buttons' flat fill, so the keyboard bar and the recents sheet sit on their black. */
+internal val KeyboardBarBackground = Color(0xFF151218)
 
 /** remote_bg.png's bottom edge, so the strip behind the navigation bar is seamless with the artwork. */
 private val NavigationBarBackground = Color(0xFF0A0A0A)
@@ -118,6 +121,8 @@ fun RemoteScreen(uiState: RemoteScreenUiState, onEvent: (RemoteScreenUiEvent) ->
         }
     }
 
+    val showRecentsSheet = uiState.showsRecentsSheet()
+
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -143,7 +148,14 @@ fun RemoteScreen(uiState: RemoteScreenUiState, onEvent: (RemoteScreenUiEvent) ->
                 modifier = Modifier.align(Alignment.Center)
             )
         } else {
-            Column(modifier = Modifier.fillMaxSize().navigationBarsPadding()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .navigationBarsPadding()
+                    // The d-pad is the weight(1f) child, so this is what it gives up to the peek -
+                    // and nothing at all before anything has been launched.
+                    .padding(bottom = if (showRecentsSheet) RecentsPeekHeight else 0.dp)
+            ) {
                 Text(
                     text = uiState.deviceName,
                     color = Color.White,
@@ -280,6 +292,16 @@ fun RemoteScreen(uiState: RemoteScreenUiState, onEvent: (RemoteScreenUiEvent) ->
             )
         }
 
+        if (showRecentsSheet) {
+            RecentAppsSheet(
+                recentChannels = uiState.recentChannels,
+                onChannelClick = { channel ->
+                    onEvent(RemoteScreenUiEvent.RecentChannelClickedEvent(channel))
+                },
+                modifier = Modifier.align(Alignment.BottomCenter)
+            )
+        }
+
         if (uiState.keyboardActive) {
             KeyboardBar(
                 text = uiState.typedText,
@@ -333,6 +355,14 @@ fun RemoteScreen(uiState: RemoteScreenUiState, onEvent: (RemoteScreenUiEvent) ->
             }
         )
     }
+}
+
+/**
+ * The keyboard bar takes the same bottom slot as the sheet, and it wins: it is the only record of
+ * what is being typed, whereas the recents sheet is a shortcut that can wait.
+ */
+private fun RemoteScreenUiState.showsRecentsSheet(): Boolean {
+    return isDeviceConnected && recentChannels.isNotEmpty() && !keyboardActive
 }
 
 /**
@@ -541,6 +571,23 @@ private fun RemoteScreenNoDevicePreview() {
     RomoteTheme {
         RemoteScreen(
             uiState = RemoteScreenUiState(isDeviceConnected = false),
+            onEvent = {}
+        )
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun RemoteScreenRecentsPreview() {
+    RomoteTheme {
+        RemoteScreen(
+            uiState = RemoteScreenUiState(
+                deviceName = "Living Room TV",
+                recentChannels = persistentListOf(
+                    ChannelItem(id = "12", title = "Netflix", iconUrl = ""),
+                    ChannelItem(id = "13", title = "Prime Video", iconUrl = "")
+                )
+            ),
             onEvent = {}
         )
     }

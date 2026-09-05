@@ -11,16 +11,19 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import wseemann.media.romote.data.ChannelItem
 import wseemann.media.romote.device.DeviceManager
 import wseemann.media.romote.di.IoDispatcher
 import wseemann.media.romote.event.ChannelScreenUiEvent
 import wseemann.media.romote.model.ChannelScreenUiState
+import wseemann.media.romote.recents.RecentChannelsRepository
 import javax.inject.Inject
 
 @HiltViewModel
 class ChannelScreenViewModel @Inject constructor(
     @param:IoDispatcher private val ioDispatcher: CoroutineDispatcher,
-    private val deviceManager: DeviceManager
+    private val deviceManager: DeviceManager,
+    private val recentChannelsRepository: RecentChannelsRepository
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(ChannelScreenUiState())
@@ -36,7 +39,7 @@ class ChannelScreenViewModel @Inject constructor(
         when (event) {
             is ChannelScreenUiEvent.LoadChannelsEvent -> onLoadChannels()
             is ChannelScreenUiEvent.DeviceChangedEvent -> onDeviceChanged()
-            is ChannelScreenUiEvent.ChannelClickedEvent -> onChannelClicked(event.channelId)
+            is ChannelScreenUiEvent.ChannelClickedEvent -> onChannelClicked(event.channel)
         }
     }
 
@@ -97,9 +100,15 @@ class ChannelScreenViewModel @Inject constructor(
         }
     }
 
-    private fun onChannelClicked(channelId: String) {
+    private fun onChannelClicked(channel: ChannelItem) {
         viewModelScope.launch(ioDispatcher) {
-            deviceManager.getConnectedDevice()?.performLaunchApp(channelId)
+            val device = deviceManager.getConnectedDevice() ?: return@launch
+
+            device.performLaunchApp(channel.id)
+
+            device.getDeviceInfo().serialNumber?.let { serialNumber ->
+                recentChannelsRepository.recordLaunch(serialNumber, channel.id, channel.title)
+            }
         }
     }
 }
