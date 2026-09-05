@@ -16,6 +16,11 @@ import javax.inject.Singleton
 @InstallIn(SingletonComponent::class)
 object DeviceModule {
 
+    @Provides
+    fun provideDeviceDatabase(@ApplicationContext context: Context): DeviceDatabase {
+        return DeviceDatabase(context)
+    }
+
     @Singleton
     @Provides
     fun provideDeviceManager(deviceRepository: DeviceRepository): DeviceManager {
@@ -32,10 +37,6 @@ object DeviceModule {
         deviceDatabase = deviceDatabase,
         sharedPreferences = sharedPreferences
     )
-
-    @Provides
-    fun provideDeviceDatabase(@ApplicationContext context: Context): DeviceDatabase =
-        DeviceDatabase(context)
 
     object DeviceManagerSingleton {
         lateinit var deviceManager: DeviceManager
